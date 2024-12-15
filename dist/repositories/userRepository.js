@@ -8,40 +8,33 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserRepository = void 0;
-const user_model_1 = require("../models/user.model");
-class UserRepository {
-    // Method to create a new user
-    createUser(userData) {
+const user_model_1 = __importDefault(require("../models/user.model"));
+const base_repository_1 = __importDefault(require("./base.repository"));
+class UserRepositories {
+    constructor() {
+        this.baseRepository = new base_repository_1.default(user_model_1.default);
+    }
+    findByEmail(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            // Check if a user with the same email already exists
-            const existingUserByEmail = yield user_model_1.User.findOne({ email: userData.email });
-            if (existingUserByEmail) {
-                throw new Error('User with this email already exists');
-            }
-            // Check if a user with the same phone already exists
-            const existingUserByPhone = yield user_model_1.User.findOne({ phone: userData.phone });
-            if (existingUserByPhone) {
-                throw new Error('User with this phone number already exists');
-            }
-            // Create a new user document in the database
-            const newUser = new user_model_1.User(userData);
-            // Save the user to the database and return it
-            return newUser.save();
+            const user = yield this.baseRepository.findOne({ email });
+            return user;
         });
     }
-    // Method to find a user by email
-    findUserByEmail(email) {
+    find() {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield user_model_1.User.findOne({ email });
+            return yield this.baseRepository.findUsers();
         });
     }
-    // Method to find a user by phone number
-    findUserByPhone(phone) {
+    createUser(data) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield user_model_1.User.findOne({ phone });
+            console.log('user repo - createUser: ', data);
+            const response = yield this.baseRepository.createUser(data);
+            return response;
         });
     }
 }
-exports.UserRepository = UserRepository;
+exports.default = UserRepositories;

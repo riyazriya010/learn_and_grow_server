@@ -1,40 +1,21 @@
-import { UserRepository } from "../repositories/userRepository";
-import { IUser } from "../models/user.model";
-import bcrypt from "bcrypt";
+import { CreateUserDTO } from "../interface/userDto"
+import { IUser } from "../models/user.model"
+import UserRepositories from "../repositories/userRepository"
 
-export class UserServices {
-    private userRepository: UserRepository;
 
-    constructor() {
-        this.userRepository = new UserRepository();
+export default class UserServices {
+    private userRepositories: UserRepositories
+    constructor(){
+        this.userRepositories = new UserRepositories()
     }
 
-    async signUp(userData: { username: string; email: string; phone: string; password: string }): Promise<IUser> {
-        // Check if the email or phone already exists using repository methods
-        const existingUserByEmail = await this.userRepository.findUserByEmail(userData.email);
-        const existingUserByPhone = await this.userRepository.findUserByPhone(userData.phone);
+    public async getAllUsers(): Promise<IUser[] | null> {
+        return await this.userRepositories.find()
+    }
 
-        if (existingUserByEmail) {
-            throw new Error('User with this email already exists');
-        }
-        if (existingUserByPhone) {
-            throw new Error('User with this phone number already exists');
-        }
-
-        // Hash the password before saving
-        const hashedPassword = await bcrypt.hash(userData.password, 10);
-
-        // Create the user object with hashed password
-        const newUser = {
-            username: userData.username,
-            email: userData.email,
-            phone: userData.phone,
-            password: hashedPassword,
-        };
-
-        // Save the user via the repository
-        const createdUser = await this.userRepository.createUser(newUser);
-
-        return createdUser;
+    public async createUser(data: CreateUserDTO): Promise<IUser | null> {
+        console.log('user services - createUser: ', data)
+        const response = await this.userRepositories.createUser(data)
+        return response
     }
 }
