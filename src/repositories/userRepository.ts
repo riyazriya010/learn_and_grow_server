@@ -1,4 +1,4 @@
-import { CreateUserDTO } from "../interface/userDto";
+import { CreateUserDTO, FindUserDTO } from "../interface/userDto";
 import User, { IUser } from "../models/user.model";
 import BaseRepository from "./base.repository";
 
@@ -21,8 +21,17 @@ export default class UserRepositories {
     }
 
     public async createUser(data: CreateUserDTO): Promise<IUser | null> {
-        console.log('user repo - createUser: ', data)
         const response = await this.baseRepository.createUser(data)
+        return response
+    }
+
+    public async findUser(data: FindUserDTO): Promise<IUser | null> {
+        const response = await this.baseRepository.findByEmail(data)
+        return response
+    }
+
+    public async verifyUser(email: string): Promise<IUser | null>{
+        const response = await this.baseRepository.verifyUser(email)
         return response
     }
 }

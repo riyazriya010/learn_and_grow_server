@@ -31,8 +31,19 @@ class UserRepositories {
     }
     createUser(data) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('user repo - createUser: ', data);
             const response = yield this.baseRepository.createUser(data);
+            return response;
+        });
+    }
+    findUser(data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield this.baseRepository.findByEmail(data);
+            return response;
+        });
+    }
+    verifyUser(email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield this.baseRepository.verifyUser(email);
             return response;
         });
     }

@@ -8,7 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const nodemailer_1 = __importDefault(require("../integration/nodemailer"));
+const jwt_1 = require("../integration/jwt");
 class BaseRepository {
     constructor(model) {
         this.model = model;
@@ -43,6 +48,7 @@ class BaseRepository {
             return true;
         });
     }
+    // signup student
     createUser(userData) {
         return __awaiter(this, void 0, void 0, function* () {
             const { username, email, phone, password } = userData;
@@ -59,6 +65,21 @@ class BaseRepository {
             };
             const document = new this.model(modifiedData);
             const savedUser = yield document.save();
+            //mail sending
+            const mail = new nodemailer_1.default();
+            const token = yield (0, jwt_1.generateAccessToken)({ id: savedUser.id, email: email });
+            const portLink = process.env.PORT_LINK;
+            if (!portLink) {
+                throw new Error('PORT_LINK environment variable is not set');
+            }
+            const createdLink = `${portLink}?token=${token}`;
+            mail.sendVerificationEmail(email, createdLink)
+                .then(info => {
+                console.log('Verification email sent successfully:', info);
+            })
+                .catch(error => {
+                console.error('Failed to send verification email:', error);
+            });
             return savedUser;
         });
     }
@@ -66,6 +87,33 @@ class BaseRepository {
         return __awaiter(this, void 0, void 0, function* () {
             const deletedUser = yield this.model.findByIdAndDelete(id).exec();
             return deletedUser;
+        });
+    }
+    findByEmail(data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const findUser = yield this.model.findOne({ email: data.email }).lean().exec();
+            if (!findUser)
+                return null;
+            if (findUser.password !== data.password)
+                return null;
+            return findUser;
+        });
+    }
+    verifyUser(email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const findUser = yield this.model.findOne({ email: email }).exec();
+            if (!findUser) {
+                console.error('User not found:', email); // Debug log
+                return null;
+            }
+            console.log('Found user before update:', findUser); // Debug log
+            const user = findUser;
+            // Update the user verification status
+            user.isVerified = true;
+            // Save the updated document
+            const updatedUser = yield user.save();
+            console.log('Updated user after verification:', updatedUser);
+            return updatedUser;
         });
     }
 }

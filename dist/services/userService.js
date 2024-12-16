@@ -24,8 +24,19 @@ class UserServices {
     }
     createUser(data) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('user services - createUser: ', data);
             const response = yield this.userRepositories.createUser(data);
+            return response;
+        });
+    }
+    findUser(data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield this.userRepositories.findUser(data);
+            return response;
+        });
+    }
+    verifyUser(email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield this.userRepositories.verifyUser(email);
             return response;
         });
     }

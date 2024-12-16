@@ -4,3 +4,8 @@ export interface CreateUserDTO {
     phone: string;
     password: string;
 }
+
+export interface FindUserDTO {
+    email: string,
+    password: string
+}
