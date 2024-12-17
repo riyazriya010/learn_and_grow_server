@@ -10,19 +10,32 @@ const database_1 = require("./config/database");
 const cors_1 = __importDefault(require("cors"));
 const students_routes_1 = __importDefault(require("./routes/students.routes"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const mentors_routes_1 = __importDefault(require("./routes/mentors.routes"));
 // import userRouter from './routes/user.routes'
 const app = (0, express_1.default)();
 (0, database_1.connectDB)();
+const origin = 'http://localhost:3000';
 const corsOptions = {
-    origin: (0, constants_1.FRONTEND_URL)() || "*",
-    credential: true
+    // origin: FRONTEND_URL() || "*",
+    // origin: origin || "*",
+    origin: [
+        "http://localhost:3000",
+        "http://localhost:8001",
+    ],
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+    credentials: true
 };
 app.use((0, cors_1.default)(corsOptions));
 app.use((0, morgan_1.default)('dev'));
 app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)());
-const userRoutes = new students_routes_1.default();
-app.use("/api/user-service", userRoutes.getRouter());
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    next();
+});
+app.use("/api/user-service", students_routes_1.default);
+app.use("/api/mentor-service", mentors_routes_1.default);
 app.listen(constants_1.PORT, () => {
     console.log(`Server is running on ${constants_1.PORT}`);
 });

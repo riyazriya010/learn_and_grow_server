@@ -38,14 +38,14 @@ const UserSchema = new mongoose_1.Schema({
     username: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     phone: { type: String, required: true, unique: true },
-    password: { type: String, require: true },
-    role: { type: String, default: null },
-    profilePicUrl: { type: String },
-    studiedHours: { type: Number, require: true, default: 0 },
-    isVerified: { type: Boolean, require: true, default: false },
-    isBlocked: { type: Boolean, require: true, default: false }
+    password: { type: String, required: true },
+    role: { type: String, required: true, default: null },
+    profilePicUrl: { type: String, required: true, default: 'img not having' },
+    studiedHours: { type: Number, required: true, default: 0 },
+    isVerified: { type: Boolean, required: true, default: false },
+    isBlocked: { type: Boolean, required: true, default: false }
 }, {
     timestamps: true
 });
-const User = mongoose_1.default.model('user', UserSchema);
-exports.default = User;
+const UserModel = mongoose_1.default.model('user', UserSchema);
+exports.default = UserModel;

@@ -1,6 +1,8 @@
-import mongoose, { Schema, Document, model, mongo } from "mongoose";
+import mongoose, { Schema, Document, model, } from "mongoose";
+import { ObjectId } from "mongodb";
 
 export interface IUser extends Document {
+  _id: ObjectId,
   username: string,
   email: string,
   phone: string,
@@ -14,22 +16,22 @@ export interface IUser extends Document {
   updatedAt?: Date
 }
 
-const UserSchema: Schema = new Schema({
+const UserSchema: Schema<IUser> = new Schema({
   username: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   phone: { type: String, required: true, unique: true },
-  password: { type: String, require: true },
-  role: { type: String, default: null },
-  profilePicUrl: { type: String },
-  studiedHours: { type: Number, require: true, default: 0 },
-  isVerified: { type: Boolean, require: true, default: false },
-  isBlocked: { type: Boolean, require: true, default: false }
+  password: { type: String, required: true },
+  role: { type: String, required: true, default: null },
+  profilePicUrl: { type: String, required: true, default: 'img not having' },
+  studiedHours: { type: Number, required: true, default: 0 },
+  isVerified: { type: Boolean, required: true, default: false },
+  isBlocked: { type: Boolean, required: true, default: false }
 },
 {
   timestamps: true
 }
 )
 
-const User = mongoose.model<IUser>('user', UserSchema)
+const UserModel = mongoose.model<IUser>('user', UserSchema)
 
-export default User
+export default UserModel

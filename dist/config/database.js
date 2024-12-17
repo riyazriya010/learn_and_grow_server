@@ -18,7 +18,7 @@ const constants_1 = require("../utils/constants");
 function connectDB() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            yield mongoose_1.default.connect((0, constants_1.MONGO_URI)());
+            yield mongoose_1.default.connect(constants_1.MONGO_URI);
             console.log('Mongodb Atlas Connected');
         }
         catch (error) {

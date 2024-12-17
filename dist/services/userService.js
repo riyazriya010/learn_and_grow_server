@@ -28,9 +28,9 @@ class UserServices {
             return response;
         });
     }
-    findUser(data) {
+    findByEmail(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield this.userRepositories.findUser(data);
+            const response = yield this.userRepositories.findByEmail(email);
             return response;
         });
     }
@@ -38,6 +38,31 @@ class UserServices {
         return __awaiter(this, void 0, void 0, function* () {
             const response = yield this.userRepositories.verifyUser(email);
             return response;
+        });
+    }
+    googleUser(email, displayName) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield this.userRepositories.googleUser(email, displayName);
+            return response;
+        });
+    }
+    //new
+    studentSignup(data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const addStudent = yield this.userRepositories.studentSignup(data);
+            return addStudent;
+        });
+    }
+    studentGoogleSignIn(email, displayName) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const addStudent = yield this.userRepositories.studentGoogleSignIn(email, displayName);
+            return addStudent;
+        });
+    }
+    studentLogin(email, password) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const loggedUser = yield this.userRepositories.studentLogin(email, password);
+            return loggedUser;
         });
     }
 }

@@ -12,17 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+// import User, { IUser } from "../models/user.model";
+const userBase_repository_1 = __importDefault(require("./baseRepo/userBase.repository"));
 const user_model_1 = __importDefault(require("../models/user.model"));
-const base_repository_1 = __importDefault(require("./base.repository"));
 class UserRepositories {
     constructor() {
-        this.baseRepository = new base_repository_1.default(user_model_1.default);
-    }
-    findByEmail(email) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const user = yield this.baseRepository.findOne({ email });
-            return user;
-        });
+        this.baseRepository = new userBase_repository_1.default(user_model_1.default);
     }
     find() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -35,9 +30,9 @@ class UserRepositories {
             return response;
         });
     }
-    findUser(data) {
+    findByEmail(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield this.baseRepository.findByEmail(data);
+            const response = yield this.baseRepository.findByEmail(email);
             return response;
         });
     }
@@ -45,6 +40,31 @@ class UserRepositories {
         return __awaiter(this, void 0, void 0, function* () {
             const response = yield this.baseRepository.verifyUser(email);
             return response;
+        });
+    }
+    googleUser(email, displayName) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield this.baseRepository.googleUser(email, displayName);
+            return response;
+        });
+    }
+    // new
+    studentSignup(data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const addedUser = yield this.baseRepository.signupStudent(data);
+            return addedUser;
+        });
+    }
+    studentGoogleSignIn(email, displayName) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const addedUser = yield this.baseRepository.studentGoogleSignIn(email, displayName);
+            return addedUser;
+        });
+    }
+    studentLogin(email, password) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const loggedUser = yield this.baseRepository.studentLogin(email, password);
+            return loggedUser;
         });
     }
 }

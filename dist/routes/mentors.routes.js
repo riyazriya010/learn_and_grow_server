@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const mentors_controller_1 = require("../controllers/mentors.controller");
+const router = (0, express_1.Router)();
+const mentorController = new mentors_controller_1.MentorController();
+router.post('/mentor/login');
+router.post('/mentor/signup', mentorController.mentorSignUp.bind(mentorController));
+router.post('/mentor/google-login');
+const mentorRoutes = router;
+exports.default = mentorRoutes;

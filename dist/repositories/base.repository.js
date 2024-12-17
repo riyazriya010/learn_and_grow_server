@@ -13,7 +13,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const nodemailer_1 = __importDefault(require("../integration/nodemailer"));
-const jwt_1 = require("../integration/jwt");
+const mailToken_1 = require("../integration/mailToken");
+const bcrypt_1 = __importDefault(require("bcrypt"));
 class BaseRepository {
     constructor(model) {
         this.model = model;
@@ -67,7 +68,7 @@ class BaseRepository {
             const savedUser = yield document.save();
             //mail sending
             const mail = new nodemailer_1.default();
-            const token = yield (0, jwt_1.generateAccessToken)({ id: savedUser.id, email: email });
+            const token = yield (0, mailToken_1.generateAccessToken)({ id: savedUser.id, email: email });
             const portLink = process.env.PORT_LINK;
             if (!portLink) {
                 throw new Error('PORT_LINK environment variable is not set');
@@ -89,14 +90,9 @@ class BaseRepository {
             return deletedUser;
         });
     }
-    findByEmail(data) {
+    findByEmail(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            const findUser = yield this.model.findOne({ email: data.email }).lean().exec();
-            if (!findUser)
-                return null;
-            if (findUser.password !== data.password)
-                return null;
-            return findUser;
+            return this.model.findOne({ email });
         });
     }
     verifyUser(email) {
@@ -114,6 +110,83 @@ class BaseRepository {
             const updatedUser = yield user.save();
             console.log('Updated user after verification:', updatedUser);
             return updatedUser;
+        });
+    }
+    googleUser(email, displayName) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const userData = {
+                username: displayName,
+                email: email,
+                phone: 'Not Provided',
+                role: "user",
+                studiedHours: 0,
+                isVerified: true
+            };
+            const document = new this.model(userData);
+            const savedUser = yield document.save();
+            return savedUser;
+        });
+    }
+    //new
+    signupStudent(data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { username, email, phone, password } = data;
+            const modifiedUser = {
+                username,
+                email,
+                phone,
+                password,
+                role: 'user',
+                studiedHours: 0,
+            };
+            const document = new this.model(modifiedUser);
+            const savedUser = yield document.save();
+            const mail = new nodemailer_1.default();
+            const token = yield (0, mailToken_1.generateAccessToken)({ id: savedUser.id, email: email });
+            const portLink = process.env.PORT_LINK;
+            if (!portLink) {
+                throw new Error('PORT_LINK environment variable is not set');
+            }
+            const createdLink = `${portLink}?token=${token}`;
+            mail.sendVerificationEmail(email, createdLink)
+                .then(info => {
+                console.log('Verification email sent successfully:', info);
+            })
+                .catch(error => {
+                console.error('Failed to send verification email:', error);
+            });
+            return savedUser;
+        });
+    }
+    studentGoogleSignIn(email, displayName) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const userData = {
+                username: displayName,
+                email,
+                phone: 'Not Provided',
+                studiedHours: 0,
+                isVerified: true
+            };
+            const document = new this.model(userData);
+            const savedUser = yield document.save();
+            return savedUser;
+        });
+    }
+    studentLogin(email, password) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const getUser = yield this.model.findOne({ email: email }).lean().exec();
+            if (!getUser) {
+                console.log('not get: ', getUser);
+                return null;
+            }
+            console.log('get: ', getUser);
+            const isPassword = yield bcrypt_1.default.compare(password, getUser.password);
+            if (!isPassword) {
+                console.log('is not pass');
+                return null;
+            }
+            console.log('is Pass');
+            return getUser;
         });
     }
 }
