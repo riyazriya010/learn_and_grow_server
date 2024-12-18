@@ -22,7 +22,6 @@ class MentorBaseRepository {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const modifiedData = Object.assign(Object.assign({}, data), { role: 'mentor' });
-                console.log('mod: ', modifiedData);
                 const document = new this.model(modifiedData);
                 const savedUser = yield document.save();
                 return savedUser;

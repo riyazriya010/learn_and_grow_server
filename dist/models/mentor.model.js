@@ -44,7 +44,9 @@ const MentorSchema = new mongoose_1.Schema({
     role: { type: String, required: true, default: null },
     profilePicUrl: { type: String, required: true, default: 'img not provided' },
     isVerified: { type: Boolean, required: true, default: false },
-    isBlocked: { type: Boolean, required: true, default: false }
+    isBlocked: { type: Boolean, required: true, default: false },
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now }
 }, {
     timestamps: true
 });

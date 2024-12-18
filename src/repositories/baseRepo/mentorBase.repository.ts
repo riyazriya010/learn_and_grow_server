@@ -17,7 +17,6 @@ export default class MentorBaseRepository<T extends Document> {
     async mentorSignUp(data: mentorSignUpData): Promise<IMentor | null> {
         try{
             const modifiedData = { ...data, role: 'mentor' }
-            console.log('mod: ', modifiedData)
             const document = new this.model(modifiedData)
             const savedUser = await document.save()
             return savedUser as unknown as IMentor
