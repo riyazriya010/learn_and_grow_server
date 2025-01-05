@@ -26,5 +26,9 @@ router.get('/get/course/play', userController.getCoursePlay.bind(userController)
 router.get('/filter/data', userController.filterData.bind(userController));
 router.get('/payment', userController.buyCourse.bind(userController));
 router.get('/check/verify', verifyToken_1.default, verified_1.default, userController.isVerified.bind(userController));
+router.get('/get/buyedCourses', userController.getBuyedCourses.bind(userController));
+router.get('/course-play', userController.coursePlay.bind(userController));
+router.get('/chapter-end', userController.chapterVideoEnd.bind(userController));
+router.get('/get/certificate', userController.getCertificate.bind(userController));
 const userRoutes = router;
 exports.default = userRoutes;

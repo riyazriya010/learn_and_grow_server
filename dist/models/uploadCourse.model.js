@@ -24,5 +24,6 @@ const CourseSchema = new mongoose_1.Schema({
     duration: { type: String, required: true },
     thumbnailUrl: { type: String, required: true },
     isPublished: { type: Boolean, default: true },
+    isListed: { type: Boolean, default: true },
 }, { timestamps: true });
 exports.CourseModel = (0, mongoose_1.model)('Course', CourseSchema);

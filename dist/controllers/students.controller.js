@@ -477,8 +477,6 @@ class UserController {
     buyCourse(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('payment started');
-                console.log('params: ', req.query);
                 const courseId = req.query.courseId;
                 const txnid = req.query.txnid;
                 const isCourseExist = yield this.userServices.findCourseById(String(courseId));
@@ -489,10 +487,7 @@ class UserController {
                             chapterId: chapter._id,
                             isCompleted: false,
                         }));
-                        console.log('chapters: ', completedChapters);
                         const userId = yield (0, getId_1.default)('accessToken', req);
-                        console.log('idd: ', userId);
-                        const getUserId = 'userId';
                         const response = yield this.userServices.buyCourse(String(userId), String(isCourseExist._id), completedChapters, String(txnid));
                         return res
                             .status(200)
@@ -519,6 +514,92 @@ class UserController {
                     .send({
                     message: 'Succes Verified',
                     success: true
+                });
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getBuyedCourses(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                // const userId = await getId('accessToken', req)
+                const userId = '676a9f2a339270ae95450b75';
+                const purchasedCourses = yield this.userServices.getBuyedCourses(String(userId));
+                const formattedResponse = purchasedCourses.map((course) => ({
+                    _id: course._id,
+                    courseDetails: {
+                        courseName: course.courseId.courseName,
+                        level: course.courseId.level,
+                    },
+                    completedChapters: course.completedChapters,
+                    isCourseCompleted: course.isCourseCompleted,
+                    purchasedAt: course.purchasedAt,
+                }));
+                console.log('formattedResponse: ', formattedResponse);
+                return res
+                    .status(200)
+                    .send({
+                    message: 'Buyed Courses Got It Successfully',
+                    success: true,
+                    data: formattedResponse
+                });
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    coursePlay(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                // const userId = await getId('accessToken', req)
+                // const userId = '676a9f2a339270ae95450b75'
+                const { buyedId } = req.query;
+                const getCourse = yield this.userServices.coursePlay(String(buyedId));
+                return res
+                    .status(200)
+                    .send({
+                    message: 'Course Got it to play',
+                    success: true,
+                    data: getCourse
+                });
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    chapterVideoEnd(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { chapterId } = req.query;
+                const response = yield this.userServices.chapterVideoEnd(String(chapterId));
+                return res
+                    .status(200)
+                    .send({
+                    message: 'Chapter Marked As Completed',
+                    succes: true,
+                    data: response
+                });
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getCertificate(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { certificateId } = req.query;
+                const response = yield this.userServices.getCertificate(String(certificateId));
+                return res
+                    .status(200)
+                    .send({
+                    message: 'Certificate Got It',
+                    success: true,
+                    data: response
                 });
             }
             catch (error) {

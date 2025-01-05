@@ -440,5 +440,94 @@ class BaseRepository {
             }
         });
     }
+    getBuyedCourses(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const findCourses = this.model.find({ userId: userId }).sort({ createdAt: -1 })
+                    .populate('courseId', 'courseName level')
+                    .exec();
+                return findCourses;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    coursePlay(buyedId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            try {
+                // Find the purchased course and populate course and chapters
+                const purchasedCourse = yield this.model.findById(buyedId)
+                    .populate({
+                    path: 'courseId', // Populate course details
+                    select: 'courseName duration level description category thumbnailUrl', // Select specific fields from Course
+                    populate: {
+                        path: 'fullVideo.chapterId', // Populate chapters from Course
+                        model: 'Chapter', // Specify the Chapter model
+                        select: 'chapterTitle courseId chapterNumber description videoUrl createdAt', // Select specific fields
+                    },
+                })
+                    .exec();
+                if (!purchasedCourse) {
+                    throw new Error('Purchased course not found');
+                }
+                // Extract data
+                const courseData = purchasedCourse.courseId;
+                const chaptersData = (_a = courseData === null || courseData === void 0 ? void 0 : courseData.fullVideo) === null || _a === void 0 ? void 0 : _a.map((video) => video.chapterId);
+                // Format the response
+                return {
+                    purchasedCourse, // All data from the purchased course
+                    course: {
+                        courseName: courseData === null || courseData === void 0 ? void 0 : courseData.courseName,
+                        duration: courseData === null || courseData === void 0 ? void 0 : courseData.duration,
+                        level: courseData === null || courseData === void 0 ? void 0 : courseData.level,
+                        description: courseData === null || courseData === void 0 ? void 0 : courseData.description,
+                        category: courseData === null || courseData === void 0 ? void 0 : courseData.category,
+                        thumbnailUrl: courseData === null || courseData === void 0 ? void 0 : courseData.thumbnailUrl,
+                    },
+                    chapters: chaptersData, // All chapter data
+                };
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    chapterVideoEnd(chapterId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const findChapter = yield this.model.findOne({
+                    "completedChapters.chapterId": chapterId
+                });
+                if (!findChapter) {
+                    return 'Purchased Course not Found';
+                }
+                const chapterIndex = findChapter.completedChapters.findIndex((chapter) => chapter.chapterId.toString() === chapterId);
+                if (chapterIndex === -1) {
+                    return `Chapter Not Found`;
+                }
+                findChapter.completedChapters[chapterIndex].isCompleted = true;
+                const updatedChapters = yield findChapter.save();
+                return updatedChapters;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getCertificate(certificateId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const findCertificate = yield this.model.findById(certificateId);
+                if (findCertificate) {
+                    return findCertificate;
+                }
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
 }
 exports.default = BaseRepository;

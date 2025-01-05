@@ -5,6 +5,7 @@ import { generateAccessToken } from "../../integration/mailToken";
 import bcrypt from 'bcrypt'
 import Mail from "../../integration/nodemailer";
 import { ICourse } from "../../models/uploadCourse.model";
+import { IPurchasedCourse } from "../../models/purchased.model";
 
 export default class BaseRepository<T extends Document> {
     private model: Model<T>
@@ -386,34 +387,34 @@ export default class BaseRepository<T extends Document> {
             console.log('filters: ', selectedCategory, selectedLevel, searchTerm);
 
             const skip = (page - 1) * limit;
-        
+
             const query: any = {};
             if (selectedCategory !== 'undefined') {
-              query.category = { $regex: `^${selectedCategory}$`, $options: 'i' };
+                query.category = { $regex: `^${selectedCategory}$`, $options: 'i' };
             }
             if (selectedLevel !== 'undefined') {
-              query.level = { $regex: `^${selectedLevel}$`, $options: 'i' };
+                query.level = { $regex: `^${selectedLevel}$`, $options: 'i' };
             }
             if (searchTerm !== 'undefined') {
-                console.log('search: ',searchTerm)
-              query.courseName = { $regex: searchTerm, $options: 'i' };
+                console.log('search: ', searchTerm)
+                query.courseName = { $regex: searchTerm, $options: 'i' };
             }
-        
+
             const courses = await this.model.find(query).skip(skip).limit(limit);
-        
+
             const totalCourses = await this.model.countDocuments(query);
-        
+
             if (!courses || courses.length === 0) {
-              const error = new Error('Course Not Found')
-              error.name = 'CourseNotFound'
-              throw error
+                const error = new Error('Course Not Found')
+                error.name = 'CourseNotFound'
+                throw error
             }
-        
+
             return {
-              courses,
-              currentPage: page,
-              totalPages: Math.ceil(totalCourses / limit),
-              totalCourses,
+                courses,
+                currentPage: page,
+                totalPages: Math.ceil(totalCourses / limit),
+                totalCourses,
             };
 
         } catch (error: any) {
@@ -422,27 +423,27 @@ export default class BaseRepository<T extends Document> {
     }
 
     public async findCourseById(courseId: string): Promise<any> {
-        try{
+        try {
             const isCourse = await this.model.findById(courseId)
             return isCourse
-        }catch(error: any){
+        } catch (error: any) {
             throw error
         }
     }
 
 
     public async findChaptersById(courseId: string): Promise<any> {
-        try{
-            const isChapters = await this.model.find({courseId: courseId})
+        try {
+            const isChapters = await this.model.find({ courseId: courseId })
             return isChapters
-        }catch(error: any){
+        } catch (error: any) {
             throw error
         }
     }
 
 
     public async buyCourse(userId: string, courseId: string, completedChapters: any, txnid: string): Promise<any> {
-        try{
+        try {
             // find the course with course id if the course were there then
             // create a new docs in the purchasecourse model withi this id and userId
             const purchasedCourse = {
@@ -457,6 +458,107 @@ export default class BaseRepository<T extends Document> {
 
             return savedUser
 
+        } catch (error: any) {
+            throw error
+        }
+    }
+
+
+
+    public async getBuyedCourses(userId: string): Promise<any> {
+        try {
+            const findCourses = this.model.find(
+                { userId: userId }
+            ).sort({ createdAt: -1 })
+                .populate('courseId', 'courseName level')
+                .exec()
+
+            return findCourses
+        } catch (error: any) {
+            throw error
+        }
+    }
+
+
+
+
+    public async coursePlay(buyedId: string): Promise<any> {
+        try {
+            // Find the purchased course and populate course and chapters
+            const purchasedCourse = await this.model.findById(buyedId)
+                .populate({
+                    path: 'courseId', // Populate course details
+                    select: 'courseName duration level description category thumbnailUrl', // Select specific fields from Course
+                    populate: {
+                        path: 'fullVideo.chapterId', // Populate chapters from Course
+                        model: 'Chapter', // Specify the Chapter model
+                        select: 'chapterTitle courseId chapterNumber description videoUrl createdAt', // Select specific fields
+                    },
+                })
+                .exec() as unknown as IPurchasedCourse
+
+            if (!purchasedCourse) {
+                throw new Error('Purchased course not found');
+            }
+
+            // Extract data
+            const courseData = purchasedCourse.courseId as unknown as ICourse
+            const chaptersData = courseData?.fullVideo?.map((video: any) => video.chapterId);
+
+            // Format the response
+            return {
+                purchasedCourse, // All data from the purchased course
+                course: {
+                    courseName: courseData?.courseName,
+                    duration: courseData?.duration,
+                    level: courseData?.level,
+                    description: courseData?.description,
+                    category: courseData?.category,
+                    thumbnailUrl: courseData?.thumbnailUrl,
+                },
+                chapters: chaptersData, // All chapter data
+            };
+        } catch (error: any) {
+            throw error
+        }
+    }
+
+
+    public async chapterVideoEnd(chapterId: string): Promise<any> {
+        try {
+
+            const findChapter = await this.model.findOne({
+                "completedChapters.chapterId": chapterId
+            }) as unknown as IPurchasedCourse
+
+            if (!findChapter) {
+                return 'Purchased Course not Found'
+            }
+
+            const chapterIndex = findChapter.completedChapters.findIndex((chapter) => chapter.chapterId.toString() === chapterId);
+
+            if (chapterIndex === -1) {
+                return `Chapter Not Found`
+            }
+
+            findChapter.completedChapters[chapterIndex].isCompleted = true
+
+            const updatedChapters = await findChapter.save()
+
+            return updatedChapters
+
+        } catch (error: any) {
+            throw error
+        }
+    }
+
+
+    public async getCertificate(certificateId: string): Promise<any> {
+        try{
+            const findCertificate = await this.model.findById(certificateId)
+            if(findCertificate){
+                return findCertificate
+            }
         }catch(error: any){
             throw error
         }

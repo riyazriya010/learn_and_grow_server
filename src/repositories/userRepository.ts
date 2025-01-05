@@ -7,6 +7,7 @@ import { generateRandomFourDigitNumber } from "../integration/mailToken";
 import { CourseModel, ICourse } from "../models/uploadCourse.model";
 import { ChapterModel, IChapter } from "../models/chapter.model";
 import { IPurchasedCourse, PurchasedCourseModel } from "../models/purchased.model";
+import { CertificateModel, ICertificate } from "../models/certificate.model";
 
 
 
@@ -15,12 +16,14 @@ export default class UserRepositories {
     private courseBaseRepository: BaseRepository<ICourse>
     private chapterBaseRepository: BaseRepository<IChapter>
     private purchaseBaseRepository: BaseRepository<IPurchasedCourse>
+    private certificateBaseRepository: BaseRepository<ICertificate>
 
     constructor() {
         this.baseRepository = new BaseRepository<IUser>(UserModel);
         this.courseBaseRepository = new BaseRepository<ICourse>(CourseModel)
         this.chapterBaseRepository = new BaseRepository<IChapter>(ChapterModel)
         this.purchaseBaseRepository = new BaseRepository<IPurchasedCourse>(PurchasedCourseModel)
+        this.certificateBaseRepository = new BaseRepository<ICertificate>(CertificateModel)
     }
 
     // new
@@ -176,5 +179,46 @@ export default class UserRepositories {
             throw error
         }
     }
+
+
+    public async getBuyedCourses(userId: string): Promise<any> {
+        try{
+            const response = await this.purchaseBaseRepository.getBuyedCourses(userId)
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
+
+
+    public async coursePlay(buyedId: string): Promise<any> {
+        try{
+            const response = await this.purchaseBaseRepository.coursePlay(buyedId)
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
+
+
+    public async chapterVideoEnd(chapterId: string): Promise<any> {
+        try{
+            const response = await this.purchaseBaseRepository.chapterVideoEnd(chapterId)
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
+
+    
+    public async getCertificate(certificateId: string): Promise<any> {
+        try{
+            const response = await this.certificateBaseRepository.getCertificate(certificateId)
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
+
 
 }

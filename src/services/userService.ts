@@ -151,5 +151,43 @@ export default class UserServices {
             throw error
         }
     }
+
+    public async getBuyedCourses(userId: string): Promise<any> {
+        try{
+            const response = await this.userRepositories.getBuyedCourses(userId)
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
+
+    public async coursePlay(buyedId: string): Promise<any> {
+        try{
+            const response = await this.userRepositories.coursePlay(buyedId)
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
+
+
+    public async chapterVideoEnd(chapterId: string): Promise<any> {
+        try{
+            const response = await this.userRepositories.chapterVideoEnd(chapterId)
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
+
+
+    public async getCertificate(certificateId: string): Promise<any> {
+        try{
+            const response = await this.userRepositories.getCertificate(certificateId)
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
 }
 

@@ -18,12 +18,14 @@ const user_model_1 = __importDefault(require("../models/user.model"));
 const uploadCourse_model_1 = require("../models/uploadCourse.model");
 const chapter_model_1 = require("../models/chapter.model");
 const purchased_model_1 = require("../models/purchased.model");
+const certificate_model_1 = require("../models/certificate.model");
 class UserRepositories {
     constructor() {
         this.baseRepository = new userBase_repository_1.default(user_model_1.default);
         this.courseBaseRepository = new userBase_repository_1.default(uploadCourse_model_1.CourseModel);
         this.chapterBaseRepository = new userBase_repository_1.default(chapter_model_1.ChapterModel);
         this.purchaseBaseRepository = new userBase_repository_1.default(purchased_model_1.PurchasedCourseModel);
+        this.certificateBaseRepository = new userBase_repository_1.default(certificate_model_1.CertificateModel);
     }
     // new
     findByEmail(email) {
@@ -185,6 +187,50 @@ class UserRepositories {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield this.purchaseBaseRepository.buyCourse(userId, courseId, chapters, txnid);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getBuyedCourses(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.purchaseBaseRepository.getBuyedCourses(userId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    coursePlay(buyedId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.purchaseBaseRepository.coursePlay(buyedId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    chapterVideoEnd(chapterId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.purchaseBaseRepository.chapterVideoEnd(chapterId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getCertificate(certificateId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.certificateBaseRepository.getCertificate(certificateId);
                 return response;
             }
             catch (error) {

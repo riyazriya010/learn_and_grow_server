@@ -526,10 +526,9 @@ export default class UserController {
         }
     }
 
+
     public async buyCourse(req: Request, res: Response): Promise<any> {
         try {
-            console.log('payment started')
-            console.log('params: ', req.query)
 
             const courseId = req.query.courseId
             const txnid = req.query.txnid
@@ -546,12 +545,8 @@ export default class UserController {
                         chapterId: chapter._id,
                         isCompleted: false,
                     }));
-                    console.log('chapters: ', completedChapters)
 
                     const userId = await getId('accessToken', req)
-                    console.log('idd: ', userId)
-
-                    const getUserId = 'userId'
 
                     const response = await this.userServices.buyCourse(String(userId), String(isCourseExist._id), completedChapters, String(txnid))
 
@@ -571,6 +566,7 @@ export default class UserController {
     }
 
 
+
     public async isVerified(req: Request, res: Response): Promise<any> {
         try{
 
@@ -588,6 +584,96 @@ export default class UserController {
         }
     }
 
+
+
+    public async getBuyedCourses(req: Request, res: Response): Promise<any> {
+        try{
+            // const userId = await getId('accessToken', req)
+            const userId = '676a9f2a339270ae95450b75'
+
+            const purchasedCourses = await this.userServices.getBuyedCourses(String(userId))
+
+            const formattedResponse = purchasedCourses.map((course: any) => ({
+                _id: course._id,
+                courseDetails: {
+                    courseName: course.courseId.courseName,
+                    level: course.courseId.level,
+                },
+                completedChapters: course.completedChapters,
+                isCourseCompleted: course.isCourseCompleted,
+                purchasedAt: course.purchasedAt,
+            }));
+            console.log('formattedResponse: ', formattedResponse)
+    
+            return res
+            .status(200)
+            .send({
+                message: 'Buyed Courses Got It Successfully',
+                success: true,
+                data: formattedResponse
+            })
+        }catch(error: any){
+            throw error
+        }
+    }
+
+
+    public async coursePlay(req: Request, res: Response): Promise<any> {
+        try{
+            // const userId = await getId('accessToken', req)
+            // const userId = '676a9f2a339270ae95450b75'
+
+            const { buyedId } = req.query
+            const getCourse = await this.userServices.coursePlay(String(buyedId))
+            return res
+            .status(200)
+            .send({
+                message: 'Course Got it to play',
+                success: true,
+                data: getCourse
+            })
+        }catch(error: any){
+            throw error
+        }
+    }
+
+
+    public async chapterVideoEnd(req: Request, res: Response): Promise<any> {
+        try{
+            const { chapterId } = req.query
+            const response = await this.userServices.chapterVideoEnd(String(chapterId))
+
+            return res
+            .status(200)
+            .send({
+                message: 'Chapter Marked As Completed',
+                succes: true,
+                data: response
+            })
+            
+        }catch(error: any){
+            throw error
+        }
+    }
+
+
+
+    public async getCertificate(req: Request, res: Response): Promise<any> {
+        try{
+            const { certificateId } = req.query
+            const response = await this.userServices.getCertificate(String(certificateId))
+
+            return res
+            .status(200)
+            .send({
+                message: 'Certificate Got It',
+                success: true,
+                data: response
+            })
+            
+        }catch(error: any){
+            throw error
+        }
+    }
+
 }
-
-
