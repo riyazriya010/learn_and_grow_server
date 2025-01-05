@@ -274,25 +274,169 @@ class BaseRepository {
         });
     }
     /* ------------------------------ WEEK - 2 -------------------------*/
+    // async getAllCourses(): Promise<any> {
+    //     try {
+    //         const response = await this.model.find()
+    //         if (!response || response.length === 0) {
+    //             const error = new Error('Courses Not Found')
+    //             error.name = 'CoursesNotFound'
+    //             throw error
+    //         }
+    //         return response
+    //     } catch (error) {
+    //         console.log(error)
+    //     }
+    // }
     getAllCourses() {
-        return __awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, arguments, void 0, function* (page = 1, limit = 6) {
             try {
-                const response = yield this.model.find();
-                return response;
+                // Calculate skip value for pagination
+                const skip = (page - 1) * limit;
+                // Fetch courses with pagination
+                const response = yield this.model
+                    .find() // Add any filtering if needed
+                    .skip(skip)
+                    .limit(limit);
+                // Get the total count of courses for pagination
+                const totalCourses = yield this.model.countDocuments();
+                // If no courses found
+                if (!response || response.length === 0) {
+                    const error = new Error('Courses Not Found');
+                    error.name = 'CoursesNotFound';
+                    throw error;
+                }
+                // Return the paginated courses along with total information
+                return {
+                    courses: response,
+                    currentPage: page,
+                    totalPages: Math.ceil(totalCourses / limit),
+                    totalCourses: totalCourses
+                };
             }
             catch (error) {
                 console.log(error);
+                throw error; // Propagate error if needed
             }
         });
     }
     getCourse(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.model.findById(id);
-                return response;
+                const findCourse = yield this.model.findById(id);
+                if (!findCourse) {
+                    const error = new Error('Course Not Found');
+                    error.name = 'Course Not Found';
+                    throw error;
+                }
+                return findCourse;
             }
             catch (error) {
                 console.log(error);
+            }
+        });
+    }
+    getCoursePlay(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            try {
+                // Fetch the course and populate the fullVideo.chapterId field
+                const response = yield this.model.findById(id)
+                    .populate('fullVideo.chapterId'); // Populate the chapterId field in fullVideo
+                // If the course is not found, throw an error
+                if (!response) {
+                    const error = new Error('Courses Not Found');
+                    error.name = 'CoursesNotFound';
+                    throw error;
+                }
+                const res = response;
+                // Extract the chapters from the populated fullVideo field
+                const chapters = ((_a = res === null || res === void 0 ? void 0 : res.fullVideo) === null || _a === void 0 ? void 0 : _a.map((video) => video.chapterId)) || [];
+                // Return the course data along with the populated chapters
+                return {
+                    course: response,
+                    chapters,
+                };
+            }
+            catch (error) {
+                console.log(error);
+                throw new Error("Error fetching course and chapters");
+            }
+        });
+    }
+    filterData() {
+        return __awaiter(this, arguments, void 0, function* (page = 1, limit = 6, selectedCategory, selectedLevel, searchTerm) {
+            try {
+                console.log('filters: ', selectedCategory, selectedLevel, searchTerm);
+                const skip = (page - 1) * limit;
+                const query = {};
+                if (selectedCategory !== 'undefined') {
+                    query.category = { $regex: `^${selectedCategory}$`, $options: 'i' };
+                }
+                if (selectedLevel !== 'undefined') {
+                    query.level = { $regex: `^${selectedLevel}$`, $options: 'i' };
+                }
+                if (searchTerm !== 'undefined') {
+                    console.log('search: ', searchTerm);
+                    query.courseName = { $regex: searchTerm, $options: 'i' };
+                }
+                const courses = yield this.model.find(query).skip(skip).limit(limit);
+                const totalCourses = yield this.model.countDocuments(query);
+                if (!courses || courses.length === 0) {
+                    const error = new Error('Course Not Found');
+                    error.name = 'CourseNotFound';
+                    throw error;
+                }
+                return {
+                    courses,
+                    currentPage: page,
+                    totalPages: Math.ceil(totalCourses / limit),
+                    totalCourses,
+                };
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    findCourseById(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const isCourse = yield this.model.findById(courseId);
+                return isCourse;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    findChaptersById(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const isChapters = yield this.model.find({ courseId: courseId });
+                return isChapters;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    buyCourse(userId, courseId, completedChapters, txnid) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                // find the course with course id if the course were there then
+                // create a new docs in the purchasecourse model withi this id and userId
+                const purchasedCourse = {
+                    userId,
+                    courseId,
+                    completedChapters,
+                    isCourseCompleted: false
+                };
+                const document = new this.model(purchasedCourse);
+                const savedUser = yield document.save();
+                return savedUser;
+            }
+            catch (error) {
+                throw error;
             }
         });
     }

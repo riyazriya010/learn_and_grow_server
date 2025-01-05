@@ -28,6 +28,40 @@ router.get('/mentor/re-verify', authenticateToken, isUserBlocked, mentorControll
 
 /* ------------------------------- WEEK 2 ---------------------------*/
 
+router.post('/mentor/course-upload', uploadMiddleware.fields([
+    { name: 'demoVideo', maxCount: 5 }, // Media files (images/videos)
+    { name: 'thumbnail', maxCount: 1 } // Thumbnail for videos
+]), mentorController.addCourse.bind(mentorController));
+router.get('/get/all-course', mentorController.getAllCourses.bind(mentorController))
+router.get('/get/course', mentorController.getCourse.bind(mentorController))
+
+router.patch('/edit/course',uploadMiddleware.fields([
+    { name: 'demoVideo', maxCount: 5 }, // Media files (images/videos)
+    { name: 'thumbnail', maxCount: 1 } // Thumbnail for videos
+]), mentorController.editCourse.bind(mentorController))
+
+// router.patch('/edit-data/course', mentorController.editCourseWithoutFiles.bind(mentorController))
+
+router.get(`/get/categories`, mentorController.getAllCategory.bind(mentorController))
+
+router.post('/mentor/chapter-upload', uploadMiddleware.single('chapterVideo'), mentorController.addChapter.bind(mentorController))
+router.get(`/get/all-chapters`, mentorController.getAllChapters.bind(mentorController))
+
+router.post('/add/quizz', mentorController.addQuizz.bind(mentorController))
+router.get(`/get/all-quizz`, mentorController.getAllQuizz.bind(mentorController))
+router.delete('/delete/quizz', mentorController.deleteQuizz.bind(mentorController))
+
+
+const mentorRoutes = router
+export default mentorRoutes;
+
+
+
+
+
+
+
+
 // router.post(
 //     '/mentor/course/upload',
 //     uploadMiddleware,
@@ -41,17 +75,11 @@ router.get('/mentor/re-verify', authenticateToken, isUserBlocked, mentorControll
 //     { name: 'mainVideo', maxCount: 5 }, // Media files (images/videos)
 //     { name: 'thumbnail', maxCount: 1 } // Thumbnail for videos
 // ]), mentorController.addCourse.bind(mentorController));
-
-router.post('/mentor/course-upload', uploadMiddleware.fields([
-    { name: 'demoVideo', maxCount: 5 }, // Media files (images/videos)
-    { name: 'thumbnail', maxCount: 1 } // Thumbnail for videos
-]), mentorController.addCourse.bind(mentorController));
-
-
-router.post('/mentor/chapter-upload', uploadMiddleware.single('chapterVideo'), mentorController.addChapter.bind(mentorController))
-
 // router.post('/mentor/course/upload', uploadMiddleware, mentorController.addCourse.bind(mentorController))
 
-const mentorRoutes = router
-export default mentorRoutes;
+
+
+
+
+
 

@@ -363,7 +363,7 @@ class MentorController {
                     });
                 }
                 // Create a new chapter
-                const newChapter = yield chapter_model_1.Chapter.create({
+                const newChapter = yield chapter_model_1.ChapterModel.create({
                     chapterTitle: title,
                     courseId,
                     description,
@@ -389,6 +389,268 @@ class MentorController {
                     message: 'An error occurred while adding the chapter',
                     success: false,
                     error: error.message,
+                });
+            }
+        });
+    }
+    getAllCourses(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.mentorServices.getAllCourses();
+                return res
+                    .status(200)
+                    .send({
+                    message: 'Courses Fetched Successfully',
+                    success: true,
+                    result: response
+                });
+            }
+            catch (error) {
+                console.log(error);
+            }
+        });
+    }
+    getCourse(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { courseId } = req.query;
+                const response = yield this.mentorServices.getCourse(String(courseId));
+                if (response) {
+                    return res
+                        .status(200)
+                        .send({
+                        message: 'Course Got it',
+                        successs: true,
+                        data: response
+                    });
+                }
+            }
+            catch (error) {
+            }
+        });
+    }
+    getAllCategory(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.mentorServices.getAllCategory();
+                return res
+                    .status(200)
+                    .send({
+                    message: 'All Categories were Got it',
+                    success: true,
+                    data: response
+                });
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getAllChapters(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { courseId } = req.query;
+                const response = yield this.mentorServices.getAllChapters(String(courseId));
+                return res
+                    .status(200)
+                    .send({
+                    message: 'All Chapters were Got it',
+                    success: true,
+                    data: response
+                });
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    addQuizz(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { courseId } = req.query;
+                const data = req.body;
+                const response = yield this.mentorServices.addQuizz(data, String(courseId));
+                if (response) {
+                    return res
+                        .status(200)
+                        .send({
+                        message: 'Quiz Added Successfully',
+                        success: true,
+                        data: response,
+                    });
+                }
+            }
+            catch (error) {
+                // console.error('Error adding quiz:', error);
+                if (error && error.name === 'QuestionAlreadyExist') {
+                    return res
+                        .status(403)
+                        .send({
+                        message: 'Question Already Exist',
+                        success: false
+                    });
+                }
+                return res.status(500).send({
+                    message: 'Failed to add quiz',
+                    success: false,
+                    error: error.message,
+                });
+            }
+        });
+    }
+    getAllQuizz(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { courseId } = req.query;
+                const response = yield this.mentorServices.getAllQuizz(String(courseId));
+                return res
+                    .status(200)
+                    .send({
+                    message: 'All Quizzez were Got it',
+                    success: true,
+                    data: response
+                });
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    deleteQuizz(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { courseId, quizId } = req.query;
+                const response = yield this.mentorServices.deleteQuizz(String(courseId), String(quizId));
+                if (response) {
+                    return res
+                        .status(200)
+                        .send({
+                        message: 'Quizz Deleted Successfully',
+                        success: true,
+                        data: response
+                    });
+                }
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    editCourse(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // try {
+            //     console.log('query: ', req.query);
+            //     console.log('req files: ', req.files);
+            //     console.log('req body: ', req.body);
+            //     // Extract courseId from query
+            //     const courseId = req.query.courseId as string;
+            //     if (!courseId) {
+            //         return res.status(400).send({
+            //             message: 'Course ID is required',
+            //             success: false,
+            //         });
+            //     }
+            //     // Find course to update
+            //     const findCourseToUpdate = await CourseModel.findById(courseId);
+            //     if (!findCourseToUpdate) {
+            //         return res.status(404).send({
+            //             message: 'Course Not Found',
+            //             success: false,
+            //         });
+            //     }
+            //     // Extract files from request
+            //     const files = req.files as any;
+            //     const mediaFiles = files?.demoVideo || [];
+            //     const thumbnailFile = files?.thumbnail ? files.thumbnail[0] : null;
+            //     // Map demo videos to include URL and type
+            //     const demoVideo = mediaFiles.map((file: any) => ({
+            //         type: 'video',
+            //         url: file.location,
+            //     }));
+            //     // Extract thumbnail URL if available
+            //     const thumbnailUrl = thumbnailFile ? thumbnailFile.location : findCourseToUpdate.thumbnailUrl;
+            //     // Prepare updated course data
+            //     const updatedData: any = {
+            //         ...req.body, // Include any text fields from the body
+            //         demoVideo: demoVideo.length ? demoVideo : findCourseToUpdate.demoVideo, // Use existing demo videos if no new ones
+            //         thumbnailUrl, // Use existing thumbnail if no new one
+            //     };
+            //     // Update the course
+            //     const updatedCourse = await CourseModel.findByIdAndUpdate(courseId, updatedData, {
+            //         new: true, // Return the updated document
+            //     });
+            //     return res.status(200).send({
+            //         message: 'Course updated successfully',
+            //         success: true,
+            //         data: updatedCourse,
+            //     });
+            // } catch (error: any) {
+            //     console.error('Error updating course:', error);
+            //     return res.status(500).send({
+            //         message: 'An error occurred while updating the course',
+            //         success: false,
+            //         error: error.message,
+            //     });
+            // }
+            try {
+                console.log('query: ', req.query);
+                console.log('req files: ', req.files);
+                console.log('req body: ', req.body);
+                // Extract courseId from query
+                const courseId = req.query.courseId;
+                // Find the course to update
+                const findCourseToUpdate = yield uploadCourse_model_1.CourseModel.findById(courseId);
+                if (!findCourseToUpdate) {
+                    return res.status(404).send({
+                        message: 'Course Not Found',
+                        success: false,
+                    });
+                }
+                // Initialize fields to update from req.body
+                const updatedFields = {
+                    courseName: req.body.courseName,
+                    description: req.body.description,
+                    category: req.body.category,
+                    level: req.body.level,
+                    duration: req.body.duration,
+                    price: req.body.price,
+                };
+                // Extract files if they exist (thumbnail and demo video)
+                const files = req.files;
+                const mediaFiles = (files === null || files === void 0 ? void 0 : files.demoVideo) || [];
+                const thumbnailFile = (files === null || files === void 0 ? void 0 : files.thumbnail) ? files.thumbnail[0] : null;
+                // Only update demo video if a new file is uploaded
+                if (mediaFiles.length > 0) {
+                    const demoVideo = mediaFiles.map((file) => ({
+                        type: 'video',
+                        url: file.location,
+                    }));
+                    updatedFields.demoVideo = demoVideo;
+                }
+                // Only update thumbnail if a new file is uploaded
+                if (thumbnailFile) {
+                    updatedFields.thumbnailUrl = thumbnailFile.location;
+                }
+                // Update course with new fields
+                const updatedCourse = yield uploadCourse_model_1.CourseModel.findByIdAndUpdate(courseId, updatedFields, { new: true });
+                if (!updatedCourse) {
+                    return res.status(400).send({
+                        message: 'Failed to update course',
+                        success: false,
+                    });
+                }
+                // Send response back
+                return res.status(200).send({
+                    message: 'Course updated successfully',
+                    success: true,
+                    data: updatedCourse,
+                });
+            }
+            catch (error) {
+                console.error('Error:', error);
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
                 });
             }
         });

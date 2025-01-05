@@ -110,5 +110,64 @@ class AdminBaseRepository {
             }
         });
     }
+    /* ---------------------------------- WEEK - 2 ----------------------------*/
+    addCategory(data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const isExist = yield this.model.findOne({ categoryName: data });
+                if (isExist) {
+                    const error = new Error('Category Already Exist');
+                    error.name = 'categoryAlreadyExist';
+                    throw error;
+                }
+                const categoryData = {
+                    categoryName: data
+                };
+                const document = new this.model(categoryData);
+                const savedCategory = yield document.save();
+                return savedCategory;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    editCategory(categoryName, categoryId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const isExist = yield this.model.findOne({
+                    categoryName: categoryName,
+                    _id: { $ne: categoryId },
+                });
+                if (isExist) {
+                    const error = new Error("Category Already Exists");
+                    error.name = "CategoryAlreadyExistsError";
+                    throw error;
+                }
+                const updatedCategory = yield this.model.findByIdAndUpdate(categoryId, { $set: { categoryName: categoryName } }, { new: true } // Specify options outside the update object
+                );
+                if (!updatedCategory) {
+                    const error = new Error("Category Not Found");
+                    error.name = "CategoryNotFoundError";
+                    throw error;
+                }
+                return updatedCategory;
+            }
+            catch (error) {
+                throw error; // Ensure errors are rethrown for higher-level handling
+            }
+        });
+    }
+    getAllCategory() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.model.find();
+                return response;
+            }
+            catch (error) {
+                console.log(error);
+            }
+        });
+    }
 }
 exports.AdminBaseRepository = AdminBaseRepository;

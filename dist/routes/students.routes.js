@@ -22,5 +22,9 @@ router.get('/student/check', userController.checkStudent.bind(userController));
 /* ------------------------------------ WEEK -2 ---------------------------------*/
 router.get('/get/all-course', userController.getAllCourses.bind(userController));
 router.get('/get/course', userController.getCourse.bind(userController));
+router.get('/get/course/play', userController.getCoursePlay.bind(userController));
+router.get('/filter/data', userController.filterData.bind(userController));
+router.get('/payment', userController.buyCourse.bind(userController));
+router.get('/check/verify', verifyToken_1.default, verified_1.default, userController.isVerified.bind(userController));
 const userRoutes = router;
 exports.default = userRoutes;

@@ -151,4 +151,83 @@ export class AdminController {
             console.log(error)
         }
     }
+
+
+    /*-------------------------------------- WEEK - 2 ---------------------------------*/
+    async addCategory(req: Request, res: Response): Promise<any>{
+        try{
+            const { categoryName } = req.body
+            const data = categoryName
+            const response = await  this.adminServices.addCategory(data)
+
+            if(response){
+                return res
+                .status(200)
+                .send({
+                    message: 'Category Added',
+                    status: true,
+                    data: response
+                })
+            }
+
+        }catch(error: any){
+            // console.log(error)
+            if(error.name === 'categoryAlreadyExist'){
+                return res
+                .status(403)
+                .send({
+                    message: 'Category Already Exist',
+                    success: false
+                })
+            }
+        }
+    }
+
+    async editCategory(req: Request, res: Response): Promise<any> {
+        try {
+            const { categoryId } = req.query
+            const { categoryName } = req.body
+            console.log('cat id: ', categoryId)
+            console.log('cat name: ', categoryName)
+            const response = await this.adminServices.editCategory(categoryName, String(categoryId))
+
+            if(response === 'Already Exist'){
+                return res
+                .status(403)
+                .send({
+                    message: 'Category Already Exist',
+                    status: false,
+                })
+            }
+
+            if(response){
+                return res
+                .status(200)
+                .send({
+                    message: 'Category Edited',
+                    status: true,
+                    data: response
+                })
+            }
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+
+    async getAllCategory(req: Request, res: Response): Promise<any> {
+        try {
+            const response = await this.adminServices.getAllCategory()
+            return res
+            .status(200)
+            .send({
+                message: 'All Categories were Got it',
+                success: true,
+                data: response
+            })
+        } catch (error) {
+            console.log(error)
+        }
+    }
 }

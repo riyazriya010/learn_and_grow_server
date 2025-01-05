@@ -34,21 +34,24 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-const MentorSchema = new mongoose_1.Schema({
-    username: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    phone: { type: String, required: true },
-    expertise: { type: String, required: true },
-    skills: { type: String, required: true },
-    password: { type: String, required: true },
-    role: { type: String, required: true, default: null },
-    profilePicUrl: { type: String, required: true, default: 'img not provided' },
-    isVerified: { type: Boolean, required: true, default: false },
-    isBlocked: { type: Boolean, required: true, default: false },
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now }
-}, {
-    timestamps: true
+// Define the Question Schema
+const QuestionSchema = new mongoose_1.Schema({
+    question: { type: String, required: true },
+    options: {
+        type: [String],
+        required: true,
+        validate: {
+            validator: (options) => options.length === 2, // Specify the type of options
+            message: 'There must be exactly two options.'
+        }
+    },
+    correct_answer: { type: String, required: true },
 });
-const MentorModel = mongoose_1.default.model('Mentors', MentorSchema);
-exports.default = MentorModel;
+// Define the Quiz Schema
+const QuizSchema = new mongoose_1.Schema({
+    courseId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Course', required: true }, // Ensure each course has a unique quiz
+    questions: { type: [QuestionSchema], default: [] }, // Array of questions
+});
+// Create the Mongoose model
+const QuizModel = mongoose_1.default.model("Quiz", QuizSchema);
+exports.default = QuizModel;

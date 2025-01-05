@@ -81,5 +81,39 @@ class AdminServices {
             }
         });
     }
+    /*------------------------------------- WEEK - 2 --------------------------*/
+    addCategory(data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.adminRepository.addCategory(data);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    editCategory(categoryName, categoryId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.adminRepository.editCategory(categoryName, categoryId);
+                return response;
+            }
+            catch (error) {
+                console.log(error);
+            }
+        });
+    }
+    getAllCategory() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.adminRepository.getAllCategory();
+                return response;
+            }
+            catch (error) {
+                console.log(error);
+            }
+        });
+    }
 }
 exports.AdminServices = AdminServices;

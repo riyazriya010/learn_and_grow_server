@@ -1,5 +1,6 @@
 import { mentorSignUpData } from "../interface/mentor.type"
 import { IMentor } from "../models/mentor.model"
+import { IQuiz } from "../models/quizz.model"
 import { MentorRepository } from "../repositories/mentorRepository"
 
 export class MentorServices {
@@ -62,5 +63,70 @@ export class MentorServices {
      public async verifyMentor(email: string): Promise<IMentor | null>{
             const response = await this.mentorRepository.verifyMentor(email)
             return response
+        }
+
+
+        /*---------------------------------- WEEK - 2 -------------------------------*/
+
+        public async getAllCourses(): Promise<any> {
+            const response = await this.mentorRepository.getAllCourses()
+            return response
+        }
+
+        public async getCourse(courseId: string): Promise<any> {
+            try{
+                const response = await this.mentorRepository.getCourse(courseId)
+                return response
+            }catch(error: any){
+                throw error
+            }
+        }
+
+        public async getAllCategory(): Promise<any> {
+            try{
+                const response = await this.mentorRepository.getAllCategory()
+                return response
+            }catch(error: any){
+                throw error
+            }
+        }
+
+        public async getAllChapters(courseId: string): Promise<any> {
+            try{
+                const response = await this.mentorRepository.getAllChapters(courseId)
+                return response
+            }catch(error: any){
+                throw error
+            }
+        }
+
+
+        public async addQuizz(data: { question: string; option1: string; option2: string; correctAnswer: string }, courseId: string): Promise<any> {
+            try {
+                const response = await this.mentorRepository.addQuizz(data, courseId);
+                return response;
+            } catch (error: any) {
+                // console.error('Error in service layer:', error);
+                throw error;
+            }
+        }
+
+
+        public async getAllQuizz(courseId: string): Promise<any> {
+            try{
+                const response = await this.mentorRepository.getAllQuizz(courseId)
+                return response
+            }catch(error: any){
+                throw error
+            }
+        }
+
+        public async deleteQuizz(courseId: string, quizId: string): Promise<any> {
+            try{
+                const response = await this.mentorRepository.deleteQuizz(courseId, quizId)
+                return response
+            }catch(error: any){
+                throw error
+            }
         }
 }

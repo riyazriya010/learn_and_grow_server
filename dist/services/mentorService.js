@@ -81,5 +81,79 @@ class MentorServices {
             return response;
         });
     }
+    /*---------------------------------- WEEK - 2 -------------------------------*/
+    getAllCourses() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield this.mentorRepository.getAllCourses();
+            return response;
+        });
+    }
+    getCourse(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.mentorRepository.getCourse(courseId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getAllCategory() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.mentorRepository.getAllCategory();
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getAllChapters(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.mentorRepository.getAllChapters(courseId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    addQuizz(data, courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.mentorRepository.addQuizz(data, courseId);
+                return response;
+            }
+            catch (error) {
+                // console.error('Error in service layer:', error);
+                throw error;
+            }
+        });
+    }
+    getAllQuizz(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.mentorRepository.getAllQuizz(courseId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    deleteQuizz(courseId, quizId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.mentorRepository.deleteQuizz(courseId, quizId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
 }
 exports.MentorServices = MentorServices;

@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const getId = (token, req) => {
     try {
-        const accessToken = req.cookies[token];
+        const accessToken = req.cookies['accessToken'];
         console.log('acc', accessToken);
         const decodedData = jsonwebtoken_1.default.decode(accessToken);
         const { user } = decodedData;

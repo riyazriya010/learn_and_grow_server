@@ -27,6 +27,10 @@ router.get('/student/check', userController.checkStudent.bind(userController));
 
 router.get('/get/all-course', userController.getAllCourses.bind(userController))
 router.get('/get/course', userController.getCourse.bind(userController))
+router.get('/get/course/play', userController.getCoursePlay.bind(userController))
+router.get('/filter/data', userController.filterData.bind(userController))
+router.get('/payment', userController.buyCourse.bind(userController))
+router.get('/check/verify', authenticateToken, isUserVerified, userController.isVerified.bind(userController))
 
 const userRoutes = router
 export default userRoutes;

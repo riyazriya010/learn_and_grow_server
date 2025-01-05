@@ -60,4 +60,35 @@ export class AdminServices {
             console.log(error)
         }
     }
+
+
+    /*------------------------------------- WEEK - 2 --------------------------*/
+    async addCategory(data: string): Promise<any> {
+        try {
+            const response = await this.adminRepository.addCategory(data)
+            return response
+        } catch (error: any) {
+            throw error
+        }
+    }
+
+
+    async editCategory(categoryName: string, categoryId: string): Promise<any> {
+        try {
+            const response = await this.adminRepository.editCategory(categoryName, categoryId)
+            return response
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+
+    async getAllCategory(): Promise<any> {
+        try{
+            const response = await this.adminRepository.getAllCategory()
+            return response
+        }catch(error){
+            console.log(error)
+        }
+    }
 }

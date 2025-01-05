@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminRepository = void 0;
+const categroy_model_1 = require("../models/categroy.model");
 const mentor_model_1 = __importDefault(require("../models/mentor.model"));
 const user_model_1 = __importDefault(require("../models/user.model"));
 const adminBase_repository_1 = require("./baseRepo/adminBase.repository");
@@ -20,6 +21,7 @@ class AdminRepository {
     constructor() {
         this.userBaseRepository = new adminBase_repository_1.AdminBaseRepository(user_model_1.default);
         this.mentorBaseRepository = new adminBase_repository_1.AdminBaseRepository(mentor_model_1.default);
+        this.categoryBaseRepository = new adminBase_repository_1.AdminBaseRepository(categroy_model_1.CategoryModel);
     }
     getUsers() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -88,6 +90,40 @@ class AdminRepository {
             catch (error) {
                 console.error('Error in AdminRepository while Unblocking User:', error);
                 throw new Error('Failed to Unblock User in AdminRepository');
+            }
+        });
+    }
+    addCategory(data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.categoryBaseRepository.addCategory(data);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    editCategory(categoryName, categoryId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.categoryBaseRepository.editCategory(categoryName, categoryId);
+                return response;
+            }
+            catch (error) {
+                console.log(error);
+                throw error;
+            }
+        });
+    }
+    getAllCategory() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.categoryBaseRepository.getAllCategory();
+                return response;
+            }
+            catch (error) {
+                console.log(error);
             }
         });
     }

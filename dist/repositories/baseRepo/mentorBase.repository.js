@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const nodemailer_1 = __importDefault(require("../../integration/nodemailer"));
 const mailToken_1 = require("../../integration/mailToken");
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const mongoose_1 = __importDefault(require("mongoose"));
 class MentorBaseRepository {
     constructor(model) {
         this.model = model;
@@ -224,6 +225,122 @@ class MentorBaseRepository {
             }
             catch (error) {
                 console.log(error);
+            }
+        });
+    }
+    /*------------------------------- WEEK -2 -------------------------*/
+    getAllCourses() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.model.find().sort({ createdAt: -1 }).exec();
+                return response;
+            }
+            catch (error) {
+                console.log(error);
+            }
+        });
+    }
+    getCourse(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.model.findById(courseId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getAllCategory() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.model.find();
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getAllChapters(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.model.find({
+                    courseId: courseId
+                });
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    addQuizz(data, courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const findQuizz = yield this.model.findOne({ courseId: courseId });
+                const questionData = {
+                    question: data.question,
+                    options: [data.option1, data.option2],
+                    correct_answer: data.correctAnswer,
+                };
+                const questionExist = findQuizz === null || findQuizz === void 0 ? void 0 : findQuizz.questions.some(q => q.question === data.question);
+                if (questionExist) {
+                    const error = new Error('Question Already Exist');
+                    error.name = 'QuestionAlreadyExist';
+                    throw error;
+                }
+                if (findQuizz) {
+                    // If quiz exists for the course, push the new question into the questions array
+                    findQuizz.questions.push(questionData);
+                    yield findQuizz.save();
+                    return findQuizz;
+                }
+                else {
+                    // If no quiz exists for the course, create a new quiz document
+                    const newQuizz = yield this.model.create({ courseId: courseId, questions: [questionData] });
+                    return newQuizz;
+                }
+            }
+            catch (error) {
+                // console.error('Error in base repository layer:', error);
+                throw error;
+            }
+        });
+    }
+    getAllQuizz(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.model.find({
+                    courseId: courseId
+                });
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    deleteQuizz(courseId, quizId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const findQuizz = yield this.model.findOne({ courseId: courseId });
+                if (findQuizz) {
+                    // Convert quizId to an ObjectId for proper comparison
+                    const objectIdQuizId = new mongoose_1.default.Types.ObjectId(quizId);
+                    findQuizz.questions = findQuizz.questions.filter((question) => !question._id.equals(objectIdQuizId) // Use .equals for ObjectId comparison
+                    );
+                    const updatedQuizz = yield findQuizz.save();
+                    console.log('Updated Quizz:', updatedQuizz);
+                    return updatedQuizz;
+                }
+                else {
+                    throw new Error('Quiz not found for the given courseId');
+                }
+            }
+            catch (error) {
+                console.error('Error in deleteQuizz:', error);
+                throw error;
             }
         });
     }

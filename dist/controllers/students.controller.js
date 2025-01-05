@@ -300,20 +300,62 @@ class UserController {
         });
     }
     /*----------------------------------------- WEEK -2 ----------------------------*/
+    // public async getAllCourses(req: Request, res: Response): Promise<any> {
+    //     try {
+    //         const response = await this.userServices.getAllCourses()
+    //         return res
+    //             .status(200)
+    //             .send({
+    //                 message: 'Courses Fetched Successfully',
+    //                 success: true,
+    //                 result: response
+    //             })
+    //     } catch (error: any) {
+    //         console.log(error.message)
+    //         if (error.name === 'CoursesNotFound') {
+    //             return res
+    //                 .status(404)
+    //                 .send({
+    //                     message: 'Courses Not Found',
+    //                     success: false
+    //                 })
+    //         }
+    //     }
+    // }
     getAllCourses(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.userServices.getAllCourses();
-                return res
-                    .status(200)
-                    .send({
+                // Get page and limit from query parameters
+                const { page = 1, limit = 6 } = req.query;
+                // Validate page and limit
+                const pageNumber = parseInt(page, 10);
+                const limitNumber = parseInt(limit, 10);
+                if (pageNumber < 1 || limitNumber < 1) {
+                    return res.status(400).send({
+                        message: 'Invalid page or limit value',
+                        success: false
+                    });
+                }
+                // Call the service to get the courses with pagination
+                const response = yield this.userServices.getAllCourses(pageNumber, limitNumber);
+                return res.status(200).send({
                     message: 'Courses Fetched Successfully',
                     success: true,
                     result: response
                 });
             }
             catch (error) {
-                console.log(error);
+                console.log(error.message);
+                if (error.name === 'CoursesNotFound') {
+                    return res.status(404).send({
+                        message: 'Courses Not Found',
+                        success: false
+                    });
+                }
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false
+                });
             }
         });
     }
@@ -321,6 +363,15 @@ class UserController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const courseId = req.query.courseId;
+                console.log('iddd: ', courseId);
+                if (!courseId) {
+                    return res
+                        .status(400)
+                        .send({
+                        message: 'Category ID is required in the query parameters.',
+                        success: false
+                    });
+                }
                 const response = yield this.userServices.getCourse(String(courseId));
                 return res
                     .status(200)
@@ -332,6 +383,146 @@ class UserController {
             }
             catch (error) {
                 console.log(error);
+                if (error.name === 'Course Not Found') {
+                    return res
+                        .status(404)
+                        .send({
+                        message: 'Course Not Found',
+                        success: false
+                    });
+                }
+            }
+        });
+    }
+    getCoursePlay(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const courseId = req.query.courseId;
+                if (!courseId) {
+                    return res
+                        .status(400)
+                        .send({
+                        message: 'Category ID is required in the query parameters.',
+                        success: false
+                    });
+                }
+                const response = yield this.userServices.getCoursePlay(String(courseId));
+                return res
+                    .status(200)
+                    .send({
+                    message: 'Course Got It to paly',
+                    success: true,
+                    data: response
+                });
+            }
+            catch (error) {
+                console.log(error);
+                if (error.name === 'CoursesNotFound') {
+                    return res
+                        .status(404)
+                        .send({
+                        message: 'Course Not Found',
+                        success: false
+                    });
+                }
+            }
+        });
+    }
+    filterData(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { page = 1, limit = 6 } = req.query;
+                const { selectedCategory, selectedLevel, searchTerm } = req.query;
+                // Validate page and limit
+                const pageNumber = parseInt(page, 10);
+                const limitNumber = parseInt(limit, 10);
+                if (pageNumber < 1 || limitNumber < 1) {
+                    return res
+                        .status(400)
+                        .send({
+                        message: 'Invalid page or limit value',
+                        success: false
+                    });
+                }
+                const response = yield this.userServices.filterData(pageNumber, limitNumber, String(selectedCategory), String(selectedLevel), String(searchTerm));
+                return res.status(200).send({
+                    message: 'Courses Filtered Successfully',
+                    success: true,
+                    data: response
+                });
+                ////////////
+                // const filters = req.query
+                // const response = await this.userServices.filterData(filters)
+                // return res
+                // .status(200)
+                // .send({
+                //     message: 'Filterd Data',
+                //     success: true,
+                //     data: response
+                // })
+            }
+            catch (error) {
+                if (error && error.name === 'CourseNotFound') {
+                    return res
+                        .status(404)
+                        .send({
+                        message: 'Course Not Found',
+                        success: false
+                    });
+                }
+                throw error;
+            }
+        });
+    }
+    buyCourse(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                console.log('payment started');
+                console.log('params: ', req.query);
+                const courseId = req.query.courseId;
+                const txnid = req.query.txnid;
+                const isCourseExist = yield this.userServices.findCourseById(String(courseId));
+                if (isCourseExist) {
+                    const chapters = yield this.userServices.findChaptersById(String(courseId));
+                    if (chapters.length !== 0) {
+                        const completedChapters = chapters.map((chapter) => ({
+                            chapterId: chapter._id,
+                            isCompleted: false,
+                        }));
+                        console.log('chapters: ', completedChapters);
+                        const userId = yield (0, getId_1.default)('accessToken', req);
+                        console.log('idd: ', userId);
+                        const getUserId = 'userId';
+                        const response = yield this.userServices.buyCourse(String(userId), String(isCourseExist._id), completedChapters, String(txnid));
+                        return res
+                            .status(200)
+                            .send({
+                            message: 'Course Buyed Successfully',
+                            success: true,
+                            data: response
+                        });
+                    }
+                }
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    isVerified(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const userId = yield (0, getId_1.default)('accessToken', req);
+                console.log('idd: ', userId);
+                return res
+                    .status(200)
+                    .send({
+                    message: 'Succes Verified',
+                    success: true
+                });
+            }
+            catch (error) {
+                throw error;
             }
         });
     }

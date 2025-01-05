@@ -17,5 +17,9 @@ router.patch('/unblock/user', verifyToken_1.default, adminController.unBlockUser
 router.get('/get/mentors', adminController.getMentors.bind(adminController));
 router.patch('/block/mentor', verifyToken_1.default, adminController.blockMentor.bind(adminController));
 router.patch('/unblock/mentor', verifyToken_1.default, adminController.unBlockMentor.bind(adminController));
+/* -------------------------------------- WEEK -2 -----------------------------------*/
+router.post(`/add/category`, adminController.addCategory.bind(adminController));
+router.patch(`/edit/category`, adminController.editCategory.bind(adminController));
+router.get(`/get/categories`, adminController.getAllCategory.bind(adminController));
 const adminRoutes = router;
 exports.default = adminRoutes;

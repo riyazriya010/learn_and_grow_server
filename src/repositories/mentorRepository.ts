@@ -1,12 +1,25 @@
+import { response } from "express";
 import { mentorSignUpData } from "../interface/mentor.type";
+import { CategoryModel, ICategory } from "../models/categroy.model";
+import { ChapterModel, IChapter } from "../models/chapter.model";
 import MentorModel, { IMentor } from "../models/mentor.model";
+import QuizModel, { IQuiz } from "../models/quizz.model";
+import { CourseModel, ICourse } from "../models/uploadCourse.model";
 import MentorBaseRepository from "./baseRepo/mentorBase.repository";
 
 export class MentorRepository {
     private baseRepository: MentorBaseRepository<IMentor>
+    private courseBaseRepository: MentorBaseRepository<ICourse>
+    private chapterBaseRepository: MentorBaseRepository<IChapter>
+    private categoryBaseRepository: MentorBaseRepository<ICategory>
+    private quizzBaseRepository: MentorBaseRepository<IQuiz>
 
     constructor() {
         this.baseRepository = new MentorBaseRepository<IMentor>(MentorModel)
+        this.courseBaseRepository = new MentorBaseRepository<ICourse>(CourseModel)
+        this.chapterBaseRepository = new MentorBaseRepository<IChapter>(ChapterModel)
+        this.categoryBaseRepository = new MentorBaseRepository<ICategory>(CategoryModel)
+        this.quizzBaseRepository = new MentorBaseRepository<IQuiz>(QuizModel)
     }
 
     async findByEmail(email: string): Promise<IMentor | null> {
@@ -75,5 +88,69 @@ export class MentorRepository {
         return response
     }
 
+
+    /* -------------------------- WEEK - 2 ---------------------------------- */
+
+    public async getAllCourses(): Promise<boolean> {
+        const response = await this.courseBaseRepository.getAllCourses()
+        return response
+    }
+
+    public async getCourse(courseId: string): Promise<any> {
+        try{
+            const response = await this.courseBaseRepository.getCourse(courseId)
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
+
+    async getAllCategory(): Promise<any> {
+        try{
+            const response = await this.categoryBaseRepository.getAllCategory()
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
+
+    async getAllChapters(courseId: string): Promise<any> {
+        try{
+            const response = await this.chapterBaseRepository.getAllChapters(courseId)
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
+
+    async addQuizz(data: { question: string; option1: string; option2: string; correctAnswer: string }, courseId: string): Promise<any> {
+        try {
+            const response = await this.quizzBaseRepository.addQuizz(data, courseId);
+            return response;
+        } catch (error: any) {
+            // console.error('Error in repository layer:', error);
+            throw error;
+        }
+    }
+
+    
+    async getAllQuizz(courseId: string): Promise<any> {
+        try{
+            const response = await this.quizzBaseRepository.getAllQuizz(courseId)
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
+
+    
+    async deleteQuizz(courseId: string, quizId: string): Promise<any> {
+        try{
+            const response = await this.quizzBaseRepository.deleteQuizz(courseId, quizId)
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
 
 }

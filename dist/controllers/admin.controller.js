@@ -164,5 +164,83 @@ class AdminController {
             }
         });
     }
+    /*-------------------------------------- WEEK - 2 ---------------------------------*/
+    addCategory(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { categoryName } = req.body;
+                const data = categoryName;
+                const response = yield this.adminServices.addCategory(data);
+                if (response) {
+                    return res
+                        .status(200)
+                        .send({
+                        message: 'Category Added',
+                        status: true,
+                        data: response
+                    });
+                }
+            }
+            catch (error) {
+                // console.log(error)
+                if (error.name === 'categoryAlreadyExist') {
+                    return res
+                        .status(403)
+                        .send({
+                        message: 'Category Already Exist',
+                        success: false
+                    });
+                }
+            }
+        });
+    }
+    editCategory(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { categoryId } = req.query;
+                const { categoryName } = req.body;
+                console.log('cat id: ', categoryId);
+                console.log('cat name: ', categoryName);
+                const response = yield this.adminServices.editCategory(categoryName, String(categoryId));
+                if (response === 'Already Exist') {
+                    return res
+                        .status(403)
+                        .send({
+                        message: 'Category Already Exist',
+                        status: false,
+                    });
+                }
+                if (response) {
+                    return res
+                        .status(200)
+                        .send({
+                        message: 'Category Edited',
+                        status: true,
+                        data: response
+                    });
+                }
+            }
+            catch (error) {
+                console.log(error);
+            }
+        });
+    }
+    getAllCategory(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.adminServices.getAllCategory();
+                return res
+                    .status(200)
+                    .send({
+                    message: 'All Categories were Got it',
+                    success: true,
+                    data: response
+                });
+            }
+            catch (error) {
+                console.log(error);
+            }
+        });
+    }
 }
 exports.AdminController = AdminController;

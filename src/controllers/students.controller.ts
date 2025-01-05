@@ -3,6 +3,8 @@ import UserServices from "../services/userService";
 import bcrypt from 'bcrypt'
 import { verifyToken } from "../integration/mailToken";
 import { JwtService } from "../integration/jwt";
+import crypto from 'crypto'
+import jwt from 'jsonwebtoken'
 import getId from "../integration/getId";
 
 
@@ -57,7 +59,7 @@ export default class UserController {
         }
     }
 
-    
+
     // Student google SignUp Method
     public async studentGoogleSignIn(req: Request, res: Response): Promise<any> {
         try {
@@ -102,7 +104,7 @@ export default class UserController {
 
             const addStudent = await this.userServices.studentGoogleLogin(email)
 
-            if(!addStudent){
+            if (!addStudent) {
                 return res.status(403).send({
                     message: 'Google User Not Found Please Go to Signup Page',
                     success: false
@@ -153,7 +155,7 @@ export default class UserController {
 
             const isBlocked = loggedUser?.isBlocked
 
-            if(isBlocked){
+            if (isBlocked) {
                 return res.status(403).send({
                     message: 'Student  Account Blocked',
                     success: false
@@ -187,14 +189,14 @@ export default class UserController {
 
             // Verify the token
             const verifiedToken = await verifyToken(token);
-            
+
             console.log('Verified token:', verifiedToken);
 
             if (!verifiedToken.status) {
                 console.log('token expired')
                 // throw new Error(verifiedToken.message || 'Token verification failed');
                 return res.status(401).send({
-                    message:'Token Expired',
+                    message: 'Token Expired',
                     status: false
                 })
             }
@@ -225,7 +227,7 @@ export default class UserController {
                     status: false,
                 });
             }
-    
+
             return res.status(500).send({
                 message: "Internal server error",
                 status: false,
@@ -238,22 +240,22 @@ export default class UserController {
             const data = req.body
             const response = await this.userServices.forgetPassword(data)
 
-            if(!response){
+            if (!response) {
                 return res
-                .status(401)
-                .send({
-                    message: 'Invalid Email',
-                    success: true
-                })
+                    .status(401)
+                    .send({
+                        message: 'Invalid Email',
+                        success: true
+                    })
             }
 
             return res
-            .status(200)
-            .send({
-                message:'Password Updated',
-                success: true,
-                user: response
-            })
+                .status(200)
+                .send({
+                    message: 'Password Updated',
+                    success: true,
+                    user: response
+                })
 
         } catch (error) {
             console.log(error)
@@ -284,9 +286,9 @@ export default class UserController {
         }
     }
 
-    
+
     public async studentReVerify(req: Request, res: Response): Promise<any> {
-        try{
+        try {
             const email = req.query.email
             const response = await this.userServices.studentReVerify(String(email))
             return res.status(200).send({
@@ -294,13 +296,13 @@ export default class UserController {
                 success: true,
                 user: response
             })
-        }catch(error){
+        } catch (error) {
             console.log(error)
         }
     }
 
     public async profileUpdate(req: Request, res: Response): Promise<any> {
-        try{
+        try {
             const { username, phone } = req.body
             const data = {
                 username,
@@ -308,14 +310,14 @@ export default class UserController {
             }
             const userId = await getId('accessToken', req)
             const response = await this.userServices.profileUpdate(String(userId), data)
-            if(response){
-            return res.status(201).send({
-                message: 'User Updated',
-                success: true,
-                user: response
-            })
-        }
-        }catch(error: any){
+            if (response) {
+                return res.status(201).send({
+                    message: 'User Updated',
+                    success: true,
+                    user: response
+                })
+            }
+        } catch (error: any) {
             console.log(error)
         }
     }
@@ -323,36 +325,266 @@ export default class UserController {
 
     /*----------------------------------------- WEEK -2 ----------------------------*/
 
+    // public async getAllCourses(req: Request, res: Response): Promise<any> {
+    //     try {
+    //         const response = await this.userServices.getAllCourses()
+    //         return res
+    //             .status(200)
+    //             .send({
+    //                 message: 'Courses Fetched Successfully',
+    //                 success: true,
+    //                 result: response
+    //             })
+    //     } catch (error: any) {
+    //         console.log(error.message)
+
+    //         if (error.name === 'CoursesNotFound') {
+    //             return res
+    //                 .status(404)
+    //                 .send({
+    //                     message: 'Courses Not Found',
+    //                     success: false
+    //                 })
+    //         }
+
+    //     }
+    // }
+
+
     public async getAllCourses(req: Request, res: Response): Promise<any> {
-        try{
-            const response = await this.userServices.getAllCourses()
-            return res
-            .status(200)
-            .send({
+        try {
+            // Get page and limit from query parameters
+            const { page = 1, limit = 6 } = req.query;
+
+            // Validate page and limit
+            const pageNumber = parseInt(page as string, 10);
+            const limitNumber = parseInt(limit as string, 10);
+
+            if (pageNumber < 1 || limitNumber < 1) {
+                return res.status(400).send({
+                    message: 'Invalid page or limit value',
+                    success: false
+                });
+            }
+
+            // Call the service to get the courses with pagination
+            const response = await this.userServices.getAllCourses(pageNumber, limitNumber);
+
+            return res.status(200).send({
                 message: 'Courses Fetched Successfully',
                 success: true,
                 result: response
-            })
-        }catch(error: any){
-            console.log(error)
+            });
+        } catch (error: any) {
+            console.log(error.message);
+
+            if (error.name === 'CoursesNotFound') {
+                return res.status(404).send({
+                    message: 'Courses Not Found',
+                    success: false
+                });
+            }
+
+            return res.status(500).send({
+                message: 'Internal Server Error',
+                success: false
+            });
         }
     }
 
 
 
     public async getCourse(req: Request, res: Response): Promise<any> {
-        try{
+        try {
             const courseId = req.query.courseId
+            console.log('iddd: ', courseId)
+
+            if (!courseId) {
+                return res
+                    .status(400)
+                    .send({
+                        message: 'Category ID is required in the query parameters.',
+                        success: false
+                    })
+            }
+
             const response = await this.userServices.getCourse(String(courseId))
+
+            return res
+                .status(200)
+                .send({
+                    message: 'Course Got It',
+                    success: true,
+                    data: response
+                })
+
+        } catch (error: any) {
+            console.log(error)
+            if (error.name === 'Course Not Found') {
+                return res
+                    .status(404)
+                    .send({
+                        message: 'Course Not Found',
+                        success: false
+                    })
+            }
+        }
+    }
+
+
+
+    public async getCoursePlay(req: Request, res: Response): Promise<any> {
+        try {
+            const courseId = req.query.courseId
+
+            if (!courseId) {
+                return res
+                    .status(400)
+                    .send({
+                        message: 'Category ID is required in the query parameters.',
+                        success: false
+                    })
+            }
+
+            const response = await this.userServices.getCoursePlay(String(courseId))
+
+            return res
+                .status(200)
+                .send({
+                    message: 'Course Got It to paly',
+                    success: true,
+                    data: response
+                })
+
+        } catch (error: any) {
+            console.log(error)
+            if (error.name === 'CoursesNotFound') {
+                return res
+                    .status(404)
+                    .send({
+                        message: 'Course Not Found',
+                        success: false
+                    })
+            }
+        }
+    }
+
+
+    public async filterData(req: Request, res: Response): Promise<any> {
+        try {
+
+            const { page = 1, limit = 6 } = req.query;
+            const { selectedCategory, selectedLevel, searchTerm } = req.query
+
+            // Validate page and limit
+            const pageNumber = parseInt(page as string, 10);
+            const limitNumber = parseInt(limit as string, 10);
+
+            if (pageNumber < 1 || limitNumber < 1) {
+                return res
+                    .status(400)
+                    .send({
+                        message: 'Invalid page or limit value',
+                        success: false
+                    });
+            }
+
+            const response = await this.userServices.filterData(
+                pageNumber,
+                limitNumber,
+                String(selectedCategory),
+                String(selectedLevel),
+                String(searchTerm)
+            )
+
+            return res.status(200).send({
+                message: 'Courses Filtered Successfully',
+                success: true,
+                data: response
+            });
+
+            ////////////
+            // const filters = req.query
+            // const response = await this.userServices.filterData(filters)
+            // return res
+            // .status(200)
+            // .send({
+            //     message: 'Filterd Data',
+            //     success: true,
+            //     data: response
+            // })
+        } catch (error: any) {
+            if (error && error.name === 'CourseNotFound') {
+                return res
+                    .status(404)
+                    .send({
+                        message: 'Course Not Found',
+                        success: false
+                    })
+            }
+            throw error
+        }
+    }
+
+    public async buyCourse(req: Request, res: Response): Promise<any> {
+        try {
+            console.log('payment started')
+            console.log('params: ', req.query)
+
+            const courseId = req.query.courseId
+            const txnid = req.query.txnid
+
+            const isCourseExist = await this.userServices.findCourseById(String(courseId))
+
+            if (isCourseExist) {
+
+                const chapters = await this.userServices.findChaptersById(String(courseId))
+
+                if (chapters.length !== 0) {
+
+                    const completedChapters = chapters.map((chapter: any) => ({
+                        chapterId: chapter._id,
+                        isCompleted: false,
+                    }));
+                    console.log('chapters: ', completedChapters)
+
+                    const userId = await getId('accessToken', req)
+                    console.log('idd: ', userId)
+
+                    const getUserId = 'userId'
+
+                    const response = await this.userServices.buyCourse(String(userId), String(isCourseExist._id), completedChapters, String(txnid))
+
+                    return res
+                        .status(200)
+                        .send({ 
+                            message: 'Course Buyed Successfully', 
+                            success: true,
+                            data: response
+                        })
+                }
+            }
+
+        } catch (error: any) {
+            throw error
+        }
+    }
+
+
+    public async isVerified(req: Request, res: Response): Promise<any> {
+        try{
+
+            const userId = await getId('accessToken', req)
+            console.log('idd: ', userId)
+
             return res
             .status(200)
             .send({
-                message: 'Course Got It',
-                success: true,
-                data: response
+                message: 'Succes Verified',
+                success: true
             })
-        }catch(error: any) {
-            console.log(error)
+        }catch(error: any){
+            throw error
         }
     }
 

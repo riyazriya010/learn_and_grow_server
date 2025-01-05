@@ -85,16 +85,91 @@ class UserServices {
         });
     }
     /* ------------------------------ WEEK -2 -------------------------*/
-    getAllCourses() {
+    // public async getAllCourses(): Promise<any> {
+    //     try {
+    //         const response = await this.userRepositories.getAllCourses()
+    //         return response
+    //     } catch (error: any) {
+    //         throw error
+    //     }
+    // }
+    getAllCourses(page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield this.userRepositories.getAllCourses();
-            return response;
+            try {
+                // Call the repository to get the courses with pagination
+                const response = yield this.userRepositories.getAllCourses(page, limit);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
         });
     }
     getCourse(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield this.userRepositories.getCourse(id);
-            return response;
+            try {
+                const response = yield this.userRepositories.getCourse(id);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getCoursePlay(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.userRepositories.getCoursePlay(id);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    filterData(page, limit, selectedCategory, selectedLevel, searchTerm) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                // const response = await this.userRepositories.filterData(filters)
+                const response = yield this.userRepositories.filterData(page, limit, String(selectedCategory), String(selectedLevel), String(searchTerm));
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    findCourseById(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.userRepositories.findCourseById(courseId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    findChaptersById(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.userRepositories.findChaptersById(courseId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    buyCourse(userId, courseId, chapters, txnid) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.userRepositories.buyCourse(userId, courseId, chapters, txnid);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
         });
     }
 }

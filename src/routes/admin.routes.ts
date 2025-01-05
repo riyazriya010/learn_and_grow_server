@@ -19,6 +19,13 @@ router.patch('/block/mentor',authenticateToken, adminController.blockMentor.bind
 router.patch('/unblock/mentor',authenticateToken, adminController.unBlockMentor.bind(adminController))
 
 
+/* -------------------------------------- WEEK -2 -----------------------------------*/
+
+router.post(`/add/category`, adminController.addCategory.bind(adminController))
+router.patch(`/edit/category`, adminController.editCategory.bind(adminController))
+router.get(`/get/categories`, adminController.getAllCategory.bind(adminController))
+
 const adminRoutes = router
 export default adminRoutes;
+
 

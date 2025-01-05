@@ -16,10 +16,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const userBase_repository_1 = __importDefault(require("./baseRepo/userBase.repository"));
 const user_model_1 = __importDefault(require("../models/user.model"));
 const uploadCourse_model_1 = require("../models/uploadCourse.model");
+const chapter_model_1 = require("../models/chapter.model");
+const purchased_model_1 = require("../models/purchased.model");
 class UserRepositories {
     constructor() {
         this.baseRepository = new userBase_repository_1.default(user_model_1.default);
         this.courseBaseRepository = new userBase_repository_1.default(uploadCourse_model_1.CourseModel);
+        this.chapterBaseRepository = new userBase_repository_1.default(chapter_model_1.ChapterModel);
+        this.purchaseBaseRepository = new userBase_repository_1.default(purchased_model_1.PurchasedCourseModel);
     }
     // new
     findByEmail(email) {
@@ -101,16 +105,91 @@ class UserRepositories {
         });
     }
     /*------------------------------------ WEEK - 2 ---------------------------------*/
-    getAllCourses() {
+    // public async getAllCourses(): Promise<any> {
+    //     try {
+    //         const response = await this.courseBaseRepository.getAllCourses()
+    //         return response
+    //     } catch (error: any) {
+    //         throw error
+    //     }
+    // }
+    getAllCourses(page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield this.courseBaseRepository.getAllCourses();
-            return response;
+            try {
+                // Fetch paginated courses from the base repository
+                const response = yield this.courseBaseRepository.getAllCourses(page, limit);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
         });
     }
     getCourse(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield this.courseBaseRepository.getCourse(id);
-            return response;
+            try {
+                const response = yield this.courseBaseRepository.getCourse(id);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getCoursePlay(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.courseBaseRepository.getCoursePlay(id);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    filterData(page, limit, selectedCategory, selectedLevel, searchTerm) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                // const response = await this.courseBaseRepository.filterData(filters)
+                const response = yield this.courseBaseRepository.filterData(page, limit, String(selectedCategory), String(selectedLevel), String(searchTerm));
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    findCourseById(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.courseBaseRepository.findCourseById(courseId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    findChaptersById(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.chapterBaseRepository.findChaptersById(courseId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    buyCourse(userId, courseId, chapters, txnid) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.purchaseBaseRepository.buyCourse(userId, courseId, chapters, txnid);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
         });
     }
 }

@@ -4,6 +4,7 @@ import { studentLoginData } from "../../interface/userDto";
 import { generateAccessToken } from "../../integration/mailToken";
 import bcrypt from 'bcrypt'
 import Mail from "../../integration/nodemailer";
+import { ICourse } from "../../models/uploadCourse.model";
 
 export default class BaseRepository<T extends Document> {
     private model: Model<T>
@@ -11,6 +12,7 @@ export default class BaseRepository<T extends Document> {
     constructor(model: Model<T>) {
         this.model = model
     }
+
 
     async findAll(): Promise<T[]> {
         return this.model.find()
@@ -38,7 +40,7 @@ export default class BaseRepository<T extends Document> {
         return this.model.findOne({ email })
     }
 
-    
+
     async signupStudent(data: studentLoginData): Promise<any> {
         const { username, email, phone, password } = data
 
@@ -198,27 +200,27 @@ export default class BaseRepository<T extends Document> {
     }
 
     async studentReVerify(email: string): Promise<any> {
-        try{
-            const userData = await this.model.findOne({email: email})
-            if(!userData){
+        try {
+            const userData = await this.model.findOne({ email: email })
+            if (!userData) {
                 return null
             }
             const token = await generateAccessToken({ id: userData.id, email: email })
             const portLink = process.env.STUDENT_PORT_LINK
-        if (!portLink) {
-            throw new Error('PORT_LINK environment variable is not set');
-        }
-        const createdLink = `${portLink}?token=${token}`
-        const mail = new Mail()
-        mail.sendVerificationEmail(email, createdLink)
-            .then(info => {
-                console.log('Verification email sent successfully:');
-            })
-            .catch(error => {
-                console.error('Failed to send verification email:', error);
-            }); 
+            if (!portLink) {
+                throw new Error('PORT_LINK environment variable is not set');
+            }
+            const createdLink = `${portLink}?token=${token}`
+            const mail = new Mail()
+            mail.sendVerificationEmail(email, createdLink)
+                .then(info => {
+                    console.log('Verification email sent successfully:');
+                })
+                .catch(error => {
+                    console.error('Failed to send verification email:', error);
+                });
             return userData as unknown as IUser
-        }catch(error){
+        } catch (error) {
             console.log(error)
         }
     }
@@ -228,7 +230,7 @@ export default class BaseRepository<T extends Document> {
         try {
             const response = await this.model.findOne({ email: email })
             const user = response as unknown as IUser
-            if(user.isBlocked){
+            if (user.isBlocked) {
                 return true
             }
             return false
@@ -238,15 +240,15 @@ export default class BaseRepository<T extends Document> {
     }
 
     async profileUpdate(id: string, data: any): Promise<any> {
-        try{
+        try {
             const { username, phone } = data
             const response = await this.model.findByIdAndUpdate(
-                id, 
+                id,
                 { username, phone },
                 { new: true }
             );
             return response
-        }catch(error){
+        } catch (error) {
             console.log(error)
         }
     }
@@ -255,7 +257,7 @@ export default class BaseRepository<T extends Document> {
         try {
             const response = await this.model.findById(id)
             const user = response as unknown as IUser
-            if(user.isBlocked){
+            if (user.isBlocked) {
                 return true
             }
             return false
@@ -268,7 +270,7 @@ export default class BaseRepository<T extends Document> {
         try {
             const response = await this.model.findById(id)
             const user = response as unknown as IUser
-            if(user.isVerified){
+            if (user.isVerified) {
                 return true
             }
             return false
@@ -281,21 +283,182 @@ export default class BaseRepository<T extends Document> {
 
     /* ------------------------------ WEEK - 2 -------------------------*/
 
-    async getAllCourses(): Promise<any> {
-        try{
-            const response = await this.model.find()
-            return response
-        }catch(error){
+    // async getAllCourses(): Promise<any> {
+    //     try {
+    //         const response = await this.model.find()
+
+    //         if (!response || response.length === 0) {
+    //             const error = new Error('Courses Not Found')
+    //             error.name = 'CoursesNotFound'
+    //             throw error
+    //         }
+
+    //         return response
+
+    //     } catch (error) {
+    //         console.log(error)
+    //     }
+    // }
+
+    async getAllCourses(page: number = 1, limit: number = 6): Promise<any> {
+        try {
+            // Calculate skip value for pagination
+            const skip = (page - 1) * limit;
+
+            // Fetch courses with pagination
+            const response = await this.model
+                .find()  // Add any filtering if needed
+                .skip(skip)
+                .limit(limit);
+
+            // Get the total count of courses for pagination
+            const totalCourses = await this.model.countDocuments();
+
+            // If no courses found
+            if (!response || response.length === 0) {
+                const error = new Error('Courses Not Found');
+                error.name = 'CoursesNotFound';
+                throw error;
+            }
+
+            // Return the paginated courses along with total information
+            return {
+                courses: response,
+                currentPage: page,
+                totalPages: Math.ceil(totalCourses / limit),
+                totalCourses: totalCourses
+            };
+        } catch (error) {
+            console.log(error);
+            throw error;  // Propagate error if needed
+        }
+    }
+
+
+    async getCourse(id: string): Promise<any> {
+        try {
+            const findCourse = await this.model.findById(id)
+            if (!findCourse) {
+                const error = new Error('Course Not Found')
+                error.name = 'Course Not Found'
+                throw error
+            }
+            return findCourse
+        } catch (error: any) {
             console.log(error)
         }
     }
 
-    async getCourse(id: string): Promise<any> {
-        try{
+
+    async getCoursePlay(id: string): Promise<any> {
+        try {
+            // Fetch the course and populate the fullVideo.chapterId field
             const response = await this.model.findById(id)
-            return response
+                .populate('fullVideo.chapterId') // Populate the chapterId field in fullVideo
+
+            // If the course is not found, throw an error
+            if (!response) {
+                const error = new Error('Courses Not Found')
+                error.name = 'CoursesNotFound'
+                throw error
+            }
+
+            const res = response as unknown as ICourse
+            // Extract the chapters from the populated fullVideo field
+            const chapters = res?.fullVideo?.map((video: any) => video.chapterId) || [];
+
+            // Return the course data along with the populated chapters
+            return {
+                course: response,
+                chapters,
+            };
+        } catch (error: any) {
+            console.log(error);
+            throw new Error("Error fetching course and chapters");
+        }
+
+    }
+
+
+    async filterData(page: number = 1, limit: number = 6, selectedCategory: string, selectedLevel: string, searchTerm: string): Promise<any> {
+        try {
+
+            console.log('filters: ', selectedCategory, selectedLevel, searchTerm);
+
+            const skip = (page - 1) * limit;
+        
+            const query: any = {};
+            if (selectedCategory !== 'undefined') {
+              query.category = { $regex: `^${selectedCategory}$`, $options: 'i' };
+            }
+            if (selectedLevel !== 'undefined') {
+              query.level = { $regex: `^${selectedLevel}$`, $options: 'i' };
+            }
+            if (searchTerm !== 'undefined') {
+                console.log('search: ',searchTerm)
+              query.courseName = { $regex: searchTerm, $options: 'i' };
+            }
+        
+            const courses = await this.model.find(query).skip(skip).limit(limit);
+        
+            const totalCourses = await this.model.countDocuments(query);
+        
+            if (!courses || courses.length === 0) {
+              const error = new Error('Course Not Found')
+              error.name = 'CourseNotFound'
+              throw error
+            }
+        
+            return {
+              courses,
+              currentPage: page,
+              totalPages: Math.ceil(totalCourses / limit),
+              totalCourses,
+            };
+
+        } catch (error: any) {
+            throw error;
+        }
+    }
+
+    public async findCourseById(courseId: string): Promise<any> {
+        try{
+            const isCourse = await this.model.findById(courseId)
+            return isCourse
         }catch(error: any){
-            console.log(error)
+            throw error
+        }
+    }
+
+
+    public async findChaptersById(courseId: string): Promise<any> {
+        try{
+            const isChapters = await this.model.find({courseId: courseId})
+            return isChapters
+        }catch(error: any){
+            throw error
+        }
+    }
+
+
+    public async buyCourse(userId: string, courseId: string, completedChapters: any, txnid: string): Promise<any> {
+        try{
+            // find the course with course id if the course were there then
+            // create a new docs in the purchasecourse model withi this id and userId
+            const purchasedCourse = {
+                userId,
+                courseId,
+                completedChapters,
+                isCourseCompleted: false
+            }
+
+            const document = new this.model(purchasedCourse)
+            const savedUser = await document.save()
+
+            return savedUser
+
+        }catch(error: any){
+            throw error
         }
     }
 

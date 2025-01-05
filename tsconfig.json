@@ -9,6 +9,6 @@
     "strict": true,
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "helper/getId.ts"],
   "exclude": ["node_modules"]
 }

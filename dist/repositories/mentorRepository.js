@@ -13,11 +13,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MentorRepository = void 0;
+const categroy_model_1 = require("../models/categroy.model");
+const chapter_model_1 = require("../models/chapter.model");
 const mentor_model_1 = __importDefault(require("../models/mentor.model"));
+const quizz_model_1 = __importDefault(require("../models/quizz.model"));
+const uploadCourse_model_1 = require("../models/uploadCourse.model");
 const mentorBase_repository_1 = __importDefault(require("./baseRepo/mentorBase.repository"));
 class MentorRepository {
     constructor() {
         this.baseRepository = new mentorBase_repository_1.default(mentor_model_1.default);
+        this.courseBaseRepository = new mentorBase_repository_1.default(uploadCourse_model_1.CourseModel);
+        this.chapterBaseRepository = new mentorBase_repository_1.default(chapter_model_1.ChapterModel);
+        this.categoryBaseRepository = new mentorBase_repository_1.default(categroy_model_1.CategoryModel);
+        this.quizzBaseRepository = new mentorBase_repository_1.default(quizz_model_1.default);
     }
     findByEmail(email) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -95,6 +103,80 @@ class MentorRepository {
         return __awaiter(this, void 0, void 0, function* () {
             const response = yield this.baseRepository.isVerified(id);
             return response;
+        });
+    }
+    /* -------------------------- WEEK - 2 ---------------------------------- */
+    getAllCourses() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield this.courseBaseRepository.getAllCourses();
+            return response;
+        });
+    }
+    getCourse(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.courseBaseRepository.getCourse(courseId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getAllCategory() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.categoryBaseRepository.getAllCategory();
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getAllChapters(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.chapterBaseRepository.getAllChapters(courseId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    addQuizz(data, courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.quizzBaseRepository.addQuizz(data, courseId);
+                return response;
+            }
+            catch (error) {
+                // console.error('Error in repository layer:', error);
+                throw error;
+            }
+        });
+    }
+    getAllQuizz(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.quizzBaseRepository.getAllQuizz(courseId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    deleteQuizz(courseId, quizId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.quizzBaseRepository.deleteQuizz(courseId, quizId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
         });
     }
 }
