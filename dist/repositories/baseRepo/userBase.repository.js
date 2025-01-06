@@ -529,5 +529,79 @@ class BaseRepository {
             }
         });
     }
+    getQuizz(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const findQuizz = yield this.model.findOne({ courseId: courseId });
+                if (findQuizz) {
+                    return findQuizz;
+                }
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    completeCourse(userId, courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const findCourse = yield this.model.findOne({ userId, courseId })
+                    .populate({
+                    path: 'courseId',
+                    select: 'courseName',
+                    // populate: {
+                    //     path:'mentorId',
+                    //     model: 'Mentors',
+                    //     select: 'username'
+                    // }
+                })
+                    .exec();
+                // if (!findCourse) {
+                //     throw new Error(`Course with ID ${courseId} not found for user ${userId}`);
+                // }
+                findCourse.isCourseCompleted = true;
+                const courseData = findCourse.courseId;
+                const updatedCourse = yield findCourse.save();
+                return {
+                    updatedCourse,
+                    courseName: courseData === null || courseData === void 0 ? void 0 : courseData.courseName
+                };
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    createCertificate(data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { userId, username, courseName, mentorName, courseId } = data;
+                // Create and save certificate
+                const certificate = new this.model({
+                    userId,
+                    userName: username,
+                    courseName,
+                    mentorName,
+                    courseId,
+                });
+                const savedCertificate = yield certificate.save();
+                return savedCertificate;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getCertificates() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.model.find();
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
 }
 exports.default = BaseRepository;

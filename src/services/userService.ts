@@ -189,5 +189,43 @@ export default class UserServices {
             throw error
         }
     }
+
+    public async getQuizz(courseId: string): Promise<any> {
+        try{
+            const response = await this.userRepositories.getQuizz(courseId)
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
+
+    public async completeCourse(userId: string, courseId: string): Promise<any> {
+        try{
+            const response = await this.userRepositories.completeCourse(userId, courseId)
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
+
+
+    public async createCertificate(data: any): Promise<any> {
+        try{
+            const response = await this.userRepositories.createCertificate(data)
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
+
+
+    public async getCertificates(): Promise<any> {
+        try{
+            const response = await this.userRepositories.getCertificates()
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
 }
 

@@ -607,5 +607,103 @@ class UserController {
             }
         });
     }
+    getQuizz(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { courseId } = req.query;
+                const response = yield this.userServices.getQuizz(String(courseId));
+                return res
+                    .status(200)
+                    .send({
+                    message: 'Quizz got it',
+                    success: true,
+                    data: response
+                });
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    completeCourse(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                // const userId = await getId('accessToken', req)
+                const userId = '676a9f2a339270ae95450b75';
+                const { courseId } = req.query;
+                const response = yield this.userServices.completeCourse(String(userId), String(courseId));
+                return res
+                    .status(200)
+                    .send({
+                    message: 'Course Completed Successfully',
+                    success: true,
+                    data: response
+                });
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    createCertificate(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                // const userId = await getId('accessToken', req);
+                const userId = '676a9f2a339270ae95450b75';
+                if (!userId) {
+                    return res.status(401).send({
+                        message: 'Unauthorized: User ID not found',
+                        success: false,
+                    });
+                }
+                const { username, courseName, mentorName, courseId } = req.body;
+                console.log('username ', username);
+                console.log('courseName ', courseName);
+                console.log('mentorName ', mentorName);
+                console.log('courseId ', courseId);
+                // Validate required fields
+                if (!username || !courseName || !mentorName || !courseId) {
+                    return res.status(400).send({
+                        message: 'All fields are required',
+                        success: false,
+                    });
+                }
+                const data = {
+                    userId,
+                    username,
+                    courseName,
+                    mentorName,
+                    courseId,
+                };
+                // Call service to create certificate
+                const response = yield this.userServices.createCertificate(data);
+                return res.status(200).send({
+                    message: 'Certificate Created Successfully',
+                    success: true,
+                    data: response,
+                });
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getCertificates(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.userServices.getCertificates();
+                return res
+                    .status(200)
+                    .send({
+                    message: 'Certificates All Got It',
+                    success: true,
+                    data: response
+                });
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
 }
 exports.default = UserController;

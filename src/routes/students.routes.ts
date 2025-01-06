@@ -36,6 +36,10 @@ router.get('/get/buyedCourses', userController.getBuyedCourses.bind(userControll
 router.get('/course-play', userController.coursePlay.bind(userController))
 router.get('/chapter-end', userController.chapterVideoEnd.bind(userController))
 router.get('/get/certificate', userController.getCertificate.bind(userController))
+router.get('/get/quizz', userController.getQuizz.bind(userController))
+router.get('/complete/course', userController.completeCourse.bind(userController))
+router.get('/get/certificates', userController.getCertificates.bind(userController))
+router.post('/create/certificate', userController.createCertificate.bind(userController))
 
 const userRoutes = router
 export default userRoutes;

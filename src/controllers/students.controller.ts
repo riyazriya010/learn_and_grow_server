@@ -6,6 +6,7 @@ import { JwtService } from "../integration/jwt";
 import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import getId from "../integration/getId";
+import { promises } from "dns";
 
 
 export default class UserController {
@@ -552,8 +553,8 @@ export default class UserController {
 
                     return res
                         .status(200)
-                        .send({ 
-                            message: 'Course Buyed Successfully', 
+                        .send({
+                            message: 'Course Buyed Successfully',
                             success: true,
                             data: response
                         })
@@ -568,18 +569,18 @@ export default class UserController {
 
 
     public async isVerified(req: Request, res: Response): Promise<any> {
-        try{
+        try {
 
             const userId = await getId('accessToken', req)
             console.log('idd: ', userId)
 
             return res
-            .status(200)
-            .send({
-                message: 'Succes Verified',
-                success: true
-            })
-        }catch(error: any){
+                .status(200)
+                .send({
+                    message: 'Succes Verified',
+                    success: true
+                })
+        } catch (error: any) {
             throw error
         }
     }
@@ -587,7 +588,7 @@ export default class UserController {
 
 
     public async getBuyedCourses(req: Request, res: Response): Promise<any> {
-        try{
+        try {
             // const userId = await getId('accessToken', req)
             const userId = '676a9f2a339270ae95450b75'
 
@@ -604,54 +605,54 @@ export default class UserController {
                 purchasedAt: course.purchasedAt,
             }));
             console.log('formattedResponse: ', formattedResponse)
-    
+
             return res
-            .status(200)
-            .send({
-                message: 'Buyed Courses Got It Successfully',
-                success: true,
-                data: formattedResponse
-            })
-        }catch(error: any){
+                .status(200)
+                .send({
+                    message: 'Buyed Courses Got It Successfully',
+                    success: true,
+                    data: formattedResponse
+                })
+        } catch (error: any) {
             throw error
         }
     }
 
 
     public async coursePlay(req: Request, res: Response): Promise<any> {
-        try{
+        try {
             // const userId = await getId('accessToken', req)
             // const userId = '676a9f2a339270ae95450b75'
 
             const { buyedId } = req.query
             const getCourse = await this.userServices.coursePlay(String(buyedId))
             return res
-            .status(200)
-            .send({
-                message: 'Course Got it to play',
-                success: true,
-                data: getCourse
-            })
-        }catch(error: any){
+                .status(200)
+                .send({
+                    message: 'Course Got it to play',
+                    success: true,
+                    data: getCourse
+                })
+        } catch (error: any) {
             throw error
         }
     }
 
 
     public async chapterVideoEnd(req: Request, res: Response): Promise<any> {
-        try{
+        try {
             const { chapterId } = req.query
             const response = await this.userServices.chapterVideoEnd(String(chapterId))
 
             return res
-            .status(200)
-            .send({
-                message: 'Chapter Marked As Completed',
-                succes: true,
-                data: response
-            })
-            
-        }catch(error: any){
+                .status(200)
+                .send({
+                    message: 'Chapter Marked As Completed',
+                    succes: true,
+                    data: response
+                })
+
+        } catch (error: any) {
             throw error
         }
     }
@@ -659,19 +660,122 @@ export default class UserController {
 
 
     public async getCertificate(req: Request, res: Response): Promise<any> {
-        try{
+        try {
             const { certificateId } = req.query
             const response = await this.userServices.getCertificate(String(certificateId))
 
             return res
-            .status(200)
-            .send({
-                message: 'Certificate Got It',
+                .status(200)
+                .send({
+                    message: 'Certificate Got It',
+                    success: true,
+                    data: response
+                })
+
+        } catch (error: any) {
+            throw error
+        }
+    }
+
+
+    public async getQuizz(req: Request, res: Response): Promise<any> {
+        try {
+            const { courseId } = req.query
+            const response = await this.userServices.getQuizz(String(courseId))
+
+            return res
+                .status(200)
+                .send({
+                    message: 'Quizz got it',
+                    success: true,
+                    data: response
+                })
+        } catch (error: any) {
+            throw error
+        }
+    }
+
+    public async completeCourse(req: Request, res: Response): Promise<any> {
+        try {
+            // const userId = await getId('accessToken', req)
+            const userId = '676a9f2a339270ae95450b75'
+            const { courseId } = req.query
+            const response = await this.userServices.completeCourse(String(userId), String(courseId))
+
+            return res
+                .status(200)
+                .send({
+                    message: 'Course Completed Successfully',
+                    success: true,
+                    data: response
+                })
+        } catch (error: any) {
+            throw error
+        }
+    }
+
+
+    public async createCertificate(req: Request, res: Response): Promise<any> {
+        try {
+            // const userId = await getId('accessToken', req);
+            const userId = '676a9f2a339270ae95450b75'
+
+            if (!userId) {
+                return res.status(401).send({
+                    message: 'Unauthorized: User ID not found',
+                    success: false,
+                });
+            }
+    
+            const { username, courseName, mentorName, courseId } = req.body;
+
+            console.log('username ',username)
+            console.log('courseName ',courseName)
+            console.log('mentorName ',mentorName)
+            console.log('courseId ',courseId)
+            // Validate required fields
+            if (!username || !courseName || !mentorName || !courseId) {
+                return res.status(400).send({
+                    message: 'All fields are required',
+                    success: false,
+                });
+            }
+    
+            const data = {
+                userId,
+                username,
+                courseName,
+                mentorName,
+                courseId,
+            };
+    
+            // Call service to create certificate
+            const response = await this.userServices.createCertificate(data);
+    
+            return res.status(200).send({
+                message: 'Certificate Created Successfully',
                 success: true,
-                data: response
-            })
-            
-        }catch(error: any){
+                data: response,
+            });
+
+        } catch (error: any) {
+            throw error
+        }
+    }
+
+
+
+    public async getCertificates(req: Request, res: Response): Promise<any> {
+        try {
+            const response = await this.userServices.getCertificates()
+            return res
+                .status(200)
+                .send({
+                    message: 'Certificates All Got It',
+                    success: true,
+                    data: response
+                })
+        } catch (error: any) {
             throw error
         }
     }

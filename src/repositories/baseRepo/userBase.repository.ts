@@ -554,12 +554,95 @@ export default class BaseRepository<T extends Document> {
 
 
     public async getCertificate(certificateId: string): Promise<any> {
-        try{
+        try {
             const findCertificate = await this.model.findById(certificateId)
-            if(findCertificate){
+            if (findCertificate) {
                 return findCertificate
             }
+        } catch (error: any) {
+            throw error
+        }
+    }
+
+
+    public async getQuizz(courseId: string): Promise<any> {
+        try {
+            const findQuizz = await this.model.findOne(
+                { courseId: courseId }
+            )
+            if (findQuizz) {
+                return findQuizz
+            }
+        } catch (error: any) {
+            throw error
+        }
+    }
+
+
+    public async completeCourse(userId: string, courseId: string): Promise<any> {
+        try {
+            const findCourse = await this.model.findOne({ userId, courseId })
+                .populate({
+                    path: 'courseId',
+                    select: 'courseName',
+                    // populate: {
+                    //     path:'mentorId',
+                    //     model: 'Mentors',
+                    //     select: 'username'
+                    // }
+                })
+                .exec() as unknown as IPurchasedCourse;
+
+            // if (!findCourse) {
+            //     throw new Error(`Course with ID ${courseId} not found for user ${userId}`);
+            // }
+
+            findCourse.isCourseCompleted = true;
+
+            const courseData = findCourse.courseId as unknown as ICourse
+
+            const updatedCourse = await findCourse.save();
+
+            return {
+                updatedCourse,
+                courseName: courseData?.courseName
+            }
+
+        } catch (error: any) {
+            throw error
+        }
+    }
+
+
+
+    public async createCertificate(data: any): Promise<any> {
+        try{
+            const { userId, username, courseName, mentorName, courseId } = data;
+
+            // Create and save certificate
+            const certificate = new this.model({
+                userId,
+                userName: username,
+                courseName,
+                mentorName,
+                courseId,
+            });
+    
+            const savedCertificate = await certificate.save();
+    
+            return savedCertificate;
         }catch(error: any){
+            throw error
+        }
+    }
+
+
+
+    public async getCertificates(): Promise<any> {
+        try {
+            const response = await this.model.find()
+            return response
+        } catch (error: any) {
             throw error
         }
     }

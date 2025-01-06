@@ -216,5 +216,49 @@ class UserServices {
             }
         });
     }
+    getQuizz(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.userRepositories.getQuizz(courseId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    completeCourse(userId, courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.userRepositories.completeCourse(userId, courseId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    createCertificate(data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.userRepositories.createCertificate(data);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getCertificates() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.userRepositories.getCertificates();
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
 }
 exports.default = UserServices;

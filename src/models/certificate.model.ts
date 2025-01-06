@@ -4,6 +4,7 @@ export interface ICertificate extends Document {
     userId: Schema.Types.ObjectId;
     courseId: Schema.Types.ObjectId;
     courseName: string;
+    mentorName: string;
     userName: string;
     issuedDate: Date;
 }
@@ -13,6 +14,7 @@ const CertificateSchema = new Schema<ICertificate>(
         userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
         courseId: { type: Schema.Types.ObjectId, ref: 'Course', required: true },
         courseName: { type: String, required: true },
+        mentorName: { type: String, required: true },
         userName: { type: String, required: true },
         issuedDate: { type: Date, default: Date.now },
     },

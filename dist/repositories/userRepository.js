@@ -19,6 +19,7 @@ const uploadCourse_model_1 = require("../models/uploadCourse.model");
 const chapter_model_1 = require("../models/chapter.model");
 const purchased_model_1 = require("../models/purchased.model");
 const certificate_model_1 = require("../models/certificate.model");
+const quizz_model_1 = __importDefault(require("../models/quizz.model"));
 class UserRepositories {
     constructor() {
         this.baseRepository = new userBase_repository_1.default(user_model_1.default);
@@ -26,6 +27,7 @@ class UserRepositories {
         this.chapterBaseRepository = new userBase_repository_1.default(chapter_model_1.ChapterModel);
         this.purchaseBaseRepository = new userBase_repository_1.default(purchased_model_1.PurchasedCourseModel);
         this.certificateBaseRepository = new userBase_repository_1.default(certificate_model_1.CertificateModel);
+        this.quizzBaseRepository = new userBase_repository_1.default(quizz_model_1.default);
     }
     // new
     findByEmail(email) {
@@ -231,6 +233,50 @@ class UserRepositories {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield this.certificateBaseRepository.getCertificate(certificateId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getQuizz(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.quizzBaseRepository.getQuizz(courseId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    completeCourse(userId, courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.purchaseBaseRepository.completeCourse(userId, courseId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    createCertificate(data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.certificateBaseRepository.createCertificate(data);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getCertificates() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.certificateBaseRepository.getCertificates();
                 return response;
             }
             catch (error) {

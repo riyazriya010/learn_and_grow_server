@@ -48,38 +48,6 @@ app.use((req, res, next) => {
   });
 
 
-  // certificate
-  app.get('/', async (req: Request, res: Response): Promise<any> => {
-    try {
-        const userId = '676a9f2a339270ae95450b75'; // Replace with actual user ID from your database
-        const courseId = '67710140df708808ce0fd712'; // Replace with actual course ID from your database
-        const courseName = 'JavaScript'; // Replace with course name
-        const userName = 'Riyas'; // Replace with user name
-        const issuedDate = new Date(); // Current date
-
-        // Create a new certificate
-        const certificate = new CertificateModel({
-            userId,
-            courseId,
-            courseName,
-            userName,
-            issuedDate,
-        });
-
-        // Save the certificate to the database
-        const savedCertificate = await certificate.save();
-
-        return res.status(201).json({
-            message: 'Certificate created successfully!',
-            data: savedCertificate,
-        });
-    } catch (error: any) {
-        console.error('Error creating certificate:', error.message);
-        return res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
-
-
 
 app.use("/api/user-service", userRoutes)
 app.use("/api/mentor-service", mentorRoutes)
