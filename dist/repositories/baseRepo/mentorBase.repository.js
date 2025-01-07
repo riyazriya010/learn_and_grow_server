@@ -16,8 +16,10 @@ const nodemailer_1 = __importDefault(require("../../integration/nodemailer"));
 const mailToken_1 = require("../../integration/mailToken");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const mongoose_1 = __importDefault(require("mongoose"));
+const uploadCourse_model_1 = require("../../models/uploadCourse.model");
 class MentorBaseRepository {
     constructor(model) {
+        this.courseModel = uploadCourse_model_1.CourseModel;
         this.model = model;
     }
     findByEmail(email) {
@@ -117,8 +119,18 @@ class MentorBaseRepository {
     profileUpdate(id, data) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { username, phone } = data;
-                const response = yield this.model.findByIdAndUpdate(id, { username, phone }, { new: true });
+                const { username, phone, profilePicUrl } = data;
+                // Prepare data to update
+                const updateData = {
+                    username,
+                    phone,
+                };
+                // Only add profilePicUrl to the updateData if it exists
+                if (profilePicUrl) {
+                    updateData.profilePicUrl = profilePicUrl;
+                }
+                // Perform the update
+                const response = yield this.model.findByIdAndUpdate(id, updateData, { new: true });
                 return response;
             }
             catch (error) {
@@ -229,11 +241,109 @@ class MentorBaseRepository {
         });
     }
     /*------------------------------- WEEK -2 -------------------------*/
-    getAllCourses() {
+    addCourse(data) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.model.find().sort({ createdAt: -1 }).exec();
+                const response = yield this.model.create(data);
                 return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    editCourse(courseId, updatedFields) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.model.findByIdAndUpdate(courseId, updatedFields, { new: true });
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    unPublishCourse(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                console.log('men base repo: ', courseId);
+                const updatedCourse = yield this.model.findByIdAndUpdate(courseId, { isPublished: false }, { new: true });
+                console.log('upd ', updatedCourse);
+                if (!updatedCourse) {
+                    return;
+                }
+                return updatedCourse;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    publishCourse(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const updatedCourse = yield this.model.findByIdAndUpdate(courseId, { isPublished: true }, { new: true });
+                if (!updatedCourse) {
+                    return;
+                }
+                return updatedCourse;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    filterCourse() {
+        return __awaiter(this, arguments, void 0, function* (page = 1, limit = 4, searchTerm) {
+            try {
+                console.log('filters: ', searchTerm);
+                const skip = (page - 1) * limit;
+                const query = {};
+                if (searchTerm !== 'undefined') {
+                    query.courseName = { $regex: searchTerm, $options: 'i' };
+                }
+                const courses = yield this.model.find(query).skip(skip).limit(limit).sort({ createdAt: -1 });
+                const totalCourses = yield this.model.countDocuments(query);
+                if (!courses || courses.length === 0) {
+                    const error = new Error('Course Not Found');
+                    error.name = 'CourseNotFound';
+                    throw error;
+                }
+                return {
+                    courses,
+                    currentPage: page,
+                    totalPages: Math.ceil(totalCourses / limit),
+                    totalCourses,
+                };
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getAllCourses() {
+        return __awaiter(this, arguments, void 0, function* (page = 1, limit = 4) {
+            try {
+                const skip = (page - 1) * limit;
+                const response = yield this.model
+                    .find()
+                    .skip(skip)
+                    .limit(limit)
+                    .sort({ createdAt: -1 });
+                const totalCourses = yield this.model.countDocuments();
+                if (!response || response.length === 0) {
+                    const error = new Error('Courses Not Found');
+                    error.name = 'CoursesNotFound';
+                    throw error;
+                }
+                return {
+                    courses: response,
+                    currentPage: page,
+                    totalPages: Math.ceil(totalCourses / limit),
+                    totalCourses: totalCourses
+                };
+                // const response = await this.model.find().sort({ createdAt: -1 }).exec()
+                // return response
             }
             catch (error) {
                 console.log(error);
@@ -258,6 +368,36 @@ class MentorBaseRepository {
                 return response;
             }
             catch (error) {
+                throw error;
+            }
+        });
+    }
+    editChapter(title, description, chapterId, location) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                // Validate input
+                if (!title || !description || !chapterId) {
+                    throw new Error("Title, description, and chapterId are required");
+                }
+                const data = {
+                    chapterTitle: title,
+                    description,
+                };
+                if (location) {
+                    data.videoUrl = location;
+                }
+                const updatedChapter = yield this.model.findByIdAndUpdate(chapterId, { $set: data }, { new: true });
+                if (!updatedChapter) {
+                    throw new Error("Chapter not found");
+                }
+                const updatedCourse = yield this.courseModel.updateOne({ "fullVideo.chapterId": chapterId }, { $set: { "fullVideo.$[elem].chapterId": updatedChapter._id } }, { arrayFilters: [{ "elem.chapterId": chapterId }] });
+                if (!updatedCourse || updatedCourse.modifiedCount === 0) {
+                    console.warn("No course updated for the given chapterId");
+                }
+                return updatedChapter;
+            }
+            catch (error) {
+                console.error("Error updating chapter:", error.message);
                 throw error;
             }
         });

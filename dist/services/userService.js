@@ -18,28 +18,52 @@ class UserServices {
         this.userRepositories = new userRepository_1.default();
     }
     //new
-    findByEmail(email) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const response = yield this.userRepositories.findByEmail(email);
-            return response;
-        });
-    }
     studentSignup(data) {
         return __awaiter(this, void 0, void 0, function* () {
-            const addStudent = yield this.userRepositories.studentSignup(data);
-            return addStudent;
+            try {
+                const addStudent = yield this.userRepositories.studentSignup(data);
+                return addStudent;
+            }
+            catch (error) {
+                if (error instanceof Error) {
+                    if (error.name === 'UserAlreadyExit') {
+                        throw error;
+                    }
+                }
+                throw error;
+            }
         });
     }
     studentGoogleSignIn(email, displayName) {
         return __awaiter(this, void 0, void 0, function* () {
-            const addStudent = yield this.userRepositories.studentGoogleSignIn(email, displayName);
-            return addStudent;
+            try {
+                const addStudent = yield this.userRepositories.studentGoogleSignIn(email, displayName);
+                return addStudent;
+            }
+            catch (error) {
+                if (error instanceof Error) {
+                    if (error.name === 'UserAlreadyExit') {
+                        throw error;
+                    }
+                }
+                throw error;
+            }
         });
     }
     studentGoogleLogin(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            const addStudent = yield this.userRepositories.studentGoogleLogin(email);
-            return addStudent;
+            try {
+                const addStudent = yield this.userRepositories.studentGoogleLogin(email);
+                return addStudent;
+            }
+            catch (error) {
+                if (error instanceof Error) {
+                    if (error.name === 'UserNotFound' || error.name === 'UserBlocked') {
+                        throw error;
+                    }
+                }
+                throw error;
+            }
         });
     }
     studentLogin(email, password) {
@@ -85,14 +109,6 @@ class UserServices {
         });
     }
     /* ------------------------------ WEEK -2 -------------------------*/
-    // public async getAllCourses(): Promise<any> {
-    //     try {
-    //         const response = await this.userRepositories.getAllCourses()
-    //         return response
-    //     } catch (error: any) {
-    //         throw error
-    //     }
-    // }
     getAllCourses(page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -130,7 +146,6 @@ class UserServices {
     filterData(page, limit, selectedCategory, selectedLevel, searchTerm) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                // const response = await this.userRepositories.filterData(filters)
                 const response = yield this.userRepositories.filterData(page, limit, String(selectedCategory), String(selectedLevel), String(searchTerm));
                 return response;
             }
@@ -139,10 +154,10 @@ class UserServices {
             }
         });
     }
-    findCourseById(courseId) {
+    findCourseById(courseId, amount, courseName) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.userRepositories.findCourseById(courseId);
+                const response = yield this.userRepositories.findCourseById(courseId, amount, courseName);
                 return response;
             }
             catch (error) {
@@ -172,10 +187,10 @@ class UserServices {
             }
         });
     }
-    getBuyedCourses(userId) {
+    getBuyedCourses(userId, page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.userRepositories.getBuyedCourses(userId);
+                const response = yield this.userRepositories.getBuyedCourses(userId, page, limit);
                 return response;
             }
             catch (error) {

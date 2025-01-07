@@ -6,10 +6,12 @@ import { generateAccessToken } from "../../integration/mailToken"
 import bcrypt from 'bcrypt'
 import { IQuiz } from "../../models/quizz.model"
 import mongoose from "mongoose"
+import { CourseModel, ICourse } from "../../models/uploadCourse.model"
 
 
 export default class MentorBaseRepository<T extends Document> {
     private model: Model<T>
+    private courseModel: Model<ICourse> = CourseModel as Model<ICourse>;
 
     constructor(model: Model<T>) {
         this.model = model
@@ -120,12 +122,20 @@ export default class MentorBaseRepository<T extends Document> {
 
     async profileUpdate(id: string, data: any): Promise<any> {
         try {
-            const { username, phone } = data
-            const response = await this.model.findByIdAndUpdate(
-                id,
-                { username, phone },
-                { new: true }
-            );
+            const { username, phone, profilePicUrl } = data;
+            // Prepare data to update
+            const updateData: any = {
+                username,
+                phone,
+            };
+
+            // Only add profilePicUrl to the updateData if it exists
+            if (profilePicUrl) {
+                updateData.profilePicUrl = profilePicUrl;
+            }
+
+            // Perform the update
+            const response = await this.model.findByIdAndUpdate(id, updateData, { new: true });
             return response
         } catch (error) {
             console.log(error)
@@ -236,10 +246,132 @@ export default class MentorBaseRepository<T extends Document> {
 
 
     /*------------------------------- WEEK -2 -------------------------*/
-    async getAllCourses(): Promise<any> {
-        try {
-            const response = await this.model.find().sort({ createdAt: -1 }).exec()
+
+
+    public async addCourse(data: any): Promise<any> {
+        try{
+            const response = await this.model.create(data);
             return response
+        }catch(error: any){
+            throw error
+        }
+    }
+
+    public async editCourse(courseId: string, updatedFields: any): Promise<any> {
+        try{
+            const response = await this.model.findByIdAndUpdate(
+                courseId,
+                updatedFields,
+                { new: true }
+            )
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
+
+    async unPublishCourse(courseId: string): Promise<any> {
+        try {
+            console.log('men base repo: ', courseId)
+            const updatedCourse = await this.model.findByIdAndUpdate(
+                courseId,
+                { isPublished: false },
+                { new: true }
+            )
+            console.log('upd ', updatedCourse)
+            if (!updatedCourse) {
+                return
+            }
+            return updatedCourse
+        } catch (error: any) {
+            throw error
+        }
+    }
+
+
+
+    async publishCourse(courseId: string): Promise<any> {
+        try {
+            const updatedCourse = await this.model.findByIdAndUpdate(
+                courseId,
+                { isPublished: true },
+                { new: true }
+            )
+            if (!updatedCourse) {
+                return
+            }
+            return updatedCourse
+        } catch (error: any) {
+            throw error
+        }
+    }
+
+
+
+    async filterCourse(page: number = 1, limit: number = 4, searchTerm: string): Promise<any> {
+        try {
+
+            console.log('filters: ', searchTerm);
+
+            const skip = (page - 1) * limit;
+
+            const query: any = {};
+            if (searchTerm !== 'undefined') {
+                query.courseName = { $regex: searchTerm, $options: 'i' };
+            }
+
+            const courses = await this.model.find(query).skip(skip).limit(limit).sort({ createdAt: -1 })
+
+            const totalCourses = await this.model.countDocuments(query);
+
+            if (!courses || courses.length === 0) {
+                const error = new Error('Course Not Found')
+                error.name = 'CourseNotFound'
+                throw error
+            }
+
+            return {
+                courses,
+                currentPage: page,
+                totalPages: Math.ceil(totalCourses / limit),
+                totalCourses,
+            };
+
+        } catch (error: any) {
+            throw error;
+        }
+    }
+
+
+
+    async getAllCourses(page: number = 1, limit: number = 4): Promise<any> {
+        try {
+
+            const skip = (page - 1) * limit;
+
+            const response = await this.model
+                .find()
+                .skip(skip)
+                .limit(limit)
+                .sort({ createdAt: -1 });
+
+            const totalCourses = await this.model.countDocuments();
+
+            if (!response || response.length === 0) {
+                const error = new Error('Courses Not Found');
+                error.name = 'CoursesNotFound';
+                throw error;
+            }
+
+            return {
+                courses: response,
+                currentPage: page,
+                totalPages: Math.ceil(totalCourses / limit),
+                totalCourses: totalCourses
+            };
+
+            // const response = await this.model.find().sort({ createdAt: -1 }).exec()
+            // return response
         } catch (error) {
             console.log(error)
         }
@@ -264,6 +396,58 @@ export default class MentorBaseRepository<T extends Document> {
             throw error
         }
     }
+
+
+    async editChapter(
+        title: string,
+        description: string,
+        chapterId: string,
+        location?: string
+    ): Promise<any> {
+        try {
+
+            // Validate input
+            if (!title || !description || !chapterId) {
+                throw new Error("Title, description, and chapterId are required");
+            }
+
+            const data: Record<string, any> = {
+                chapterTitle: title,
+                description,
+            };
+
+            if (location) {
+                data.videoUrl = location;
+            }
+
+            const updatedChapter = await this.model.findByIdAndUpdate(
+                chapterId,
+                { $set: data },
+                { new: true }
+            );
+
+            if (!updatedChapter) {
+                throw new Error("Chapter not found");
+            }
+
+            const updatedCourse = await this.courseModel.updateOne(
+                { "fullVideo.chapterId": chapterId },
+                { $set: { "fullVideo.$[elem].chapterId": updatedChapter._id } },
+                { arrayFilters: [{ "elem.chapterId": chapterId }] }
+            );
+
+            if (!updatedCourse || updatedCourse.modifiedCount === 0) {
+                console.warn("No course updated for the given chapterId");
+            }
+
+            return updatedChapter;
+
+        } catch (error: any) {
+            console.error("Error updating chapter:", error.message);
+            throw error;
+        }
+    }
+
 
     async getAllChapters(courseId: string): Promise<any> {
         try {
@@ -326,15 +510,15 @@ export default class MentorBaseRepository<T extends Document> {
     async deleteQuizz(courseId: string, quizId: string): Promise<any> {
         try {
             const findQuizz = await this.model.findOne({ courseId: courseId }) as IQuiz;
-    
+
             if (findQuizz) {
                 // Convert quizId to an ObjectId for proper comparison
                 const objectIdQuizId = new mongoose.Types.ObjectId(quizId);
-    
-                findQuizz.questions = findQuizz.questions.filter((question: any) => 
+
+                findQuizz.questions = findQuizz.questions.filter((question: any) =>
                     !question._id.equals(objectIdQuizId) // Use .equals for ObjectId comparison
                 );
-    
+
                 const updatedQuizz = await findQuizz.save();
                 console.log('Updated Quizz:', updatedQuizz);
                 return updatedQuizz;

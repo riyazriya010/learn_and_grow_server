@@ -68,8 +68,60 @@ export class MentorServices {
 
         /*---------------------------------- WEEK - 2 -------------------------------*/
 
-        public async getAllCourses(): Promise<any> {
-            const response = await this.mentorRepository.getAllCourses()
+        public async addCourse(data: any): Promise<any> {
+            try{
+                const response = await this.mentorRepository.addCourse(data)
+                return response
+            }catch(error: any){
+                throw error
+            }
+        }
+
+        public async editCourse(courseId: string, updatedFields: any): Promise<any> {
+            try{
+                const response = await this.mentorRepository.editCourse(courseId, updatedFields)
+                return response
+            }catch(error: any){
+                throw error
+            }
+        }
+
+        public async unPublishCourse(courseId: string): Promise<any> {
+            try{
+                const response = await this.mentorRepository.unPublishCourse(courseId)
+                return response
+            }catch(error: any){
+                throw error
+            }
+        }
+
+
+        public async publishCourse(courseId: string): Promise<any> {
+            try{
+                const response = await this.mentorRepository.publishCourse(courseId)
+                return response
+            }catch(error: any){
+                throw error
+            }
+        }
+
+
+        public async filterCourse(page: number, limit: number, searchTerm: string): Promise<any> {
+            try {
+                const response = await this.mentorRepository.filterCourse(
+                    page,
+                    limit,
+                    String(searchTerm)
+                )
+                return response
+            } catch (error: any) {
+                throw error
+            }
+        }
+
+
+        public async getAllCourses(page: number, limit: number): Promise<any> {
+            const response = await this.mentorRepository.getAllCourses(page, limit)
             return response
         }
 
@@ -81,6 +133,17 @@ export class MentorServices {
                 throw error
             }
         }
+
+
+        public async editChapter(title: string, description: string, chapterId: string, location: string): Promise<any> {
+            try{
+                const response = await this.mentorRepository.editChapter(title, description, chapterId, location)
+                return response
+            }catch(error: any){
+                throw error
+            }
+        }
+
 
         public async getAllCategory(): Promise<any> {
             try{

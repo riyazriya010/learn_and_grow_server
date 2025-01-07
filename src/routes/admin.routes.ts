@@ -23,7 +23,13 @@ router.patch('/unblock/mentor',authenticateToken, adminController.unBlockMentor.
 
 router.post(`/add/category`, adminController.addCategory.bind(adminController))
 router.patch(`/edit/category`, adminController.editCategory.bind(adminController))
+router.patch('/unList/category', adminController.unListCategory.bind(adminController))
+router.patch('/list/category', adminController.listCategory.bind(adminController))
+
 router.get(`/get/categories`, adminController.getAllCategory.bind(adminController))
+router.get(`/get/all-course`, adminController.getAllCourse.bind(adminController))
+router.patch(`/unlist/course`, adminController.unListCourse.bind(adminController))
+router.patch(`/list/course`, adminController.listCourse.bind(adminController))
 
 const adminRoutes = router
 export default adminRoutes;

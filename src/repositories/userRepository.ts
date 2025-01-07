@@ -30,25 +30,49 @@ export default class UserRepositories {
     }
 
     // new
-    public async findByEmail(email: string): Promise<IUser | null> {
-        const response = await this.baseRepository.findByEmail(email)
-        return response
-    }
 
     public async studentSignup(data: studentLoginData): Promise<IUser | null | any> {
+        try {
+            const addedUser = await this.baseRepository.signupStudent(data)
+            return addedUser
 
-        const addedUser = await this.baseRepository.signupStudent(data)
-        return addedUser
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                if (error.name === 'UserAlreadyExit') {
+                    throw error
+                }
+            }
+            throw error
+        }
     }
 
     public async studentGoogleSignIn(email: string, displayName: string): Promise<IUser | null> {
-        const addedUser = await this.baseRepository.studentGoogleSignIn(email, displayName)
-        return addedUser
+        try {
+            const addedUser = await this.baseRepository.studentGoogleSignIn(email, displayName)
+            return addedUser
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                if (error.name === 'UserAlreadyExit') {
+                    throw error
+                }
+            }
+            throw error
+        }
+
     }
 
     public async studentGoogleLogin(email: string): Promise<IUser | null> {
-        const addedUser = await this.baseRepository.studentGoogleLogin(email)
-        return addedUser
+        try {
+            const addedUser = await this.baseRepository.studentGoogleLogin(email)
+            return addedUser as unknown as IUser
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                if (error.name === 'UserNotFound' || error.name === 'UserBlocked') {
+                    throw error;
+                }
+            }
+            throw error
+        }
     }
 
     public async studentLogin(email: string, password: string): Promise<IUser | null> {
@@ -100,18 +124,8 @@ export default class UserRepositories {
 
     /*------------------------------------ WEEK - 2 ---------------------------------*/
 
-    // public async getAllCourses(): Promise<any> {
-    //     try {
-    //         const response = await this.courseBaseRepository.getAllCourses()
-    //         return response
-    //     } catch (error: any) {
-    //         throw error
-    //     }
-    // }
-
     public async getAllCourses(page: number, limit: number): Promise<any> {
         try {
-            // Fetch paginated courses from the base repository
             const response = await this.courseBaseRepository.getAllCourses(page, limit);
             return response;
         } catch (error: any) {
@@ -138,7 +152,7 @@ export default class UserRepositories {
     }
 
     public async filterData(page: number, limit: number, selectedCategory: string, selectedLevel: string, searchTerm: string): Promise<any> {
-        try{
+        try {
             // const response = await this.courseBaseRepository.filterData(filters)
             const response = await this.courseBaseRepository.filterData(
                 page,
@@ -148,117 +162,117 @@ export default class UserRepositories {
                 String(searchTerm)
             )
             return response
-        }catch(error: any){
+        } catch (error: any) {
             throw error
         }
     }
 
 
-    public async findCourseById(courseId: string): Promise<any> {
-        try{
-            const response = await this.courseBaseRepository.findCourseById(courseId)
+    public async findCourseById(courseId: string, amount: number, courseName: string): Promise<any> {
+        try {
+            const response = await this.courseBaseRepository.findCourseById(courseId, amount, courseName)
             return response
-        }catch(error: any){
+        } catch (error: any) {
             throw error
         }
     }
 
 
     public async findChaptersById(courseId: string): Promise<any> {
-        try{
+        try {
             const response = await this.chapterBaseRepository.findChaptersById(courseId)
             return response
-        }catch(error: any){
+        } catch (error: any) {
             throw error
         }
     }
 
 
     public async buyCourse(userId: string, courseId: string, chapters: any, txnid: string): Promise<any> {
-        try{
+        try {
             const response = await this.purchaseBaseRepository.buyCourse(userId, courseId, chapters, txnid)
             return response
-        }catch(error:any){
+        } catch (error: any) {
             throw error
         }
     }
 
 
-    public async getBuyedCourses(userId: string): Promise<any> {
-        try{
-            const response = await this.purchaseBaseRepository.getBuyedCourses(userId)
+    public async getBuyedCourses(userId: string, page: number, limit: number): Promise<any> {
+        try {
+            const response = await this.purchaseBaseRepository.getBuyedCourses(userId, page, limit)
             return response
-        }catch(error: any){
+        } catch (error: any) {
             throw error
         }
     }
 
 
     public async coursePlay(buyedId: string): Promise<any> {
-        try{
+        try {
             const response = await this.purchaseBaseRepository.coursePlay(buyedId)
             return response
-        }catch(error: any){
+        } catch (error: any) {
             throw error
         }
     }
 
 
     public async chapterVideoEnd(chapterId: string): Promise<any> {
-        try{
+        try {
             const response = await this.purchaseBaseRepository.chapterVideoEnd(chapterId)
             return response
-        }catch(error: any){
+        } catch (error: any) {
             throw error
         }
     }
 
-    
+
     public async getCertificate(certificateId: string): Promise<any> {
-        try{
+        try {
             const response = await this.certificateBaseRepository.getCertificate(certificateId)
             return response
-        }catch(error: any){
+        } catch (error: any) {
             throw error
         }
     }
 
 
     public async getQuizz(courseId: string): Promise<any> {
-        try{
+        try {
             const response = await this.quizzBaseRepository.getQuizz(courseId)
             return response
-        }catch(error: any){
+        } catch (error: any) {
             throw error
         }
     }
 
 
     public async completeCourse(userId: string, courseId: string): Promise<any> {
-        try{
+        try {
             const response = await this.purchaseBaseRepository.completeCourse(userId, courseId)
             return response
-        }catch(error: any){
+        } catch (error: any) {
             throw error
         }
     }
 
 
     public async createCertificate(data: any): Promise<any> {
-        try{
+        try {
             const response = await this.certificateBaseRepository.createCertificate(data)
             return response
-        }catch(error: any){
+        } catch (error: any) {
             throw error
         }
     }
 
 
     public async getCertificates(): Promise<any> {
-        try{
+        try {
             const response = await this.certificateBaseRepository.getCertificates()
             return response
-        }catch(error: any){
+        } catch (error: any) {
             throw error
         }
     }

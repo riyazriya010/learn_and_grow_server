@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminRepository = void 0;
 const categroy_model_1 = require("../models/categroy.model");
 const mentor_model_1 = __importDefault(require("../models/mentor.model"));
+const uploadCourse_model_1 = require("../models/uploadCourse.model");
 const user_model_1 = __importDefault(require("../models/user.model"));
 const adminBase_repository_1 = require("./baseRepo/adminBase.repository");
 class AdminRepository {
@@ -22,11 +23,12 @@ class AdminRepository {
         this.userBaseRepository = new adminBase_repository_1.AdminBaseRepository(user_model_1.default);
         this.mentorBaseRepository = new adminBase_repository_1.AdminBaseRepository(mentor_model_1.default);
         this.categoryBaseRepository = new adminBase_repository_1.AdminBaseRepository(categroy_model_1.CategoryModel);
+        this.courseBaseRepository = new adminBase_repository_1.AdminBaseRepository(uploadCourse_model_1.CourseModel);
     }
-    getUsers() {
+    getUsers(page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.userBaseRepository.getUsers();
+                const response = yield this.userBaseRepository.getUsers(page, limit);
                 return response;
             }
             catch (error) {
@@ -34,10 +36,10 @@ class AdminRepository {
             }
         });
     }
-    getMentors() {
+    getMentors(page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.mentorBaseRepository.getMentors();
+                const response = yield this.mentorBaseRepository.getMentors(page, limit);
                 return response;
             }
             catch (error) {
@@ -111,19 +113,73 @@ class AdminRepository {
                 return response;
             }
             catch (error) {
-                console.log(error);
                 throw error;
             }
         });
     }
-    getAllCategory() {
+    unListCategory(categoryId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.categoryBaseRepository.getAllCategory();
+                const response = yield this.categoryBaseRepository.unListCategory(categoryId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    listCategory(categoryId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.categoryBaseRepository.listCategory(categoryId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getAllCategory(page, limit) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.categoryBaseRepository.getAllCategory(page, limit);
                 return response;
             }
             catch (error) {
                 console.log(error);
+            }
+        });
+    }
+    getAllCourse(page, limit) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.courseBaseRepository.getAllCourse(page, limit);
+                return response;
+            }
+            catch (error) {
+                console.log(error);
+            }
+        });
+    }
+    unListCourse(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.courseBaseRepository.unListCourse(courseId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    listCourse(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.courseBaseRepository.listCourse(courseId);
+                return response;
+            }
+            catch (error) {
+                throw error;
             }
         });
     }

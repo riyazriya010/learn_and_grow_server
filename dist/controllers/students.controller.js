@@ -22,7 +22,6 @@ class UserController {
         this.userServices = new userService_1.default();
         this.jwtService = new jwt_1.JwtService();
     }
-    // new methods
     //Student SignUp Method
     studentSignup(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -31,10 +30,6 @@ class UserController {
                 const saltRound = 10;
                 const hashPassword = yield bcrypt_1.default.hash(password, saltRound);
                 password = hashPassword;
-                const ExistUser = yield this.userServices.findByEmail(email);
-                if (ExistUser) {
-                    return res.status(409).send({ message: 'User Already Exist', success: false, });
-                }
                 const addStudent = yield this.userServices.studentSignup({ username, email, phone, password });
                 if (addStudent && addStudent.role) {
                     const userJwtToken = yield this.jwtService.createToken(addStudent._id, addStudent.role);
@@ -54,7 +49,16 @@ class UserController {
                 }
             }
             catch (error) {
-                console.error(error);
+                if (error instanceof Error) {
+                    if (error.name === 'UserAlreadyExit') {
+                        return res
+                            .status(409)
+                            .send({
+                            message: 'User Already Exist',
+                            success: false
+                        });
+                    }
+                }
             }
         });
     }
@@ -63,10 +67,6 @@ class UserController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { email, displayName } = req.body;
-                const ExistUser = yield this.userServices.findByEmail(email);
-                if (ExistUser) {
-                    return res.status(409).send({ message: 'User Already Exist', success: false });
-                }
                 const addStudent = yield this.userServices.studentGoogleSignIn(email, displayName);
                 if (addStudent && addStudent.role) {
                     const userJwtToken = yield this.jwtService.createToken(addStudent._id, addStudent.role);
@@ -86,7 +86,16 @@ class UserController {
                 }
             }
             catch (error) {
-                console.error(error.message);
+                if (error instanceof Error) {
+                    if (error.name === 'UserAlreadyExit') {
+                        return res
+                            .status(409)
+                            .send({
+                            message: 'User Already Exist',
+                            success: false
+                        });
+                    }
+                }
             }
         });
     }
@@ -96,18 +105,6 @@ class UserController {
             try {
                 const { email } = req.body;
                 const addStudent = yield this.userServices.studentGoogleLogin(email);
-                if (!addStudent) {
-                    return res.status(403).send({
-                        message: 'Google User Not Found Please Go to Signup Page',
-                        success: false
-                    });
-                }
-                if ((addStudent === null || addStudent === void 0 ? void 0 : addStudent.isBlocked) === true) {
-                    return res.status(403).send({
-                        message: 'You Are Blocked',
-                        success: false
-                    });
-                }
                 if (addStudent && addStudent.role) {
                     const userJwtToken = yield this.jwtService.createToken(addStudent._id, addStudent.role);
                     const userRefreshToken = yield this.jwtService.createRefreshToken(addStudent._id, addStudent.role);
@@ -126,7 +123,23 @@ class UserController {
                 }
             }
             catch (error) {
-                console.error(error.message);
+                if (error instanceof Error) {
+                    if (error.name === 'UserNotFound') {
+                        return res
+                            .status(403)
+                            .send({
+                            message: 'User Not Found'
+                        });
+                    }
+                    if (error.name === 'UserBlocked') {
+                        return res
+                            .status(403)
+                            .send({
+                            message: 'User Blocked'
+                        });
+                    }
+                }
+                throw error;
             }
         });
     }
@@ -279,10 +292,13 @@ class UserController {
     profileUpdate(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                console.log('file: ', req.file);
+                const file = req.file;
                 const { username, phone } = req.body;
                 const data = {
                     username,
-                    phone
+                    phone,
+                    profilePicUrl: file === null || file === void 0 ? void 0 : file.location
                 };
                 const userId = yield (0, getId_1.default)('accessToken', req);
                 const response = yield this.userServices.profileUpdate(String(userId), data);
@@ -300,32 +316,9 @@ class UserController {
         });
     }
     /*----------------------------------------- WEEK -2 ----------------------------*/
-    // public async getAllCourses(req: Request, res: Response): Promise<any> {
-    //     try {
-    //         const response = await this.userServices.getAllCourses()
-    //         return res
-    //             .status(200)
-    //             .send({
-    //                 message: 'Courses Fetched Successfully',
-    //                 success: true,
-    //                 result: response
-    //             })
-    //     } catch (error: any) {
-    //         console.log(error.message)
-    //         if (error.name === 'CoursesNotFound') {
-    //             return res
-    //                 .status(404)
-    //                 .send({
-    //                     message: 'Courses Not Found',
-    //                     success: false
-    //                 })
-    //         }
-    //     }
-    // }
     getAllCourses(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                // Get page and limit from query parameters
                 const { page = 1, limit = 6 } = req.query;
                 // Validate page and limit
                 const pageNumber = parseInt(page, 10);
@@ -345,12 +338,13 @@ class UserController {
                 });
             }
             catch (error) {
-                console.log(error.message);
-                if (error.name === 'CoursesNotFound') {
-                    return res.status(404).send({
-                        message: 'Courses Not Found',
-                        success: false
-                    });
+                if (error instanceof Error) {
+                    if (error.name === 'CoursesNotFound') {
+                        return res.status(404).send({
+                            message: 'Courses Not Found',
+                            success: false
+                        });
+                    }
                 }
                 return res.status(500).send({
                     message: 'Internal Server Error',
@@ -363,12 +357,11 @@ class UserController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const courseId = req.query.courseId;
-                console.log('iddd: ', courseId);
                 if (!courseId) {
                     return res
                         .status(400)
                         .send({
-                        message: 'Category ID is required in the query parameters.',
+                        message: 'CourseId ID is required in the query parameters.',
                         success: false
                     });
                 }
@@ -402,7 +395,7 @@ class UserController {
                     return res
                         .status(400)
                         .send({
-                        message: 'Category ID is required in the query parameters.',
+                        message: 'Course ID is required in the query parameters.',
                         success: false
                     });
                 }
@@ -450,16 +443,6 @@ class UserController {
                     success: true,
                     data: response
                 });
-                ////////////
-                // const filters = req.query
-                // const response = await this.userServices.filterData(filters)
-                // return res
-                // .status(200)
-                // .send({
-                //     message: 'Filterd Data',
-                //     success: true,
-                //     data: response
-                // })
             }
             catch (error) {
                 if (error && error.name === 'CourseNotFound') {
@@ -479,7 +462,9 @@ class UserController {
             try {
                 const courseId = req.query.courseId;
                 const txnid = req.query.txnid;
-                const isCourseExist = yield this.userServices.findCourseById(String(courseId));
+                const amount = req.query.amount;
+                const courseName = req.query.courseName;
+                const isCourseExist = yield this.userServices.findCourseById(String(courseId), Number(amount), String(courseName));
                 if (isCourseExist) {
                     const chapters = yield this.userServices.findChaptersById(String(courseId));
                     if (chapters.length !== 0) {
@@ -508,7 +493,6 @@ class UserController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const userId = yield (0, getId_1.default)('accessToken', req);
-                console.log('idd: ', userId);
                 return res
                     .status(200)
                     .send({
@@ -524,10 +508,21 @@ class UserController {
     getBuyedCourses(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                // const userId = await getId('accessToken', req)
-                const userId = '676a9f2a339270ae95450b75';
-                const purchasedCourses = yield this.userServices.getBuyedCourses(String(userId));
-                const formattedResponse = purchasedCourses.map((course) => ({
+                // Parse query parameters
+                const { page = 1, limit = 4 } = req.query;
+                const pageNumber = parseInt(page, 10);
+                const limitNumber = parseInt(limit, 10);
+                if (pageNumber < 1 || limitNumber < 1) {
+                    const error = new Error('Invalid page or limit value');
+                    error.name = 'Invalid page or limit value';
+                    throw error;
+                }
+                // Get user ID (hardcoded for now, replace with token-based logic later)
+                const userId = yield (0, getId_1.default)('accessToken', req);
+                // Fetch buyed courses using the repository function
+                const response = yield this.userServices.getBuyedCourses(String(userId), pageNumber, limitNumber);
+                // Format the response
+                const formattedResponse = response.courses.map((course) => ({
                     _id: course._id,
                     courseDetails: {
                         courseName: course.courseId.courseName,
@@ -537,16 +532,24 @@ class UserController {
                     isCourseCompleted: course.isCourseCompleted,
                     purchasedAt: course.purchasedAt,
                 }));
-                console.log('formattedResponse: ', formattedResponse);
-                return res
-                    .status(200)
-                    .send({
-                    message: 'Buyed Courses Got It Successfully',
+                // Update the courses in the response object
+                response.courses = formattedResponse;
+                // Send the response
+                return res.status(200).send({
+                    message: "Buyed Courses Got Successfully",
                     success: true,
-                    data: formattedResponse
+                    data: response,
                 });
             }
             catch (error) {
+                if (error instanceof Error) {
+                    if (error.name === 'Invalid page or limit value') {
+                        return res.status(400).send({
+                            message: "Invalid page or limit value",
+                            success: false,
+                        });
+                    }
+                }
                 throw error;
             }
         });
@@ -554,8 +557,6 @@ class UserController {
     coursePlay(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                // const userId = await getId('accessToken', req)
-                // const userId = '676a9f2a339270ae95450b75'
                 const { buyedId } = req.query;
                 const getCourse = yield this.userServices.coursePlay(String(buyedId));
                 return res
@@ -575,6 +576,11 @@ class UserController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { chapterId } = req.query;
+                if (!chapterId) {
+                    const error = new Error("ChapterId is not provided in the query");
+                    error.name = "MissingChapterIdError";
+                    throw error;
+                }
                 const response = yield this.userServices.chapterVideoEnd(String(chapterId));
                 return res
                     .status(200)
@@ -585,6 +591,14 @@ class UserController {
                 });
             }
             catch (error) {
+                if (error instanceof Error) {
+                    if (error.name === "MissingChapterIdError") {
+                        return res.status(400).send({
+                            message: error.message,
+                            success: false,
+                        });
+                    }
+                }
                 throw error;
             }
         });
@@ -593,6 +607,11 @@ class UserController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { certificateId } = req.query;
+                if (!certificateId) {
+                    const error = new Error("certificateId is not provided in the query");
+                    error.name = "MissingCertificateIdError";
+                    throw error;
+                }
                 const response = yield this.userServices.getCertificate(String(certificateId));
                 return res
                     .status(200)
@@ -603,6 +622,14 @@ class UserController {
                 });
             }
             catch (error) {
+                if (error instanceof Error) {
+                    if (error.name === "MissingCertificateIdError") {
+                        return res.status(400).send({
+                            message: error.message,
+                            success: false,
+                        });
+                    }
+                }
                 throw error;
             }
         });
@@ -611,6 +638,11 @@ class UserController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { courseId } = req.query;
+                if (!courseId) {
+                    const error = new Error("courseId is not provided in the query");
+                    error.name = "MissingCourseIdError";
+                    throw error;
+                }
                 const response = yield this.userServices.getQuizz(String(courseId));
                 return res
                     .status(200)
@@ -621,6 +653,14 @@ class UserController {
                 });
             }
             catch (error) {
+                if (error instanceof Error) {
+                    if (error.name === "MissingCertificateIdError") {
+                        return res.status(400).send({
+                            message: error.message,
+                            success: false,
+                        });
+                    }
+                }
                 throw error;
             }
         });
@@ -628,10 +668,17 @@ class UserController {
     completeCourse(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                // const userId = await getId('accessToken', req)
-                const userId = '676a9f2a339270ae95450b75';
+                const userId = yield (0, getId_1.default)('accessToken', req);
                 const { courseId } = req.query;
                 const response = yield this.userServices.completeCourse(String(userId), String(courseId));
+                if (response === 'Course Already Completed') {
+                    return res
+                        .status(200)
+                        .send({
+                        message: 'Course Already Completed',
+                        success: true
+                    });
+                }
                 return res
                     .status(200)
                     .send({
@@ -648,8 +695,7 @@ class UserController {
     createCertificate(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                // const userId = await getId('accessToken', req);
-                const userId = '676a9f2a339270ae95450b75';
+                const userId = yield (0, getId_1.default)('accessToken', req);
                 if (!userId) {
                     return res.status(401).send({
                         message: 'Unauthorized: User ID not found',
@@ -657,16 +703,11 @@ class UserController {
                     });
                 }
                 const { username, courseName, mentorName, courseId } = req.body;
-                console.log('username ', username);
-                console.log('courseName ', courseName);
-                console.log('mentorName ', mentorName);
-                console.log('courseId ', courseId);
                 // Validate required fields
                 if (!username || !courseName || !mentorName || !courseId) {
-                    return res.status(400).send({
-                        message: 'All fields are required',
-                        success: false,
-                    });
+                    const error = new Error('All fields are required');
+                    error.name = 'AllFieldsRequired';
+                    throw error;
                 }
                 const data = {
                     userId,
@@ -684,6 +725,14 @@ class UserController {
                 });
             }
             catch (error) {
+                if (error instanceof Error) {
+                    if (error.name === 'AllFieldsRequired') {
+                        return res.status(400).send({
+                            message: 'All fields are required',
+                            success: false,
+                        });
+                    }
+                }
                 throw error;
             }
         });

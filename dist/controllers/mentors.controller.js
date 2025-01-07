@@ -197,10 +197,12 @@ class MentorController {
     profileUpdate(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                const file = req.file;
                 const { username, phone } = req.body;
                 const data = {
                     username,
-                    phone
+                    phone,
+                    profilePicUrl: file === null || file === void 0 ? void 0 : file.location
                 };
                 const userId = yield (0, getId_1.default)('accessToken', req);
                 const response = yield this.mentorServices.profileUpdate(String(userId), data);
@@ -305,8 +307,6 @@ class MentorController {
     addCourse(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('Request files: ', req.files);
-                console.log('Request body: ', req.body);
                 // Extract files
                 const files = req.files;
                 const mediaFiles = (files === null || files === void 0 ? void 0 : files.demoVideo) || [];
@@ -318,17 +318,26 @@ class MentorController {
                 }));
                 // Extract thumbnail URL
                 const thumbnailUrl = thumbnailFile ? thumbnailFile.location : null;
+                const mentorId = yield (0, getId_1.default)('accessToken', req);
                 // Append processed fields to request body
                 req.body.demoVideo = demoVideo;
                 req.body.thumbnailUrl = thumbnailUrl;
-                // Create and save the course
-                const result = yield uploadCourse_model_1.CourseModel.create(req.body);
-                // Respond with success
+                req.body.mentorId = String(mentorId);
+                const data = req.body;
+                const response = yield this.mentorServices.addCourse(data);
                 return res.status(200).send({
                     message: 'Course uploaded successfully',
                     success: true,
-                    result,
+                    result: response
                 });
+                // // Create and save the course
+                // const result = await CourseModel.create(req.body);
+                // // Respond with success
+                // return res.status(200).send({
+                //     message: 'Course uploaded successfully',
+                //     success: true,
+                //     result,
+                // });
             }
             catch (error) {
                 console.error('Error in addCourse:', error);
@@ -340,11 +349,154 @@ class MentorController {
             }
         });
     }
+    editCourse(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                // Extract courseId from query
+                const courseId = req.query.courseId;
+                // Find the course to update
+                const findCourseToUpdate = yield uploadCourse_model_1.CourseModel.findById(courseId);
+                if (!findCourseToUpdate) {
+                    return res.status(404).send({
+                        message: 'Course Not Found',
+                        success: false,
+                    });
+                }
+                // Initialize fields to update from req.body
+                const updatedFields = {
+                    courseName: req.body.courseName,
+                    description: req.body.description,
+                    category: req.body.category,
+                    level: req.body.level,
+                    duration: req.body.duration,
+                    price: req.body.price,
+                };
+                // Extract files if they exist (thumbnail and demo video)
+                const files = req.files;
+                const mediaFiles = (files === null || files === void 0 ? void 0 : files.demoVideo) || [];
+                const thumbnailFile = (files === null || files === void 0 ? void 0 : files.thumbnail) ? files.thumbnail[0] : null;
+                // Only update demo video if a new file is uploaded
+                if (mediaFiles.length > 0) {
+                    const demoVideo = mediaFiles.map((file) => ({
+                        type: 'video',
+                        url: file.location,
+                    }));
+                    updatedFields.demoVideo = demoVideo;
+                }
+                // Only update thumbnail if a new file is uploaded
+                if (thumbnailFile) {
+                    updatedFields.thumbnailUrl = thumbnailFile.location;
+                }
+                const response = yield this.mentorServices.editCourse(String(courseId), updatedFields);
+                // Send response back
+                return res.status(200).send({
+                    message: 'Course updated successfully',
+                    success: true,
+                    data: response,
+                });
+                // Update course with new fields
+                // const updatedCourse = await CourseModel.findByIdAndUpdate(courseId, updatedFields, { new: true });
+                // if (!updatedCourse) {
+                //     return res.status(400).send({
+                //         message: 'Failed to update course',
+                //         success: false,
+                //     });
+                // }
+                // // Send response back
+                // return res.status(200).send({
+                //     message: 'Course updated successfully',
+                //     success: true,
+                //     data: updatedCourse,
+                // });
+            }
+            catch (error) {
+                console.error('Error:', error);
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
+                });
+            }
+        });
+    }
+    unPublishCourse(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { courseId } = req.query;
+                console.log('unlist  courseId: ', courseId);
+                const response = yield this.mentorServices.unPublishCourse(String(courseId));
+                return res
+                    .status(200)
+                    .send({
+                    message: 'Course UnPublished',
+                    success: true
+                });
+            }
+            catch (error) {
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
+                });
+            }
+        });
+    }
+    publishCourse(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { courseId } = req.query;
+                const response = yield this.mentorServices.publishCourse(String(courseId));
+                return res
+                    .status(200)
+                    .send({
+                    message: 'Course Published',
+                    success: true
+                });
+            }
+            catch (error) {
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
+                });
+            }
+        });
+    }
+    filterCourse(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { page = 1, limit = 6 } = req.query;
+                const { searchTerm } = req.query;
+                const pageNumber = parseInt(page, 10);
+                const limitNumber = parseInt(limit, 10);
+                if (pageNumber < 1 || limitNumber < 1) {
+                    return res
+                        .status(400)
+                        .send({
+                        message: 'Invalid page or limit value',
+                        success: false,
+                    });
+                }
+                const response = yield this.mentorServices.filterCourse(pageNumber, limitNumber, String(searchTerm));
+                return res.status(200).send({
+                    message: 'Courses Filtered Successfully',
+                    success: true,
+                    result: response
+                });
+            }
+            catch (error) {
+                if (error && error.name === 'CourseNotFound') {
+                    return res
+                        .status(404)
+                        .send({
+                        message: 'Course Not Found',
+                        success: false
+                    });
+                }
+                throw error;
+            }
+        });
+    }
     addChapter(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('req file: ', req.file);
-                console.log('req body: ', req.body);
                 const { courseId } = req.query; // Extract courseId from the query
                 const { title, description } = req.body;
                 // Validate courseId
@@ -384,7 +536,6 @@ class MentorController {
                 });
             }
             catch (error) {
-                console.error('Error in addChapter:', error);
                 return res.status(500).send({
                     message: 'An error occurred while adding the chapter',
                     success: false,
@@ -393,10 +544,65 @@ class MentorController {
             }
         });
     }
+    editChapter(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { chapterId } = req.query;
+                const { title, description } = req.body;
+                // Validate chapterId
+                if (!chapterId) {
+                    return res.status(400).send({
+                        message: "Chapter ID is required",
+                        success: false,
+                    });
+                }
+                // Validate title and description
+                if (!title || !description) {
+                    return res.status(400).send({
+                        message: "Title and description are required",
+                        success: false,
+                    });
+                }
+                // Handle file if provided
+                const file = req.file;
+                const fileLocation = file === null || file === void 0 ? void 0 : file.location;
+                // Call the service to edit the chapter
+                const response = yield this.mentorServices.editChapter(title, description, String(chapterId), fileLocation);
+                // Check for a valid response
+                if (!response) {
+                    return res.status(404).send({
+                        message: "Chapter not found or could not be updated",
+                        success: false,
+                    });
+                }
+                return res.status(200).send({
+                    message: "Chapter edited successfully",
+                    success: true,
+                    data: response,
+                });
+            }
+            catch (error) {
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
+                });
+            }
+        });
+    }
     getAllCourses(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.mentorServices.getAllCourses();
+                const { page = 1, limit = 4 } = req.query;
+                const pageNumber = parseInt(page, 10);
+                const limitNumber = parseInt(limit, 10);
+                if (pageNumber < 1 || limitNumber < 1) {
+                    return res.status(400).send({
+                        message: 'Invalid page or limit value',
+                        success: false
+                    });
+                }
+                const response = yield this.mentorServices.getAllCourses(pageNumber, limitNumber);
+                // const response = await this.mentorServices.getAllCourses()
                 return res
                     .status(200)
                     .send({
@@ -406,7 +612,10 @@ class MentorController {
                 });
             }
             catch (error) {
-                console.log(error);
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
+                });
             }
         });
     }
@@ -426,6 +635,7 @@ class MentorController {
                 }
             }
             catch (error) {
+                throw error;
             }
         });
     }
@@ -442,7 +652,10 @@ class MentorController {
                 });
             }
             catch (error) {
-                throw error;
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
+                });
             }
         });
     }
@@ -460,7 +673,10 @@ class MentorController {
                 });
             }
             catch (error) {
-                throw error;
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
+                });
             }
         });
     }
@@ -512,7 +728,10 @@ class MentorController {
                 });
             }
             catch (error) {
-                throw error;
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
+                });
             }
         });
     }
@@ -532,122 +751,6 @@ class MentorController {
                 }
             }
             catch (error) {
-                throw error;
-            }
-        });
-    }
-    editCourse(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            // try {
-            //     console.log('query: ', req.query);
-            //     console.log('req files: ', req.files);
-            //     console.log('req body: ', req.body);
-            //     // Extract courseId from query
-            //     const courseId = req.query.courseId as string;
-            //     if (!courseId) {
-            //         return res.status(400).send({
-            //             message: 'Course ID is required',
-            //             success: false,
-            //         });
-            //     }
-            //     // Find course to update
-            //     const findCourseToUpdate = await CourseModel.findById(courseId);
-            //     if (!findCourseToUpdate) {
-            //         return res.status(404).send({
-            //             message: 'Course Not Found',
-            //             success: false,
-            //         });
-            //     }
-            //     // Extract files from request
-            //     const files = req.files as any;
-            //     const mediaFiles = files?.demoVideo || [];
-            //     const thumbnailFile = files?.thumbnail ? files.thumbnail[0] : null;
-            //     // Map demo videos to include URL and type
-            //     const demoVideo = mediaFiles.map((file: any) => ({
-            //         type: 'video',
-            //         url: file.location,
-            //     }));
-            //     // Extract thumbnail URL if available
-            //     const thumbnailUrl = thumbnailFile ? thumbnailFile.location : findCourseToUpdate.thumbnailUrl;
-            //     // Prepare updated course data
-            //     const updatedData: any = {
-            //         ...req.body, // Include any text fields from the body
-            //         demoVideo: demoVideo.length ? demoVideo : findCourseToUpdate.demoVideo, // Use existing demo videos if no new ones
-            //         thumbnailUrl, // Use existing thumbnail if no new one
-            //     };
-            //     // Update the course
-            //     const updatedCourse = await CourseModel.findByIdAndUpdate(courseId, updatedData, {
-            //         new: true, // Return the updated document
-            //     });
-            //     return res.status(200).send({
-            //         message: 'Course updated successfully',
-            //         success: true,
-            //         data: updatedCourse,
-            //     });
-            // } catch (error: any) {
-            //     console.error('Error updating course:', error);
-            //     return res.status(500).send({
-            //         message: 'An error occurred while updating the course',
-            //         success: false,
-            //         error: error.message,
-            //     });
-            // }
-            try {
-                console.log('query: ', req.query);
-                console.log('req files: ', req.files);
-                console.log('req body: ', req.body);
-                // Extract courseId from query
-                const courseId = req.query.courseId;
-                // Find the course to update
-                const findCourseToUpdate = yield uploadCourse_model_1.CourseModel.findById(courseId);
-                if (!findCourseToUpdate) {
-                    return res.status(404).send({
-                        message: 'Course Not Found',
-                        success: false,
-                    });
-                }
-                // Initialize fields to update from req.body
-                const updatedFields = {
-                    courseName: req.body.courseName,
-                    description: req.body.description,
-                    category: req.body.category,
-                    level: req.body.level,
-                    duration: req.body.duration,
-                    price: req.body.price,
-                };
-                // Extract files if they exist (thumbnail and demo video)
-                const files = req.files;
-                const mediaFiles = (files === null || files === void 0 ? void 0 : files.demoVideo) || [];
-                const thumbnailFile = (files === null || files === void 0 ? void 0 : files.thumbnail) ? files.thumbnail[0] : null;
-                // Only update demo video if a new file is uploaded
-                if (mediaFiles.length > 0) {
-                    const demoVideo = mediaFiles.map((file) => ({
-                        type: 'video',
-                        url: file.location,
-                    }));
-                    updatedFields.demoVideo = demoVideo;
-                }
-                // Only update thumbnail if a new file is uploaded
-                if (thumbnailFile) {
-                    updatedFields.thumbnailUrl = thumbnailFile.location;
-                }
-                // Update course with new fields
-                const updatedCourse = yield uploadCourse_model_1.CourseModel.findByIdAndUpdate(courseId, updatedFields, { new: true });
-                if (!updatedCourse) {
-                    return res.status(400).send({
-                        message: 'Failed to update course',
-                        success: false,
-                    });
-                }
-                // Send response back
-                return res.status(200).send({
-                    message: 'Course updated successfully',
-                    success: true,
-                    data: updatedCourse,
-                });
-            }
-            catch (error) {
-                console.error('Error:', error);
                 return res.status(500).send({
                     message: 'Internal Server Error',
                     success: false,

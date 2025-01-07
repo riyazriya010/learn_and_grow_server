@@ -106,9 +106,64 @@ class MentorRepository {
         });
     }
     /* -------------------------- WEEK - 2 ---------------------------------- */
-    getAllCourses() {
+    addCourse(data) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield this.courseBaseRepository.getAllCourses();
+            try {
+                const response = yield this.courseBaseRepository.addCourse(data);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    editCourse(courseId, updatedFields) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.courseBaseRepository.editCourse(courseId, updatedFields);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    unPublishCourse(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.courseBaseRepository.unPublishCourse(courseId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    publishCourse(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.courseBaseRepository.publishCourse(courseId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    filterCourse(page, limit, searchTerm) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.courseBaseRepository.filterCourse(page, limit, String(searchTerm));
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getAllCourses(page, limit) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield this.courseBaseRepository.getAllCourses(page, limit);
             return response;
         });
     }
@@ -127,6 +182,17 @@ class MentorRepository {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield this.categoryBaseRepository.getAllCategory();
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    editChapter(title, description, chapterId, location) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.chapterBaseRepository.editChapter(title, description, chapterId, location);
                 return response;
             }
             catch (error) {

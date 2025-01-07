@@ -1,14 +1,21 @@
 import { Model, Document, FilterQuery } from "mongoose";
-import { IUser } from "../../models/user.model";
+import UserModel, { IUser } from "../../models/user.model";
 import { studentLoginData } from "../../interface/userDto";
 import { generateAccessToken } from "../../integration/mailToken";
 import bcrypt from 'bcrypt'
 import Mail from "../../integration/nodemailer";
 import { ICourse } from "../../models/uploadCourse.model";
 import { IPurchasedCourse } from "../../models/purchased.model";
+import { IUserWallet, UserWalletModel } from "../../models/userWallet.model";
+import { IMentorWallet, MentorWalletModel } from "../../models/mentorWallet.model";
+import { AdminWalletModel, IAdminWallet } from "../../models/adminWallet.model";
 
 export default class BaseRepository<T extends Document> {
     private model: Model<T>
+    private userWalletModel: Model<IUserWallet> = UserWalletModel as Model<IUserWallet>;
+    private mentorWalletModel: Model<IMentorWallet> = MentorWalletModel as Model<IMentorWallet>;
+    private adminWalletModel: Model<IAdminWallet> = AdminWalletModel as Model<IAdminWallet>;
+    private userModel: Model<IUser> = UserModel as Model<IUser>;
 
     constructor(model: Model<T>) {
         this.model = model
@@ -37,66 +44,118 @@ export default class BaseRepository<T extends Document> {
         return users as unknown as IUser[]; // Returns Mongoose documents
     }
 
-    async findByEmail(email: string): Promise<T | null> {
-        return this.model.findOne({ email })
-    }
-
 
     async signupStudent(data: studentLoginData): Promise<any> {
-        const { username, email, phone, password } = data
+        try {
+            const { username, email, phone, password } = data
 
-        const modifiedUser = {
-            username,
-            email,
-            phone,
-            password,
-            role: 'student',
-            studiedHours: 0,
+            const existUser = await this.userModel.findOne({ email: email })
+            if (existUser) {
+                const error = new Error('User Already Exist')
+                error.name = 'UserAlreadyExit'
+                throw error
+            }
+
+            const modifiedUser = {
+                username,
+                email,
+                phone,
+                password,
+                role: 'student',
+                studiedHours: 0,
+            }
+
+            const document = new this.model(modifiedUser)
+            const savedUser = await document.save()
+
+            const token = await generateAccessToken({ id: savedUser.id, email: email })
+            const portLink = process.env.STUDENT_PORT_LINK
+            if (!portLink) {
+                throw new Error('PORT_LINK environment variable is not set');
+            }
+            const createdLink = `${portLink}?token=${token}`
+            const mail = new Mail()
+            mail.sendVerificationEmail(email, createdLink)
+                .then(info => {
+                    console.log('Verification email sent successfully:');
+                })
+                .catch(error => {
+                    console.error('Failed to send verification email:', error);
+                });
+
+            return savedUser as unknown as IUser
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                if (error.name === 'UserAlreadyExit') {
+                    throw error
+                }
+            }
+            throw error
         }
-
-        const document = new this.model(modifiedUser)
-        const savedUser = await document.save()
-
-        const token = await generateAccessToken({ id: savedUser.id, email: email })
-        const portLink = process.env.STUDENT_PORT_LINK
-        if (!portLink) {
-            throw new Error('PORT_LINK environment variable is not set');
-        }
-        const createdLink = `${portLink}?token=${token}`
-        const mail = new Mail()
-        mail.sendVerificationEmail(email, createdLink)
-            .then(info => {
-                console.log('Verification email sent successfully:');
-            })
-            .catch(error => {
-                console.error('Failed to send verification email:', error);
-            });
-
-        return savedUser as unknown as IUser
 
     }
 
     async studentGoogleSignIn(email: string, displayName: string): Promise<IUser | null> {
-        const userData = {
-            username: displayName,
-            email,
-            phone: 'Not Provided',
-            studiedHours: 0,
-            password: 'null',
-            role: 'student',
-            isVerified: true
+
+        try {
+            const existUser = await this.userModel.findOne({ email: email })
+            if (existUser) {
+                const error = new Error('User Already Exist')
+                error.name = 'UserAlreadyExit'
+                throw error
+            }
+
+            const userData = {
+                username: displayName,
+                email,
+                phone: 'Not Provided',
+                studiedHours: 0,
+                password: 'null',
+                role: 'student',
+                isVerified: true
+            }
+
+            const document = new this.model(userData)
+            const savedUser = await document.save()
+
+            return savedUser as unknown as IUser
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                if (error.name === 'UserAlreadyExit') {
+                    throw error
+                }
+            }
+            throw error
         }
-
-        const document = new this.model(userData)
-        const savedUser = await document.save()
-
-        return savedUser as unknown as IUser
     }
 
 
     async studentGoogleLogin(email: string): Promise<IUser | null> {
-        const response = await this.model.findOne({ email: email })
-        return response as unknown as IUser
+        try {
+            const existUser = await this.model.findOne({ email: email }) as unknown as IUser
+
+            if (!existUser) {
+                const error = new Error('User Not Found')
+                error.name = 'UserNotFound'
+                throw error
+            }
+
+            if (existUser?.isBlocked === true) {
+                const error = new Error('User Blocked')
+                error.name = 'UserBlocked'
+                throw error
+            }
+
+            return existUser as unknown as IUser
+
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                if (error.name === 'UserNotFound' || error.name === 'UserBlocked') {
+                    throw error;
+                }
+            }
+            throw error
+        }
     }
 
 
@@ -242,13 +301,23 @@ export default class BaseRepository<T extends Document> {
 
     async profileUpdate(id: string, data: any): Promise<any> {
         try {
-            const { username, phone } = data
-            const response = await this.model.findByIdAndUpdate(
-                id,
-                { username, phone },
-                { new: true }
-            );
-            return response
+            const { username, phone, profilePicUrl } = data;
+
+            // Prepare data to update
+            const updateData: any = {
+                username,
+                phone,
+            };
+
+            // Only add profilePicUrl to the updateData if it exists
+            if (profilePicUrl) {
+                updateData.profilePicUrl = profilePicUrl;
+            }
+
+            // Perform the update
+            const response = await this.model.findByIdAndUpdate(id, updateData, { new: true });
+
+            return response;
         } catch (error) {
             console.log(error)
         }
@@ -284,45 +353,23 @@ export default class BaseRepository<T extends Document> {
 
     /* ------------------------------ WEEK - 2 -------------------------*/
 
-    // async getAllCourses(): Promise<any> {
-    //     try {
-    //         const response = await this.model.find()
-
-    //         if (!response || response.length === 0) {
-    //             const error = new Error('Courses Not Found')
-    //             error.name = 'CoursesNotFound'
-    //             throw error
-    //         }
-
-    //         return response
-
-    //     } catch (error) {
-    //         console.log(error)
-    //     }
-    // }
-
     async getAllCourses(page: number = 1, limit: number = 6): Promise<any> {
         try {
-            // Calculate skip value for pagination
             const skip = (page - 1) * limit;
 
-            // Fetch courses with pagination
             const response = await this.model
-                .find()  // Add any filtering if needed
+                .find()
                 .skip(skip)
-                .limit(limit);
+                .limit(limit)
+                .sort({ createdAt: -1 })
 
-            // Get the total count of courses for pagination
             const totalCourses = await this.model.countDocuments();
 
-            // If no courses found
             if (!response || response.length === 0) {
                 const error = new Error('Courses Not Found');
                 error.name = 'CoursesNotFound';
                 throw error;
             }
-
-            // Return the paginated courses along with total information
             return {
                 courses: response,
                 currentPage: page,
@@ -330,8 +377,7 @@ export default class BaseRepository<T extends Document> {
                 totalCourses: totalCourses
             };
         } catch (error) {
-            console.log(error);
-            throw error;  // Propagate error if needed
+            throw error;
         }
     }
 
@@ -353,11 +399,9 @@ export default class BaseRepository<T extends Document> {
 
     async getCoursePlay(id: string): Promise<any> {
         try {
-            // Fetch the course and populate the fullVideo.chapterId field
             const response = await this.model.findById(id)
-                .populate('fullVideo.chapterId') // Populate the chapterId field in fullVideo
+                .populate('fullVideo.chapterId')
 
-            // If the course is not found, throw an error
             if (!response) {
                 const error = new Error('Courses Not Found')
                 error.name = 'CoursesNotFound'
@@ -365,7 +409,6 @@ export default class BaseRepository<T extends Document> {
             }
 
             const res = response as unknown as ICourse
-            // Extract the chapters from the populated fullVideo field
             const chapters = res?.fullVideo?.map((video: any) => video.chapterId) || [];
 
             // Return the course data along with the populated chapters
@@ -400,7 +443,7 @@ export default class BaseRepository<T extends Document> {
                 query.courseName = { $regex: searchTerm, $options: 'i' };
             }
 
-            const courses = await this.model.find(query).skip(skip).limit(limit);
+            const courses = await this.model.find(query).skip(skip).limit(limit).sort({ createdAt: -1 })
 
             const totalCourses = await this.model.countDocuments(query);
 
@@ -422,9 +465,94 @@ export default class BaseRepository<T extends Document> {
         }
     }
 
-    public async findCourseById(courseId: string): Promise<any> {
+
+    //  this is for buying course
+    public async findCourseById(courseId: string, amount: number, courseName: string): Promise<any> {
         try {
-            const isCourse = await this.model.findById(courseId)
+
+            // Find the course by its ID and populate mentor details
+            const isCourse = await this.model
+                .findById(courseId)
+                .populate("mentorId", "name email") as unknown as ICourse
+
+            if (!isCourse) {
+                throw new Error("Course not found");
+            }
+
+            // Extract mentorId and courseName from the course
+            const mentorId = isCourse.mentorId
+            const courseName = isCourse.courseName;
+
+            // Calculate the 90% for mentor and 10% for admin
+            const mentorAmount = (amount * 90) / 100;
+            const adminCommission = (amount * 10) / 100;
+
+            // Add 90% to mentor's wallet
+            const mentorWallet = await this.mentorWalletModel.findOne({ mentorId });
+
+            if (mentorWallet) {
+                mentorWallet.balance += Number(mentorAmount);
+                mentorWallet.transactions.push({
+                    type: "credit",
+                    amount: Number(mentorAmount),
+                    date: new Date(),
+                    courseName,
+                    adminCommission: `${adminCommission.toFixed(2)} (10%)`,
+                });
+                await mentorWallet.save();
+            } else {
+                // Create a new wallet if it doesn't exist
+                await this.mentorWalletModel.create({
+                    mentorId,
+                    balance: Number(mentorAmount),
+                    transactions: [
+                        {
+                            type: "credit",
+                            amount: Number(mentorAmount),
+                            date: new Date(),
+                            courseName,
+                            adminCommission: `${adminCommission.toFixed(2)} (10%)`,
+                        },
+                    ],
+                });
+            }
+
+            // Add 10% to admin's wallet
+            const adminWallet = await this.adminWalletModel.findOne({ adminId: "admin" });
+
+            if (adminWallet) {
+                adminWallet.balance += Number(adminCommission);
+                adminWallet.transactions.push({
+                    type: "credit",
+                    amount: Number(adminCommission),
+                    date: new Date(),
+                    courseName,
+                });
+                await adminWallet.save();
+            } else {
+                // Create a new wallet if it doesn't exist
+                await this.adminWalletModel.create({
+                    adminId: "admin",
+                    balance: Number(adminCommission),
+                    transactions: [
+                        {
+                            type: "credit",
+                            amount: Number(adminCommission),
+                            date: new Date(),
+                            courseName,
+                        },
+                    ],
+                });
+            }
+
+            // Return the full course details
+            // return {
+            //     success: true,
+            //     message: "Amount distributed successfully",
+            //     course: isCourse,
+            // };
+
+            // const isCourse = await this.model.findById(courseId)
             return isCourse
         } catch (error: any) {
             throw error
@@ -465,15 +593,37 @@ export default class BaseRepository<T extends Document> {
 
 
 
-    public async getBuyedCourses(userId: string): Promise<any> {
+    public async getBuyedCourses(userId: string, page: number = 1, limit: number = 4): Promise<any> {
         try {
-            const findCourses = this.model.find(
-                { userId: userId }
-            ).sort({ createdAt: -1 })
-                .populate('courseId', 'courseName level')
-                .exec()
 
-            return findCourses
+            const skip = (page - 1) * limit;
+
+            // Fetch the courses with pagination and populate course details
+            const response = await this.model
+                .find({ userId: userId })
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .populate("courseId", "courseName level")
+                .exec();
+
+            // Count the total number of courses for the user
+            const totalCourses = await this.model.countDocuments({ userId: userId });
+
+            // Check if no courses are found
+            if (!response || response.length === 0) {
+                const error = new Error("No courses found for the user.");
+                error.name = "CoursesNotFound";
+                throw error;
+            }
+
+            // Return the paginated data
+            return {
+                courses: response,
+                currentPage: page,
+                totalPages: Math.ceil(totalCourses / limit),
+                totalCourses: totalCourses,
+            };
         } catch (error: any) {
             throw error
         }
@@ -585,17 +735,17 @@ export default class BaseRepository<T extends Document> {
                 .populate({
                     path: 'courseId',
                     select: 'courseName',
-                    // populate: {
-                    //     path:'mentorId',
-                    //     model: 'Mentors',
-                    //     select: 'username'
-                    // }
+                    populate: {
+                        path: 'mentorId',
+                        model: 'Mentors',
+                        select: 'username'
+                    }
                 })
                 .exec() as unknown as IPurchasedCourse;
 
-            // if (!findCourse) {
-            //     throw new Error(`Course with ID ${courseId} not found for user ${userId}`);
-            // }
+            if (findCourse.isCourseCompleted) {
+                return 'Course Already Completed'
+            }
 
             findCourse.isCourseCompleted = true;
 
@@ -603,9 +753,12 @@ export default class BaseRepository<T extends Document> {
 
             const updatedCourse = await findCourse.save();
 
+            const mentor = (courseData?.mentorId as unknown as { username: string }) || { username: null };
+
             return {
                 updatedCourse,
-                courseName: courseData?.courseName
+                courseName: courseData?.courseName,
+                mentorName: mentor.username,
             }
 
         } catch (error: any) {
@@ -616,7 +769,7 @@ export default class BaseRepository<T extends Document> {
 
 
     public async createCertificate(data: any): Promise<any> {
-        try{
+        try {
             const { userId, username, courseName, mentorName, courseId } = data;
 
             // Create and save certificate
@@ -627,11 +780,11 @@ export default class BaseRepository<T extends Document> {
                 mentorName,
                 courseId,
             });
-    
+
             const savedCertificate = await certificate.save();
-    
+
             return savedCertificate;
-        }catch(error: any){
+        } catch (error: any) {
             throw error
         }
     }

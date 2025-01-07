@@ -49,16 +49,23 @@ class AdminController {
     getUsers(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.adminServices.getUsers();
-                if (response) {
+                const { page = 1, limit = 4 } = req.query;
+                const pageNumber = parseInt(page, 10);
+                const limitNumber = parseInt(limit, 10);
+                if (pageNumber < 1 || limitNumber < 1) {
                     return res
-                        .status(200)
+                        .status(400)
                         .send({
-                        users: response,
-                        message: 'Users Got it',
-                        success: true
+                        message: 'Invalid page or limit value',
+                        success: false,
                     });
                 }
+                const response = yield this.adminServices.getUsers(pageNumber, limitNumber);
+                return res.status(200).send({
+                    message: 'Users Got It Successfully',
+                    success: true,
+                    result: response
+                });
             }
             catch (error) {
                 console.log(error);
@@ -68,16 +75,23 @@ class AdminController {
     getMentors(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.adminServices.getMentors();
-                if (response) {
+                const { page = 1, limit = 4 } = req.query;
+                const pageNumber = parseInt(page, 10);
+                const limitNumber = parseInt(limit, 10);
+                if (pageNumber < 1 || limitNumber < 1) {
                     return res
-                        .status(200)
+                        .status(400)
                         .send({
-                        mentors: response,
-                        message: 'Mentors Got it',
-                        success: true
+                        message: 'Invalid page or limit value',
+                        success: false,
                     });
                 }
+                const response = yield this.adminServices.getMentors(pageNumber, limitNumber);
+                return res.status(200).send({
+                    message: 'Mentors Got It Successfully',
+                    success: true,
+                    result: response
+                });
             }
             catch (error) {
                 console.log(error);
@@ -199,8 +213,6 @@ class AdminController {
             try {
                 const { categoryId } = req.query;
                 const { categoryName } = req.body;
-                console.log('cat id: ', categoryId);
-                console.log('cat name: ', categoryName);
                 const response = yield this.adminServices.editCategory(categoryName, String(categoryId));
                 if (response === 'Already Exist') {
                     return res
@@ -221,24 +233,154 @@ class AdminController {
                 }
             }
             catch (error) {
-                console.log(error);
+                if (error && error.name === 'CategoryAlreadyExistsError') {
+                    return res
+                        .status(403)
+                        .send({
+                        message: 'Already Exist',
+                        success: false
+                    });
+                }
+            }
+        });
+    }
+    unListCategory(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { categoryId } = req.query;
+                const response = yield this.adminServices.unListCategory(String(categoryId));
+                return res
+                    .status(200)
+                    .send({
+                    message: "Category UnListed",
+                    success: true,
+                    data: response
+                });
+            }
+            catch (error) {
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
+                });
+            }
+        });
+    }
+    listCategory(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { categoryId } = req.query;
+                const response = yield this.adminServices.listCategory(String(categoryId));
+                return res
+                    .status(200)
+                    .send({
+                    message: "Category Listed",
+                    success: true,
+                    data: response
+                });
+            }
+            catch (error) {
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
+                });
             }
         });
     }
     getAllCategory(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.adminServices.getAllCategory();
-                return res
-                    .status(200)
-                    .send({
-                    message: 'All Categories were Got it',
+                const { page = 1, limit = 4 } = req.query;
+                const pageNumber = parseInt(page, 10);
+                const limitNumber = parseInt(limit, 10);
+                if (pageNumber < 1 || limitNumber < 1) {
+                    return res
+                        .status(400)
+                        .send({
+                        message: 'Invalid page or limit value',
+                        success: false,
+                    });
+                }
+                const response = yield this.adminServices.getAllCategory(pageNumber, limitNumber);
+                return res.status(200).send({
+                    message: 'Categories Got It Successfully',
                     success: true,
-                    data: response
+                    result: response
                 });
             }
             catch (error) {
-                console.log(error);
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
+                });
+            }
+        });
+    }
+    getAllCourse(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { page = 1, limit = 4 } = req.query;
+                const pageNumber = parseInt(page, 10);
+                const limitNumber = parseInt(limit, 10);
+                if (pageNumber < 1 || limitNumber < 1) {
+                    return res
+                        .status(400)
+                        .send({
+                        message: 'Invalid page or limit value',
+                        success: false,
+                    });
+                }
+                const response = yield this.adminServices.getAllCourse(pageNumber, limitNumber);
+                return res.status(200).send({
+                    message: 'Courses Got It Successfully',
+                    success: true,
+                    result: response
+                });
+            }
+            catch (error) {
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
+                });
+            }
+        });
+    }
+    unListCourse(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { courseId } = req.query;
+                const response = yield this.adminServices.unListCourse(String(courseId));
+                return res
+                    .status(200)
+                    .send({
+                    message: 'Course Unlisted',
+                    success: true
+                });
+            }
+            catch (error) {
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
+                });
+            }
+        });
+    }
+    listCourse(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { courseId } = req.query;
+                const response = yield this.adminServices.listCourse(String(courseId));
+                return res
+                    .status(200)
+                    .send({
+                    message: 'Course Listed',
+                    success: true
+                });
+            }
+            catch (error) {
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
+                });
             }
         });
     }

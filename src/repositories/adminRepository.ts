@@ -1,5 +1,6 @@
 import { CategoryModel, ICategory } from "../models/categroy.model";
 import MentorModel, { IMentor } from "../models/mentor.model";
+import { CourseModel, ICourse } from "../models/uploadCourse.model";
 import UserModel, { IUser } from "../models/user.model"
 import { AdminBaseRepository } from "./baseRepo/adminBase.repository"
 
@@ -7,25 +8,27 @@ export class AdminRepository {
     private mentorBaseRepository: AdminBaseRepository<IMentor>;
     private userBaseRepository: AdminBaseRepository<IUser>;
     private categoryBaseRepository: AdminBaseRepository<ICategory>;
+    private courseBaseRepository: AdminBaseRepository<ICourse>;
 
     constructor(){
         this.userBaseRepository = new AdminBaseRepository<IUser>(UserModel)
         this.mentorBaseRepository = new AdminBaseRepository<IMentor>(MentorModel)
         this.categoryBaseRepository = new AdminBaseRepository<ICategory>(CategoryModel)
+        this.courseBaseRepository = new AdminBaseRepository<ICourse>(CourseModel)
     }
 
-    async getUsers(): Promise<any> {
+    async getUsers(page: number, limit: number): Promise<any> {
         try{
-            const response = await this.userBaseRepository.getUsers()
+            const response = await this.userBaseRepository.getUsers(page, limit)
             return response
         }catch(error){
             console.log(error)
         }
     }
 
-    async getMentors(): Promise<any> {
+    async getMentors(page: number, limit: number): Promise<any> {
         try{
-            const response = await this.mentorBaseRepository.getMentors()
+            const response = await this.mentorBaseRepository.getMentors(page, limit)
             return response
         }catch(error){
             console.log(error)
@@ -88,18 +91,67 @@ export class AdminRepository {
             const response = await this.categoryBaseRepository.editCategory(categoryName, categoryId)
             return response
         } catch (error: any) {
-            console.log(error)
             throw error
         }
     }
 
 
-    async getAllCategory(): Promise<any> {
+    async unListCategory(categoryId: string): Promise<any> {
         try{
-            const response = await this.categoryBaseRepository.getAllCategory()
+            const response = await this.categoryBaseRepository.unListCategory(categoryId)
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
+
+
+    async listCategory(categoryId: string): Promise<any> {
+        try{
+            const response = await this.categoryBaseRepository.listCategory(categoryId)
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
+
+
+    async getAllCategory(page: number, limit: number): Promise<any> {
+        try{
+            const response = await this.categoryBaseRepository.getAllCategory(page, limit)
             return response
         }catch(error){
             console.log(error)
+        }
+    }
+
+
+    async getAllCourse(page: number, limit: number): Promise<any> {
+        try{
+            const response = await this.courseBaseRepository.getAllCourse(page, limit)
+            return response
+        }catch(error){
+            console.log(error)
+        }
+    }
+
+
+    async unListCourse(courseId: string): Promise<any> {
+        try{
+            const response = await this.courseBaseRepository.unListCourse(courseId)
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
+
+
+    async listCourse(courseId: string): Promise<any> {
+        try{
+            const response = await this.courseBaseRepository.listCourse(courseId)
+            return response
+        }catch(error: any){
+            throw error
         }
     }
 }

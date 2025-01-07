@@ -12,11 +12,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const user_model_1 = __importDefault(require("../../models/user.model"));
 const mailToken_1 = require("../../integration/mailToken");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const nodemailer_1 = __importDefault(require("../../integration/nodemailer"));
+const userWallet_model_1 = require("../../models/userWallet.model");
+const mentorWallet_model_1 = require("../../models/mentorWallet.model");
+const adminWallet_model_1 = require("../../models/adminWallet.model");
 class BaseRepository {
     constructor(model) {
+        this.userWalletModel = userWallet_model_1.UserWalletModel;
+        this.mentorWalletModel = mentorWallet_model_1.MentorWalletModel;
+        this.adminWalletModel = adminWallet_model_1.AdminWalletModel;
+        this.userModel = user_model_1.default;
         this.model = model;
     }
     findAll() {
@@ -43,61 +51,108 @@ class BaseRepository {
             return users; // Returns Mongoose documents
         });
     }
-    findByEmail(email) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.model.findOne({ email });
-        });
-    }
     signupStudent(data) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { username, email, phone, password } = data;
-            const modifiedUser = {
-                username,
-                email,
-                phone,
-                password,
-                role: 'student',
-                studiedHours: 0,
-            };
-            const document = new this.model(modifiedUser);
-            const savedUser = yield document.save();
-            const token = yield (0, mailToken_1.generateAccessToken)({ id: savedUser.id, email: email });
-            const portLink = process.env.STUDENT_PORT_LINK;
-            if (!portLink) {
-                throw new Error('PORT_LINK environment variable is not set');
+            try {
+                const { username, email, phone, password } = data;
+                const existUser = yield this.userModel.findOne({ email: email });
+                if (existUser) {
+                    const error = new Error('User Already Exist');
+                    error.name = 'UserAlreadyExit';
+                    throw error;
+                }
+                const modifiedUser = {
+                    username,
+                    email,
+                    phone,
+                    password,
+                    role: 'student',
+                    studiedHours: 0,
+                };
+                const document = new this.model(modifiedUser);
+                const savedUser = yield document.save();
+                const token = yield (0, mailToken_1.generateAccessToken)({ id: savedUser.id, email: email });
+                const portLink = process.env.STUDENT_PORT_LINK;
+                if (!portLink) {
+                    throw new Error('PORT_LINK environment variable is not set');
+                }
+                const createdLink = `${portLink}?token=${token}`;
+                const mail = new nodemailer_1.default();
+                mail.sendVerificationEmail(email, createdLink)
+                    .then(info => {
+                    console.log('Verification email sent successfully:');
+                })
+                    .catch(error => {
+                    console.error('Failed to send verification email:', error);
+                });
+                return savedUser;
             }
-            const createdLink = `${portLink}?token=${token}`;
-            const mail = new nodemailer_1.default();
-            mail.sendVerificationEmail(email, createdLink)
-                .then(info => {
-                console.log('Verification email sent successfully:');
-            })
-                .catch(error => {
-                console.error('Failed to send verification email:', error);
-            });
-            return savedUser;
+            catch (error) {
+                if (error instanceof Error) {
+                    if (error.name === 'UserAlreadyExit') {
+                        throw error;
+                    }
+                }
+                throw error;
+            }
         });
     }
     studentGoogleSignIn(email, displayName) {
         return __awaiter(this, void 0, void 0, function* () {
-            const userData = {
-                username: displayName,
-                email,
-                phone: 'Not Provided',
-                studiedHours: 0,
-                password: 'null',
-                role: 'student',
-                isVerified: true
-            };
-            const document = new this.model(userData);
-            const savedUser = yield document.save();
-            return savedUser;
+            try {
+                const existUser = yield this.userModel.findOne({ email: email });
+                if (existUser) {
+                    const error = new Error('User Already Exist');
+                    error.name = 'UserAlreadyExit';
+                    throw error;
+                }
+                const userData = {
+                    username: displayName,
+                    email,
+                    phone: 'Not Provided',
+                    studiedHours: 0,
+                    password: 'null',
+                    role: 'student',
+                    isVerified: true
+                };
+                const document = new this.model(userData);
+                const savedUser = yield document.save();
+                return savedUser;
+            }
+            catch (error) {
+                if (error instanceof Error) {
+                    if (error.name === 'UserAlreadyExit') {
+                        throw error;
+                    }
+                }
+                throw error;
+            }
         });
     }
     studentGoogleLogin(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield this.model.findOne({ email: email });
-            return response;
+            try {
+                const existUser = yield this.model.findOne({ email: email });
+                if (!existUser) {
+                    const error = new Error('User Not Found');
+                    error.name = 'UserNotFound';
+                    throw error;
+                }
+                if ((existUser === null || existUser === void 0 ? void 0 : existUser.isBlocked) === true) {
+                    const error = new Error('User Blocked');
+                    error.name = 'UserBlocked';
+                    throw error;
+                }
+                return existUser;
+            }
+            catch (error) {
+                if (error instanceof Error) {
+                    if (error.name === 'UserNotFound' || error.name === 'UserBlocked') {
+                        throw error;
+                    }
+                }
+                throw error;
+            }
         });
     }
     studentLogin(email, password) {
@@ -234,8 +289,18 @@ class BaseRepository {
     profileUpdate(id, data) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { username, phone } = data;
-                const response = yield this.model.findByIdAndUpdate(id, { username, phone }, { new: true });
+                const { username, phone, profilePicUrl } = data;
+                // Prepare data to update
+                const updateData = {
+                    username,
+                    phone,
+                };
+                // Only add profilePicUrl to the updateData if it exists
+                if (profilePicUrl) {
+                    updateData.profilePicUrl = profilePicUrl;
+                }
+                // Perform the update
+                const response = yield this.model.findByIdAndUpdate(id, updateData, { new: true });
                 return response;
             }
             catch (error) {
@@ -274,38 +339,21 @@ class BaseRepository {
         });
     }
     /* ------------------------------ WEEK - 2 -------------------------*/
-    // async getAllCourses(): Promise<any> {
-    //     try {
-    //         const response = await this.model.find()
-    //         if (!response || response.length === 0) {
-    //             const error = new Error('Courses Not Found')
-    //             error.name = 'CoursesNotFound'
-    //             throw error
-    //         }
-    //         return response
-    //     } catch (error) {
-    //         console.log(error)
-    //     }
-    // }
     getAllCourses() {
         return __awaiter(this, arguments, void 0, function* (page = 1, limit = 6) {
             try {
-                // Calculate skip value for pagination
                 const skip = (page - 1) * limit;
-                // Fetch courses with pagination
                 const response = yield this.model
-                    .find() // Add any filtering if needed
+                    .find()
                     .skip(skip)
-                    .limit(limit);
-                // Get the total count of courses for pagination
+                    .limit(limit)
+                    .sort({ createdAt: -1 });
                 const totalCourses = yield this.model.countDocuments();
-                // If no courses found
                 if (!response || response.length === 0) {
                     const error = new Error('Courses Not Found');
                     error.name = 'CoursesNotFound';
                     throw error;
                 }
-                // Return the paginated courses along with total information
                 return {
                     courses: response,
                     currentPage: page,
@@ -314,8 +362,7 @@ class BaseRepository {
                 };
             }
             catch (error) {
-                console.log(error);
-                throw error; // Propagate error if needed
+                throw error;
             }
         });
     }
@@ -339,17 +386,14 @@ class BaseRepository {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             try {
-                // Fetch the course and populate the fullVideo.chapterId field
                 const response = yield this.model.findById(id)
-                    .populate('fullVideo.chapterId'); // Populate the chapterId field in fullVideo
-                // If the course is not found, throw an error
+                    .populate('fullVideo.chapterId');
                 if (!response) {
                     const error = new Error('Courses Not Found');
                     error.name = 'CoursesNotFound';
                     throw error;
                 }
                 const res = response;
-                // Extract the chapters from the populated fullVideo field
                 const chapters = ((_a = res === null || res === void 0 ? void 0 : res.fullVideo) === null || _a === void 0 ? void 0 : _a.map((video) => video.chapterId)) || [];
                 // Return the course data along with the populated chapters
                 return {
@@ -379,7 +423,7 @@ class BaseRepository {
                     console.log('search: ', searchTerm);
                     query.courseName = { $regex: searchTerm, $options: 'i' };
                 }
-                const courses = yield this.model.find(query).skip(skip).limit(limit);
+                const courses = yield this.model.find(query).skip(skip).limit(limit).sort({ createdAt: -1 });
                 const totalCourses = yield this.model.countDocuments(query);
                 if (!courses || courses.length === 0) {
                     const error = new Error('Course Not Found');
@@ -398,10 +442,86 @@ class BaseRepository {
             }
         });
     }
-    findCourseById(courseId) {
+    //  this is for buying course
+    findCourseById(courseId, amount, courseName) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const isCourse = yield this.model.findById(courseId);
+                // Find the course by its ID and populate mentor details
+                const isCourse = yield this.model
+                    .findById(courseId)
+                    .populate("mentorId", "name email");
+                if (!isCourse) {
+                    throw new Error("Course not found");
+                }
+                // Extract mentorId and courseName from the course
+                const mentorId = isCourse.mentorId;
+                const courseName = isCourse.courseName;
+                // Calculate the 90% for mentor and 10% for admin
+                const mentorAmount = (amount * 90) / 100;
+                const adminCommission = (amount * 10) / 100;
+                // Add 90% to mentor's wallet
+                const mentorWallet = yield this.mentorWalletModel.findOne({ mentorId });
+                if (mentorWallet) {
+                    mentorWallet.balance += Number(mentorAmount);
+                    mentorWallet.transactions.push({
+                        type: "credit",
+                        amount: Number(mentorAmount),
+                        date: new Date(),
+                        courseName,
+                        adminCommission: `${adminCommission.toFixed(2)} (10%)`,
+                    });
+                    yield mentorWallet.save();
+                }
+                else {
+                    // Create a new wallet if it doesn't exist
+                    yield this.mentorWalletModel.create({
+                        mentorId,
+                        balance: Number(mentorAmount),
+                        transactions: [
+                            {
+                                type: "credit",
+                                amount: Number(mentorAmount),
+                                date: new Date(),
+                                courseName,
+                                adminCommission: `${adminCommission.toFixed(2)} (10%)`,
+                            },
+                        ],
+                    });
+                }
+                // Add 10% to admin's wallet
+                const adminWallet = yield this.adminWalletModel.findOne({ adminId: "admin" });
+                if (adminWallet) {
+                    adminWallet.balance += Number(adminCommission);
+                    adminWallet.transactions.push({
+                        type: "credit",
+                        amount: Number(adminCommission),
+                        date: new Date(),
+                        courseName,
+                    });
+                    yield adminWallet.save();
+                }
+                else {
+                    // Create a new wallet if it doesn't exist
+                    yield this.adminWalletModel.create({
+                        adminId: "admin",
+                        balance: Number(adminCommission),
+                        transactions: [
+                            {
+                                type: "credit",
+                                amount: Number(adminCommission),
+                                date: new Date(),
+                                courseName,
+                            },
+                        ],
+                    });
+                }
+                // Return the full course details
+                // return {
+                //     success: true,
+                //     message: "Amount distributed successfully",
+                //     course: isCourse,
+                // };
+                // const isCourse = await this.model.findById(courseId)
                 return isCourse;
             }
             catch (error) {
@@ -440,13 +560,33 @@ class BaseRepository {
             }
         });
     }
-    getBuyedCourses(userId) {
-        return __awaiter(this, void 0, void 0, function* () {
+    getBuyedCourses(userId_1) {
+        return __awaiter(this, arguments, void 0, function* (userId, page = 1, limit = 4) {
             try {
-                const findCourses = this.model.find({ userId: userId }).sort({ createdAt: -1 })
-                    .populate('courseId', 'courseName level')
+                const skip = (page - 1) * limit;
+                // Fetch the courses with pagination and populate course details
+                const response = yield this.model
+                    .find({ userId: userId })
+                    .sort({ createdAt: -1 })
+                    .skip(skip)
+                    .limit(limit)
+                    .populate("courseId", "courseName level")
                     .exec();
-                return findCourses;
+                // Count the total number of courses for the user
+                const totalCourses = yield this.model.countDocuments({ userId: userId });
+                // Check if no courses are found
+                if (!response || response.length === 0) {
+                    const error = new Error("No courses found for the user.");
+                    error.name = "CoursesNotFound";
+                    throw error;
+                }
+                // Return the paginated data
+                return {
+                    courses: response,
+                    currentPage: page,
+                    totalPages: Math.ceil(totalCourses / limit),
+                    totalCourses: totalCourses,
+                };
             }
             catch (error) {
                 throw error;
@@ -549,22 +689,24 @@ class BaseRepository {
                     .populate({
                     path: 'courseId',
                     select: 'courseName',
-                    // populate: {
-                    //     path:'mentorId',
-                    //     model: 'Mentors',
-                    //     select: 'username'
-                    // }
+                    populate: {
+                        path: 'mentorId',
+                        model: 'Mentors',
+                        select: 'username'
+                    }
                 })
                     .exec();
-                // if (!findCourse) {
-                //     throw new Error(`Course with ID ${courseId} not found for user ${userId}`);
-                // }
+                if (findCourse.isCourseCompleted) {
+                    return 'Course Already Completed';
+                }
                 findCourse.isCourseCompleted = true;
                 const courseData = findCourse.courseId;
                 const updatedCourse = yield findCourse.save();
+                const mentor = (courseData === null || courseData === void 0 ? void 0 : courseData.mentorId) || { username: null };
                 return {
                     updatedCourse,
-                    courseName: courseData === null || courseData === void 0 ? void 0 : courseData.courseName
+                    courseName: courseData === null || courseData === void 0 ? void 0 : courseData.courseName,
+                    mentorName: mentor.username,
                 };
             }
             catch (error) {

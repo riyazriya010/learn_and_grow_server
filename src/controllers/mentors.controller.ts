@@ -237,10 +237,12 @@ export class MentorController {
 
     public async profileUpdate(req: Request, res: Response): Promise<any> {
         try {
+            const file = req.file as any;
             const { username, phone } = req.body
             const data = {
                 username,
-                phone
+                phone,
+                profilePicUrl: file?.location
             }
 
             const userId = await getId('accessToken', req)
@@ -355,140 +357,388 @@ export class MentorController {
 
     public async addCourse(req: Request, res: Response): Promise<any> {
         try {
-            console.log('Request files: ', req.files);
-            console.log('Request body: ', req.body);
-      
+
             // Extract files
             const files = req.files as any;
             const mediaFiles = files?.demoVideo || [];
             const thumbnailFile = files?.thumbnail ? files.thumbnail[0] : null;
-      
+
             // Map demo videos
             const demoVideo = mediaFiles.map((file: any) => ({
-              type: 'video',
-              url: file.location,
+                type: 'video',
+                url: file.location,
             }));
-      
+
             // Extract thumbnail URL
             const thumbnailUrl = thumbnailFile ? thumbnailFile.location : null;
-      
+
+            const mentorId = await getId('accessToken', req)
+
             // Append processed fields to request body
             req.body.demoVideo = demoVideo;
             req.body.thumbnailUrl = thumbnailUrl;
-      
-            // Create and save the course
-            const result = await CourseModel.create(req.body);
-      
-            // Respond with success
+            req.body.mentorId = String(mentorId)
+            
+
+            const data = req.body
+
+            const response = await this.mentorServices.addCourse(data)
+
             return res.status(200).send({
-              message: 'Course uploaded successfully',
-              success: true,
-              result,
+                message: 'Course uploaded successfully',
+                success: true,
+                result: response
             });
-          } catch (error: any) {
+
+            // // Create and save the course
+            // const result = await CourseModel.create(req.body);
+
+            // // Respond with success
+            // return res.status(200).send({
+            //     message: 'Course uploaded successfully',
+            //     success: true,
+            //     result,
+            // });
+        } catch (error: any) {
             console.error('Error in addCourse:', error);
             return res.status(500).send({
-              message: 'An error occurred while uploading the course',
-              success: false,
-              error: error.message,
+                message: 'An error occurred while uploading the course',
+                success: false,
+                error: error.message,
             });
-          }
+        }
     }
 
 
-    
+
+    async editCourse(req: Request, res: Response): Promise<any> {
+        try {
+
+            // Extract courseId from query
+            const courseId = req.query.courseId as string;
+
+            // Find the course to update
+            const findCourseToUpdate = await CourseModel.findById(courseId);
+
+            if (!findCourseToUpdate) {
+                return res.status(404).send({
+                    message: 'Course Not Found',
+                    success: false,
+                });
+            }
+
+            // Initialize fields to update from req.body
+            const updatedFields: any = {
+                courseName: req.body.courseName,
+                description: req.body.description,
+                category: req.body.category,
+                level: req.body.level,
+                duration: req.body.duration,
+                price: req.body.price,
+            };
+
+            // Extract files if they exist (thumbnail and demo video)
+            const files = req.files as any;
+            const mediaFiles = files?.demoVideo || [];
+            const thumbnailFile = files?.thumbnail ? files.thumbnail[0] : null;
+
+            // Only update demo video if a new file is uploaded
+            if (mediaFiles.length > 0) {
+                const demoVideo = mediaFiles.map((file: any) => ({
+                    type: 'video',
+                    url: file.location,
+                }));
+                updatedFields.demoVideo = demoVideo;
+            }
+
+            // Only update thumbnail if a new file is uploaded
+            if (thumbnailFile) {
+                updatedFields.thumbnailUrl = thumbnailFile.location;
+            }
+
+            const response = await this.mentorServices.editCourse(String(courseId), updatedFields)
+
+            // Send response back
+            return res.status(200).send({
+                message: 'Course updated successfully',
+                success: true,
+                data: response,
+            });
+
+            // Update course with new fields
+            // const updatedCourse = await CourseModel.findByIdAndUpdate(courseId, updatedFields, { new: true });
+
+            // if (!updatedCourse) {
+            //     return res.status(400).send({
+            //         message: 'Failed to update course',
+            //         success: false,
+            //     });
+            // }
+
+            // // Send response back
+            // return res.status(200).send({
+            //     message: 'Course updated successfully',
+            //     success: true,
+            //     data: updatedCourse,
+            // });
+
+        } catch (error: any) {
+            console.error('Error:', error);
+            return res.status(500).send({
+                message: 'Internal Server Error',
+                success: false,
+            });
+        }
+
+    }
+
+
+    async unPublishCourse(req: Request, res: Response): Promise<any> {
+        try {
+            const { courseId } = req.query
+            console.log('unlist  courseId: ', courseId)
+            const response = await this.mentorServices.unPublishCourse(String(courseId))
+            return res
+                .status(200)
+                .send({
+                    message: 'Course UnPublished',
+                    success: true
+                })
+        } catch (error: any) {
+            return res.status(500).send({
+                message: 'Internal Server Error',
+                success: false,
+            });
+        }
+    }
+
+
+    async publishCourse(req: Request, res: Response): Promise<any> {
+        try {
+            const { courseId } = req.query
+            const response = await this.mentorServices.publishCourse(String(courseId))
+            return res
+                .status(200)
+                .send({
+                    message: 'Course Published',
+                    success: true
+                })
+        } catch (error: any) {
+            return res.status(500).send({
+                message: 'Internal Server Error',
+                success: false,
+            });
+        }
+    }
+
+
+    async filterCourse(req: Request, res: Response): Promise<any> {
+        try {
+            const { page = 1, limit = 6 } = req.query;
+            const { searchTerm } = req.query
+
+            const pageNumber = parseInt(page as string, 10);
+            const limitNumber = parseInt(limit as string, 10);
+
+            if (pageNumber < 1 || limitNumber < 1) {
+                return res
+                    .status(400)
+                    .send({
+                        message: 'Invalid page or limit value',
+                        success: false,
+                    });
+            }
+
+            const response = await this.mentorServices.filterCourse(
+                pageNumber,
+                limitNumber,
+                String(searchTerm)
+            )
+
+            return res.status(200).send({
+                message: 'Courses Filtered Successfully',
+                success: true,
+                result: response
+            });
+
+        } catch (error: any) {
+            if (error && error.name === 'CourseNotFound') {
+                return res
+                    .status(404)
+                    .send({
+                        message: 'Course Not Found',
+                        success: false
+                    })
+            }
+            throw error
+        }
+    }
+
+
     public async addChapter(req: Request, res: Response): Promise<any> {
         try {
-            console.log('req file: ', req.file);
-            console.log('req body: ', req.body);
-      
+
             const { courseId } = req.query; // Extract courseId from the query
             const { title, description } = req.body;
-      
+
             // Validate courseId
             if (!courseId) {
-              return res.status(400).send({
-                message: 'Course ID is required',
-                success: false,
-              });
+                return res.status(400).send({
+                    message: 'Course ID is required',
+                    success: false,
+                });
             }
-      
+
             // Validate the file
             const file = req.file as any;
             if (!file || !file.location) {
-              return res.status(400).send({
-                message: 'Chapter video file is required',
-                success: false,
-              });
+                return res.status(400).send({
+                    message: 'Chapter video file is required',
+                    success: false,
+                });
             }
-      
+
             // Create a new chapter
             const newChapter = await ChapterModel.create({
-              chapterTitle: title,
-              courseId,
-              description,
-              videoUrl: file.location,
+                chapterTitle: title,
+                courseId,
+                description,
+                videoUrl: file.location,
             });
-      
+
             // Update the course to include this chapter's ID in the fullVideo array
             await CourseModel.findByIdAndUpdate(
-              courseId,
-              {
-                $push: {
-                  fullVideo: { chapterId: newChapter._id },
+                courseId,
+                {
+                    $push: {
+                        fullVideo: { chapterId: newChapter._id },
+                    },
                 },
-              },
-              { new: true } // Return the updated document
+                { new: true } // Return the updated document
             );
-      
+
             // Respond with success
             return res.status(201).send({
-              message: 'Chapter added successfully',
-              success: true,
-              chapter: newChapter,
+                message: 'Chapter added successfully',
+                success: true,
+                chapter: newChapter,
             });
-          } catch (error: any) {
-            console.error('Error in addChapter:', error);
+        } catch (error: any) {
             return res.status(500).send({
-              message: 'An error occurred while adding the chapter',
-              success: false,
-              error: error.message,
+                message: 'An error occurred while adding the chapter',
+                success: false,
+                error: error.message,
             });
-          }
+        }
+    }
+
+
+    public async editChapter(req: Request, res: Response): Promise<any> {
+        try {
+
+            const { chapterId } = req.query;
+            const { title, description } = req.body;
+
+            // Validate chapterId
+            if (!chapterId) {
+                return res.status(400).send({
+                    message: "Chapter ID is required",
+                    success: false,
+                });
+            }
+
+            // Validate title and description
+            if (!title || !description) {
+                return res.status(400).send({
+                    message: "Title and description are required",
+                    success: false,
+                });
+            }
+
+            // Handle file if provided
+            const file = req.file as any;
+            const fileLocation = file?.location
+
+            // Call the service to edit the chapter
+            const response = await this.mentorServices.editChapter(
+                title,
+                description,
+                String(chapterId),
+                fileLocation
+            );
+
+            // Check for a valid response
+            if (!response) {
+                return res.status(404).send({
+                    message: "Chapter not found or could not be updated",
+                    success: false,
+                });
+            }
+
+            return res.status(200).send({
+                message: "Chapter edited successfully",
+                success: true,
+                data: response,
+            });
+
+        } catch (error: any) {
+            return res.status(500).send({
+                message: 'Internal Server Error',
+                success: false,
+            });
+        }
     }
 
 
     public async getAllCourses(req: Request, res: Response): Promise<any> {
-        try{
-            const response = await this.mentorServices.getAllCourses()
+        try {
+
+            const { page = 1, limit = 4 } = req.query;
+
+            const pageNumber = parseInt(page as string, 10);
+            const limitNumber = parseInt(limit as string, 10);
+
+            if (pageNumber < 1 || limitNumber < 1) {
+                return res.status(400).send({
+                    message: 'Invalid page or limit value',
+                    success: false
+                });
+            }
+
+            const response = await this.mentorServices.getAllCourses(pageNumber, limitNumber)
+
+            // const response = await this.mentorServices.getAllCourses()
             return res
-            .status(200)
-            .send({
-                message: 'Courses Fetched Successfully',
-                success: true,
-                result: response
-            })
-        }catch(error){
-            console.log(error)
+                .status(200)
+                .send({
+                    message: 'Courses Fetched Successfully',
+                    success: true,
+                    result: response
+                })
+        } catch (error: any) {
+            return res.status(500).send({
+                message: 'Internal Server Error',
+                success: false,
+            });
         }
     }
 
 
     public async getCourse(req: Request, res: Response): Promise<any> {
-        try{
+        try {
             const { courseId } = req.query
             const response = await this.mentorServices.getCourse(String(courseId))
-            if(response){
+            if (response) {
                 return res
-                .status(200)
-                .send({
-                    message: 'Course Got it',
-                    successs: true,
-                    data: response
-                })
+                    .status(200)
+                    .send({
+                        message: 'Course Got it',
+                        successs: true,
+                        data: response
+                    })
             }
-        }catch(error: any){
-            
+        } catch (error: any) {
+            throw error
         }
     }
 
@@ -497,14 +747,17 @@ export class MentorController {
         try {
             const response = await this.mentorServices.getAllCategory()
             return res
-            .status(200)
-            .send({
-                message: 'All Categories were Got it',
-                success: true,
-                data: response
-            })
+                .status(200)
+                .send({
+                    message: 'All Categories were Got it',
+                    success: true,
+                    data: response
+                })
         } catch (error: any) {
-            throw error
+            return res.status(500).send({
+                message: 'Internal Server Error',
+                success: false,
+            });
         }
     }
 
@@ -513,14 +766,17 @@ export class MentorController {
             const { courseId } = req.query
             const response = await this.mentorServices.getAllChapters(String(courseId))
             return res
-            .status(200)
-            .send({
-                message: 'All Chapters were Got it',
-                success: true,
-                data: response
-            })
+                .status(200)
+                .send({
+                    message: 'All Chapters were Got it',
+                    success: true,
+                    data: response
+                })
         } catch (error: any) {
-            throw error
+            return res.status(500).send({
+                message: 'Internal Server Error',
+                success: false,
+            });
         }
     }
 
@@ -541,13 +797,13 @@ export class MentorController {
             }
         } catch (error: any) {
             // console.error('Error adding quiz:', error);
-            if(error && error.name === 'QuestionAlreadyExist'){
+            if (error && error.name === 'QuestionAlreadyExist') {
                 return res
-                .status(403)
-                .send({
-                    message: 'Question Already Exist',
-                    success: false
-                })
+                    .status(403)
+                    .send({
+                        message: 'Question Already Exist',
+                        success: false
+                    })
             }
             return res.status(500).send({
                 message: 'Failed to add quiz',
@@ -557,187 +813,48 @@ export class MentorController {
         }
     }
 
-    
+
     async getAllQuizz(req: Request, res: Response): Promise<any> {
         try {
             const { courseId } = req.query
             const response = await this.mentorServices.getAllQuizz(String(courseId))
             return res
-            .status(200)
-            .send({
-                message: 'All Quizzez were Got it',
-                success: true,
-                data: response
-            })
-        } catch (error: any) {
-            throw error
-        }
-    }
-
-    async deleteQuizz(req: Request, res: Response): Promise<any> {
-        try{
-            const { courseId, quizId } = req.query
-            const response = await this.mentorServices.deleteQuizz(String(courseId), String(quizId))
-            if(response){
-                return res
                 .status(200)
                 .send({
-                    message: 'Quizz Deleted Successfully',
+                    message: 'All Quizzez were Got it',
                     success: true,
                     data: response
                 })
-            }
-        }catch(error: any){
-            throw error
-        }
-    }
-
-
-
-    async editCourse(req: Request, res: Response): Promise<any> {
-        // try {
-        //     console.log('query: ', req.query);
-        //     console.log('req files: ', req.files);
-        //     console.log('req body: ', req.body);
-    
-        //     // Extract courseId from query
-        //     const courseId = req.query.courseId as string;
-    
-        //     if (!courseId) {
-        //         return res.status(400).send({
-        //             message: 'Course ID is required',
-        //             success: false,
-        //         });
-        //     }
-    
-        //     // Find course to update
-        //     const findCourseToUpdate = await CourseModel.findById(courseId);
-    
-        //     if (!findCourseToUpdate) {
-        //         return res.status(404).send({
-        //             message: 'Course Not Found',
-        //             success: false,
-        //         });
-        //     }
-    
-        //     // Extract files from request
-        //     const files = req.files as any;
-        //     const mediaFiles = files?.demoVideo || [];
-        //     const thumbnailFile = files?.thumbnail ? files.thumbnail[0] : null;
-    
-        //     // Map demo videos to include URL and type
-        //     const demoVideo = mediaFiles.map((file: any) => ({
-        //         type: 'video',
-        //         url: file.location,
-        //     }));
-    
-        //     // Extract thumbnail URL if available
-        //     const thumbnailUrl = thumbnailFile ? thumbnailFile.location : findCourseToUpdate.thumbnailUrl;
-    
-        //     // Prepare updated course data
-        //     const updatedData: any = {
-        //         ...req.body, // Include any text fields from the body
-        //         demoVideo: demoVideo.length ? demoVideo : findCourseToUpdate.demoVideo, // Use existing demo videos if no new ones
-        //         thumbnailUrl, // Use existing thumbnail if no new one
-        //     };
-    
-        //     // Update the course
-        //     const updatedCourse = await CourseModel.findByIdAndUpdate(courseId, updatedData, {
-        //         new: true, // Return the updated document
-        //     });
-    
-        //     return res.status(200).send({
-        //         message: 'Course updated successfully',
-        //         success: true,
-        //         data: updatedCourse,
-        //     });
-        // } catch (error: any) {
-        //     console.error('Error updating course:', error);
-        //     return res.status(500).send({
-        //         message: 'An error occurred while updating the course',
-        //         success: false,
-        //         error: error.message,
-        //     });
-        // }
-
-        try {
-            console.log('query: ', req.query)
-            console.log('req files: ', req.files)
-            console.log('req body: ', req.body)
-    
-            // Extract courseId from query
-            const courseId = req.query.courseId as string;
-    
-            // Find the course to update
-            const findCourseToUpdate = await CourseModel.findById(courseId);
-    
-            if (!findCourseToUpdate) {
-                return res.status(404).send({
-                    message: 'Course Not Found',
-                    success: false,
-                });
-            }
-    
-            // Initialize fields to update from req.body
-            const updatedFields: any = {
-                courseName: req.body.courseName,
-                description: req.body.description,
-                category: req.body.category,
-                level: req.body.level,
-                duration: req.body.duration,
-                price: req.body.price,
-            };
-    
-            // Extract files if they exist (thumbnail and demo video)
-            const files = req.files as any;
-            const mediaFiles = files?.demoVideo || [];
-            const thumbnailFile = files?.thumbnail ? files.thumbnail[0] : null;
-    
-            // Only update demo video if a new file is uploaded
-            if (mediaFiles.length > 0) {
-                const demoVideo = mediaFiles.map((file: any) => ({
-                    type: 'video',
-                    url: file.location,
-                }));
-                updatedFields.demoVideo = demoVideo;
-            }
-    
-            // Only update thumbnail if a new file is uploaded
-            if (thumbnailFile) {
-                updatedFields.thumbnailUrl = thumbnailFile.location;
-            }
-    
-            // Update course with new fields
-            const updatedCourse = await CourseModel.findByIdAndUpdate(courseId, updatedFields, { new: true });
-    
-            if (!updatedCourse) {
-                return res.status(400).send({
-                    message: 'Failed to update course',
-                    success: false,
-                });
-            }
-    
-            // Send response back
-            return res.status(200).send({
-                message: 'Course updated successfully',
-                success: true,
-                data: updatedCourse,
-            });
-    
         } catch (error: any) {
-            console.error('Error:', error);
             return res.status(500).send({
                 message: 'Internal Server Error',
                 success: false,
             });
         }
-        
+    }
+
+    async deleteQuizz(req: Request, res: Response): Promise<any> {
+        try {
+            const { courseId, quizId } = req.query
+            const response = await this.mentorServices.deleteQuizz(String(courseId), String(quizId))
+            if (response) {
+                return res
+                    .status(200)
+                    .send({
+                        message: 'Quizz Deleted Successfully',
+                        success: true,
+                        data: response
+                    })
+            }
+        } catch (error: any) {
+            return res.status(500).send({
+                message: 'Internal Server Error',
+                success: false,
+            });
+        }
     }
 
 
-    // async editCourseWithoutFiles(req: Request, res: Response): Promise<any> {
-
-    // }
 
 
 }

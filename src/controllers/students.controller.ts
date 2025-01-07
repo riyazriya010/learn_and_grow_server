@@ -18,9 +18,6 @@ export default class UserController {
         this.jwtService = new JwtService()
     }
 
-
-    // new methods
-
     //Student SignUp Method
     public async studentSignup(req: Request, res: Response): Promise<any> {
         try {
@@ -29,11 +26,6 @@ export default class UserController {
             const saltRound = 10
             const hashPassword = await bcrypt.hash(password, saltRound)
             password = hashPassword
-
-            const ExistUser = await this.userServices.findByEmail(email)
-            if (ExistUser) {
-                return res.status(409).send({ message: 'User Already Exist', success: false, })
-            }
 
             const addStudent = await this.userServices.studentSignup({ username, email, phone, password })
 
@@ -55,8 +47,17 @@ export default class UserController {
                     })
             }
 
-        } catch (error) {
-            console.error(error)
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                if (error.name === 'UserAlreadyExit') {
+                    return res
+                        .status(409)
+                        .send({
+                            message: 'User Already Exist',
+                            success: false
+                        })
+                }
+            }
         }
     }
 
@@ -65,12 +66,6 @@ export default class UserController {
     public async studentGoogleSignIn(req: Request, res: Response): Promise<any> {
         try {
             const { email, displayName } = req.body
-
-            const ExistUser = await this.userServices.findByEmail(email)
-
-            if (ExistUser) {
-                return res.status(409).send({ message: 'User Already Exist', success: false })
-            }
 
             const addStudent = await this.userServices.studentGoogleSignIn(email, displayName)
 
@@ -92,8 +87,17 @@ export default class UserController {
                     })
             }
 
-        } catch (error: any) {
-            console.error(error.message)
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                if (error.name === 'UserAlreadyExit') {
+                    return res
+                        .status(409)
+                        .send({
+                            message: 'User Already Exist',
+                            success: false
+                        })
+                }
+            }
         }
     }
 
@@ -104,20 +108,6 @@ export default class UserController {
             const { email } = req.body
 
             const addStudent = await this.userServices.studentGoogleLogin(email)
-
-            if (!addStudent) {
-                return res.status(403).send({
-                    message: 'Google User Not Found Please Go to Signup Page',
-                    success: false
-                })
-            }
-
-            if (addStudent?.isBlocked === true) {
-                return res.status(403).send({
-                    message: 'You Are Blocked',
-                    success: false
-                })
-            }
 
             if (addStudent && addStudent.role) {
                 const userJwtToken = await this.jwtService.createToken(addStudent._id, addStudent.role)
@@ -137,10 +127,28 @@ export default class UserController {
                     })
             }
 
-        } catch (error: any) {
-            console.error(error.message)
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                if (error.name === 'UserNotFound') {
+                    return res
+                        .status(403)
+                        .send({
+                            message: 'User Not Found'
+                        })
+                }
+
+                if (error.name === 'UserBlocked') {
+                    return res
+                        .status(403)
+                        .send({
+                            message: 'User Blocked'
+                        })
+                }
+            }
+            throw error
         }
     }
+
 
     // Student Login
     public async studentLogin(req: Request, res: Response): Promise<any> {
@@ -304,10 +312,15 @@ export default class UserController {
 
     public async profileUpdate(req: Request, res: Response): Promise<any> {
         try {
+            console.log('file: ', req.file)
+
+            const file = req.file as any;
             const { username, phone } = req.body
+
             const data = {
                 username,
-                phone
+                phone,
+                profilePicUrl: file?.location
             }
             const userId = await getId('accessToken', req)
             const response = await this.userServices.profileUpdate(String(userId), data)
@@ -326,35 +339,10 @@ export default class UserController {
 
     /*----------------------------------------- WEEK -2 ----------------------------*/
 
-    // public async getAllCourses(req: Request, res: Response): Promise<any> {
-    //     try {
-    //         const response = await this.userServices.getAllCourses()
-    //         return res
-    //             .status(200)
-    //             .send({
-    //                 message: 'Courses Fetched Successfully',
-    //                 success: true,
-    //                 result: response
-    //             })
-    //     } catch (error: any) {
-    //         console.log(error.message)
-
-    //         if (error.name === 'CoursesNotFound') {
-    //             return res
-    //                 .status(404)
-    //                 .send({
-    //                     message: 'Courses Not Found',
-    //                     success: false
-    //                 })
-    //         }
-
-    //     }
-    // }
-
 
     public async getAllCourses(req: Request, res: Response): Promise<any> {
         try {
-            // Get page and limit from query parameters
+
             const { page = 1, limit = 6 } = req.query;
 
             // Validate page and limit
@@ -376,16 +364,15 @@ export default class UserController {
                 success: true,
                 result: response
             });
-        } catch (error: any) {
-            console.log(error.message);
-
-            if (error.name === 'CoursesNotFound') {
-                return res.status(404).send({
-                    message: 'Courses Not Found',
-                    success: false
-                });
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                if (error.name === 'CoursesNotFound') {
+                    return res.status(404).send({
+                        message: 'Courses Not Found',
+                        success: false
+                    });
+                }
             }
-
             return res.status(500).send({
                 message: 'Internal Server Error',
                 success: false
@@ -398,13 +385,12 @@ export default class UserController {
     public async getCourse(req: Request, res: Response): Promise<any> {
         try {
             const courseId = req.query.courseId
-            console.log('iddd: ', courseId)
 
             if (!courseId) {
                 return res
                     .status(400)
                     .send({
-                        message: 'Category ID is required in the query parameters.',
+                        message: 'CourseId ID is required in the query parameters.',
                         success: false
                     })
             }
@@ -442,7 +428,7 @@ export default class UserController {
                 return res
                     .status(400)
                     .send({
-                        message: 'Category ID is required in the query parameters.',
+                        message: 'Course ID is required in the query parameters.',
                         success: false
                     })
             }
@@ -504,16 +490,6 @@ export default class UserController {
                 data: response
             });
 
-            ////////////
-            // const filters = req.query
-            // const response = await this.userServices.filterData(filters)
-            // return res
-            // .status(200)
-            // .send({
-            //     message: 'Filterd Data',
-            //     success: true,
-            //     data: response
-            // })
         } catch (error: any) {
             if (error && error.name === 'CourseNotFound') {
                 return res
@@ -533,11 +509,12 @@ export default class UserController {
 
             const courseId = req.query.courseId
             const txnid = req.query.txnid
+            const amount = req.query.amount
+            const courseName = req.query.courseName
 
-            const isCourseExist = await this.userServices.findCourseById(String(courseId))
+            const isCourseExist = await this.userServices.findCourseById(String(courseId), Number(amount), String(courseName))
 
             if (isCourseExist) {
-
                 const chapters = await this.userServices.findChaptersById(String(courseId))
 
                 if (chapters.length !== 0) {
@@ -550,7 +527,6 @@ export default class UserController {
                     const userId = await getId('accessToken', req)
 
                     const response = await this.userServices.buyCourse(String(userId), String(isCourseExist._id), completedChapters, String(txnid))
-
                     return res
                         .status(200)
                         .send({
@@ -572,7 +548,6 @@ export default class UserController {
         try {
 
             const userId = await getId('accessToken', req)
-            console.log('idd: ', userId)
 
             return res
                 .status(200)
@@ -589,12 +564,26 @@ export default class UserController {
 
     public async getBuyedCourses(req: Request, res: Response): Promise<any> {
         try {
-            // const userId = await getId('accessToken', req)
-            const userId = '676a9f2a339270ae95450b75'
+            // Parse query parameters
+            const { page = 1, limit = 4 } = req.query;
 
-            const purchasedCourses = await this.userServices.getBuyedCourses(String(userId))
+            const pageNumber = parseInt(page as string, 10);
+            const limitNumber = parseInt(limit as string, 10);
 
-            const formattedResponse = purchasedCourses.map((course: any) => ({
+            if (pageNumber < 1 || limitNumber < 1) {
+                const error = new Error('Invalid page or limit value')
+                error.name = 'Invalid page or limit value'
+                throw error
+            }
+
+            // Get user ID (hardcoded for now, replace with token-based logic later)
+            const userId = await getId('accessToken', req)
+
+            // Fetch buyed courses using the repository function
+            const response = await this.userServices.getBuyedCourses(String(userId), pageNumber, limitNumber);
+
+            // Format the response
+            const formattedResponse = response.courses.map((course: any) => ({
                 _id: course._id,
                 courseDetails: {
                     courseName: course.courseId.courseName,
@@ -604,16 +593,25 @@ export default class UserController {
                 isCourseCompleted: course.isCourseCompleted,
                 purchasedAt: course.purchasedAt,
             }));
-            console.log('formattedResponse: ', formattedResponse)
 
-            return res
-                .status(200)
-                .send({
-                    message: 'Buyed Courses Got It Successfully',
-                    success: true,
-                    data: formattedResponse
-                })
-        } catch (error: any) {
+            // Update the courses in the response object
+            response.courses = formattedResponse;
+
+            // Send the response
+            return res.status(200).send({
+                message: "Buyed Courses Got Successfully",
+                success: true,
+                data: response,
+            });
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                if (error.name === 'Invalid page or limit value') {
+                    return res.status(400).send({
+                        message: "Invalid page or limit value",
+                        success: false,
+                    });
+                }
+            }
             throw error
         }
     }
@@ -621,8 +619,6 @@ export default class UserController {
 
     public async coursePlay(req: Request, res: Response): Promise<any> {
         try {
-            // const userId = await getId('accessToken', req)
-            // const userId = '676a9f2a339270ae95450b75'
 
             const { buyedId } = req.query
             const getCourse = await this.userServices.coursePlay(String(buyedId))
@@ -642,6 +638,13 @@ export default class UserController {
     public async chapterVideoEnd(req: Request, res: Response): Promise<any> {
         try {
             const { chapterId } = req.query
+
+            if (!chapterId) {
+                const error = new Error("ChapterId is not provided in the query");
+                error.name = "MissingChapterIdError";
+                throw error;
+            }
+
             const response = await this.userServices.chapterVideoEnd(String(chapterId))
 
             return res
@@ -652,7 +655,15 @@ export default class UserController {
                     data: response
                 })
 
-        } catch (error: any) {
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                if (error.name === "MissingChapterIdError") {
+                    return res.status(400).send({
+                        message: error.message,
+                        success: false,
+                    });
+                }
+            }
             throw error
         }
     }
@@ -662,6 +673,13 @@ export default class UserController {
     public async getCertificate(req: Request, res: Response): Promise<any> {
         try {
             const { certificateId } = req.query
+
+            if (!certificateId) {
+                const error = new Error("certificateId is not provided in the query");
+                error.name = "MissingCertificateIdError";
+                throw error;
+            }
+
             const response = await this.userServices.getCertificate(String(certificateId))
 
             return res
@@ -673,6 +691,14 @@ export default class UserController {
                 })
 
         } catch (error: any) {
+            if (error instanceof Error) {
+                if (error.name === "MissingCertificateIdError") {
+                    return res.status(400).send({
+                        message: error.message,
+                        success: false,
+                    });
+                }
+            }
             throw error
         }
     }
@@ -681,6 +707,13 @@ export default class UserController {
     public async getQuizz(req: Request, res: Response): Promise<any> {
         try {
             const { courseId } = req.query
+
+            if (!courseId) {
+                const error = new Error("courseId is not provided in the query");
+                error.name = "MissingCourseIdError";
+                throw error;
+            }
+
             const response = await this.userServices.getQuizz(String(courseId))
 
             return res
@@ -691,16 +724,32 @@ export default class UserController {
                     data: response
                 })
         } catch (error: any) {
+            if (error instanceof Error) {
+                if (error.name === "MissingCertificateIdError") {
+                    return res.status(400).send({
+                        message: error.message,
+                        success: false,
+                    });
+                }
+            }
             throw error
         }
     }
 
     public async completeCourse(req: Request, res: Response): Promise<any> {
         try {
-            // const userId = await getId('accessToken', req)
-            const userId = '676a9f2a339270ae95450b75'
+            const userId = await getId('accessToken', req)
             const { courseId } = req.query
             const response = await this.userServices.completeCourse(String(userId), String(courseId))
+
+            if (response === 'Course Already Completed') {
+                return res
+                    .status(200)
+                    .send({
+                        message: 'Course Already Completed',
+                        success: true
+                    })
+            }
 
             return res
                 .status(200)
@@ -709,6 +758,7 @@ export default class UserController {
                     success: true,
                     data: response
                 })
+
         } catch (error: any) {
             throw error
         }
@@ -717,8 +767,7 @@ export default class UserController {
 
     public async createCertificate(req: Request, res: Response): Promise<any> {
         try {
-            // const userId = await getId('accessToken', req);
-            const userId = '676a9f2a339270ae95450b75'
+            const userId = await getId('accessToken', req) as String
 
             if (!userId) {
                 return res.status(401).send({
@@ -726,21 +775,16 @@ export default class UserController {
                     success: false,
                 });
             }
-    
+
             const { username, courseName, mentorName, courseId } = req.body;
 
-            console.log('username ',username)
-            console.log('courseName ',courseName)
-            console.log('mentorName ',mentorName)
-            console.log('courseId ',courseId)
             // Validate required fields
             if (!username || !courseName || !mentorName || !courseId) {
-                return res.status(400).send({
-                    message: 'All fields are required',
-                    success: false,
-                });
+                const error = new Error('All fields are required')
+                error.name = 'AllFieldsRequired'
+                throw error
             }
-    
+
             const data = {
                 userId,
                 username,
@@ -748,17 +792,25 @@ export default class UserController {
                 mentorName,
                 courseId,
             };
-    
+
             // Call service to create certificate
             const response = await this.userServices.createCertificate(data);
-    
+
             return res.status(200).send({
                 message: 'Certificate Created Successfully',
                 success: true,
                 data: response,
             });
 
-        } catch (error: any) {
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                if (error.name === 'AllFieldsRequired') {
+                    return res.status(400).send({
+                        message: 'All fields are required',
+                        success: false,
+                    });
+                }
+            }
             throw error
         }
     }

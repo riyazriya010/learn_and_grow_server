@@ -15,25 +15,25 @@ class AdminServices {
     constructor() {
         this.adminRepository = new adminRepository_1.AdminRepository();
     }
-    getUsers() {
+    getUsers(page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.adminRepository.getUsers();
+                const response = yield this.adminRepository.getUsers(page, limit);
                 return response;
             }
             catch (error) {
-                console.log(error);
+                throw error;
             }
         });
     }
-    getMentors() {
+    getMentors(page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.adminRepository.getMentors();
+                const response = yield this.adminRepository.getMentors(page, limit);
                 return response;
             }
             catch (error) {
-                console.log(error);
+                throw error;
             }
         });
     }
@@ -44,7 +44,7 @@ class AdminServices {
                 return response;
             }
             catch (error) {
-                console.log(error);
+                throw error;
             }
         });
     }
@@ -55,7 +55,7 @@ class AdminServices {
                 return response;
             }
             catch (error) {
-                console.log(error);
+                throw error;
             }
         });
     }
@@ -66,7 +66,7 @@ class AdminServices {
                 return response;
             }
             catch (error) {
-                console.log(error);
+                throw error;
             }
         });
     }
@@ -77,7 +77,7 @@ class AdminServices {
                 return response;
             }
             catch (error) {
-                console.log(error);
+                throw error;
             }
         });
     }
@@ -100,18 +100,73 @@ class AdminServices {
                 return response;
             }
             catch (error) {
-                console.log(error);
+                throw error;
             }
         });
     }
-    getAllCategory() {
+    unListCategory(categoryId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.adminRepository.getAllCategory();
+                const response = yield this.adminRepository.unListCategory(categoryId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    listCategory(categoryId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.adminRepository.listCategory(categoryId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getAllCategory(page, limit) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.adminRepository.getAllCategory(page, limit);
                 return response;
             }
             catch (error) {
                 console.log(error);
+            }
+        });
+    }
+    getAllCourse(page, limit) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.adminRepository.getAllCourse(page, limit);
+                return response;
+            }
+            catch (error) {
+                console.log(error);
+            }
+        });
+    }
+    unListCourse(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.adminRepository.unListCourse(courseId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    listCourse(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.adminRepository.listCourse(courseId);
+                return response;
+            }
+            catch (error) {
+                throw error;
             }
         });
     }

@@ -15,10 +15,26 @@ class AdminBaseRepository {
         this.model = model;
     }
     getUsers() {
-        return __awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, arguments, void 0, function* (page = 1, limit = 4) {
             try {
-                const response = yield this.model.find();
-                return response;
+                const skip = (page - 1) * limit;
+                const response = yield this.model
+                    .find()
+                    .skip(skip)
+                    .limit(limit)
+                    .sort({ createdAt: -1 });
+                const totalCourses = yield this.model.countDocuments();
+                if (!response || response.length === 0) {
+                    const error = new Error('Users Not Found');
+                    error.name = 'UsersNotFound';
+                    throw error;
+                }
+                return {
+                    courses: response,
+                    currentPage: page,
+                    totalPages: Math.ceil(totalCourses / limit),
+                    totalCourses: totalCourses
+                };
             }
             catch (error) {
                 console.log(error);
@@ -26,10 +42,26 @@ class AdminBaseRepository {
         });
     }
     getMentors() {
-        return __awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, arguments, void 0, function* (page = 1, limit = 4) {
             try {
-                const response = yield this.model.find();
-                return response;
+                const skip = (page - 1) * limit;
+                const response = yield this.model
+                    .find()
+                    .skip(skip)
+                    .limit(limit)
+                    .sort({ createdAt: -1 });
+                const totalCourses = yield this.model.countDocuments();
+                if (!response || response.length === 0) {
+                    const error = new Error('Mentors Not Found');
+                    error.name = 'MentorssNotFound';
+                    throw error;
+                }
+                return {
+                    courses: response,
+                    currentPage: page,
+                    totalPages: Math.ceil(totalCourses / limit),
+                    totalCourses: totalCourses
+                };
             }
             catch (error) {
                 console.log(error);
@@ -158,14 +190,103 @@ class AdminBaseRepository {
             }
         });
     }
-    getAllCategory() {
+    unListCategory(categoryId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.model.find();
-                return response;
+                const unListedCategory = yield this.model.findByIdAndUpdate(categoryId, { isListed: false }, { new: true });
+                return unListedCategory;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    listCategory(categoryId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const unListedCategory = yield this.model.findByIdAndUpdate(categoryId, { isListed: true }, { new: true });
+                return unListedCategory;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getAllCategory() {
+        return __awaiter(this, arguments, void 0, function* (page = 1, limit = 3) {
+            try {
+                const skip = (page - 1) * limit;
+                const response = yield this.model
+                    .find()
+                    .skip(skip)
+                    .limit(limit)
+                    .sort({ createdAt: -1 });
+                const totalCourses = yield this.model.countDocuments();
+                if (!response || response.length === 0) {
+                    const error = new Error('Category Not Found');
+                    error.name = 'CategoryNotFound';
+                    throw error;
+                }
+                return {
+                    courses: response,
+                    currentPage: page,
+                    totalPages: Math.ceil(totalCourses / limit),
+                    totalCourses: totalCourses
+                };
             }
             catch (error) {
                 console.log(error);
+            }
+        });
+    }
+    getAllCourse() {
+        return __awaiter(this, arguments, void 0, function* (page = 1, limit = 5) {
+            try {
+                const skip = (page - 1) * limit;
+                const response = yield this.model
+                    .find()
+                    .skip(skip)
+                    .limit(limit)
+                    .sort({ createdAt: -1 });
+                const totalCourses = yield this.model.countDocuments();
+                if (!response || response.length === 0) {
+                    const error = new Error('Course Not Found');
+                    error.name = 'CoursesNotFound';
+                    throw error;
+                }
+                return {
+                    courses: response,
+                    currentPage: page,
+                    totalPages: Math.ceil(totalCourses / limit),
+                    totalCourses: totalCourses
+                };
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    unListCourse(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const updatedCourse = yield this.model.findByIdAndUpdate(courseId, { isListed: false }, { new: true });
+                const getAllCourse = yield this.model.find();
+                return getAllCourse;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    listCourse(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const updatedCourse = yield this.model.findByIdAndUpdate(courseId, { isListed: true }, { new: true });
+                const getAllCourse = yield this.model.find();
+                return getAllCourse;
+            }
+            catch (error) {
+                throw error;
             }
         });
     }

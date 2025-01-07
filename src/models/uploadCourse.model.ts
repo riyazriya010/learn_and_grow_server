@@ -11,7 +11,7 @@ interface IFullVideo {
 
 export interface ICourse extends Document {
   courseName: string;
-  mentorId?: Schema.Types.ObjectId;
+  mentorId: Schema.Types.ObjectId;
   categoryId: Schema.Types.ObjectId;
   quizzId: Schema.Types.ObjectId;
   description: string;
@@ -38,7 +38,7 @@ const CourseSchema = new Schema<ICourse>(
     courseName: { type: String, required: true },
     mentorId: { type: Schema.Types.ObjectId, ref: 'Mentors' },
     categoryId: { type: Schema.Types.ObjectId, ref: 'Category'},
-    quizzId: { type: Schema.Types.ObjectId, ref: 'Quiz' },
+    // quizzId: { type: Schema.Types.ObjectId, ref: 'Quiz' },
     description: { type: String, required: true },
     demoVideo: [demoVideoSchema],
     fullVideo: [

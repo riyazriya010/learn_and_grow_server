@@ -82,9 +82,64 @@ class MentorServices {
         });
     }
     /*---------------------------------- WEEK - 2 -------------------------------*/
-    getAllCourses() {
+    addCourse(data) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield this.mentorRepository.getAllCourses();
+            try {
+                const response = yield this.mentorRepository.addCourse(data);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    editCourse(courseId, updatedFields) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.mentorRepository.editCourse(courseId, updatedFields);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    unPublishCourse(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.mentorRepository.unPublishCourse(courseId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    publishCourse(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.mentorRepository.publishCourse(courseId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    filterCourse(page, limit, searchTerm) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.mentorRepository.filterCourse(page, limit, String(searchTerm));
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getAllCourses(page, limit) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const response = yield this.mentorRepository.getAllCourses(page, limit);
             return response;
         });
     }
@@ -92,6 +147,17 @@ class MentorServices {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield this.mentorRepository.getCourse(courseId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    editChapter(title, description, chapterId, location) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.mentorRepository.editChapter(title, description, chapterId, location);
                 return response;
             }
             catch (error) {

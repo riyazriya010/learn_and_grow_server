@@ -30,28 +30,52 @@ class UserRepositories {
         this.quizzBaseRepository = new userBase_repository_1.default(quizz_model_1.default);
     }
     // new
-    findByEmail(email) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const response = yield this.baseRepository.findByEmail(email);
-            return response;
-        });
-    }
     studentSignup(data) {
         return __awaiter(this, void 0, void 0, function* () {
-            const addedUser = yield this.baseRepository.signupStudent(data);
-            return addedUser;
+            try {
+                const addedUser = yield this.baseRepository.signupStudent(data);
+                return addedUser;
+            }
+            catch (error) {
+                if (error instanceof Error) {
+                    if (error.name === 'UserAlreadyExit') {
+                        throw error;
+                    }
+                }
+                throw error;
+            }
         });
     }
     studentGoogleSignIn(email, displayName) {
         return __awaiter(this, void 0, void 0, function* () {
-            const addedUser = yield this.baseRepository.studentGoogleSignIn(email, displayName);
-            return addedUser;
+            try {
+                const addedUser = yield this.baseRepository.studentGoogleSignIn(email, displayName);
+                return addedUser;
+            }
+            catch (error) {
+                if (error instanceof Error) {
+                    if (error.name === 'UserAlreadyExit') {
+                        throw error;
+                    }
+                }
+                throw error;
+            }
         });
     }
     studentGoogleLogin(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            const addedUser = yield this.baseRepository.studentGoogleLogin(email);
-            return addedUser;
+            try {
+                const addedUser = yield this.baseRepository.studentGoogleLogin(email);
+                return addedUser;
+            }
+            catch (error) {
+                if (error instanceof Error) {
+                    if (error.name === 'UserNotFound' || error.name === 'UserBlocked') {
+                        throw error;
+                    }
+                }
+                throw error;
+            }
         });
     }
     studentLogin(email, password) {
@@ -109,18 +133,9 @@ class UserRepositories {
         });
     }
     /*------------------------------------ WEEK - 2 ---------------------------------*/
-    // public async getAllCourses(): Promise<any> {
-    //     try {
-    //         const response = await this.courseBaseRepository.getAllCourses()
-    //         return response
-    //     } catch (error: any) {
-    //         throw error
-    //     }
-    // }
     getAllCourses(page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                // Fetch paginated courses from the base repository
                 const response = yield this.courseBaseRepository.getAllCourses(page, limit);
                 return response;
             }
@@ -163,10 +178,10 @@ class UserRepositories {
             }
         });
     }
-    findCourseById(courseId) {
+    findCourseById(courseId, amount, courseName) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.courseBaseRepository.findCourseById(courseId);
+                const response = yield this.courseBaseRepository.findCourseById(courseId, amount, courseName);
                 return response;
             }
             catch (error) {
@@ -196,10 +211,10 @@ class UserRepositories {
             }
         });
     }
-    getBuyedCourses(userId) {
+    getBuyedCourses(userId, page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.purchaseBaseRepository.getBuyedCourses(userId);
+                const response = yield this.purchaseBaseRepository.getBuyedCourses(userId, page, limit);
                 return response;
             }
             catch (error) {

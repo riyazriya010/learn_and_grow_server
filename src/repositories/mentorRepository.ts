@@ -91,8 +91,60 @@ export class MentorRepository {
 
     /* -------------------------- WEEK - 2 ---------------------------------- */
 
-    public async getAllCourses(): Promise<boolean> {
-        const response = await this.courseBaseRepository.getAllCourses()
+    public async addCourse(data: any): Promise<any> {
+        try{
+            const response = await this.courseBaseRepository.addCourse(data)
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
+
+    public async editCourse(courseId: string, updatedFields: any): Promise<any> {
+        try{
+            const response = await this.courseBaseRepository.editCourse(courseId, updatedFields)
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
+
+    public async unPublishCourse(courseId: string): Promise<any> {
+        try{
+            const response = await this.courseBaseRepository.unPublishCourse(courseId)
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
+
+
+    public async publishCourse(courseId: string): Promise<any> {
+        try{
+            const response = await this.courseBaseRepository.publishCourse(courseId)
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
+
+
+    public async filterCourse(page: number, limit: number, searchTerm: string): Promise<any> {
+        try {
+            const response = await this.courseBaseRepository.filterCourse(
+                page,
+                limit,
+                String(searchTerm)
+            )
+            return response
+        } catch (error: any) {
+            throw error
+        }
+    }
+
+
+    public async getAllCourses(page: number, limit: number): Promise<boolean> {
+        const response = await this.courseBaseRepository.getAllCourses(page, limit)
         return response
     }
 
@@ -113,6 +165,17 @@ export class MentorRepository {
             throw error
         }
     }
+
+
+    public async editChapter(title: string, description: string, chapterId: string, location: string): Promise<any> {
+        try{
+            const response = await this.chapterBaseRepository.editChapter(title, description, chapterId, location)
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
+
 
     async getAllChapters(courseId: string): Promise<any> {
         try{

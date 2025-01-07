@@ -9,19 +9,60 @@ export class AdminBaseRepository<T extends Document> {
         this.model = model
     }
 
-    async getUsers(): Promise<any> {
+    async getUsers(page: number = 1, limit: number = 4): Promise<any> {
         try {
-            const response = await this.model.find()
-            return response
+            const skip = (page - 1) * limit;
+
+            const response = await this.model
+                .find()
+                .skip(skip)
+                .limit(limit)
+                .sort({ createdAt: -1 });
+
+            const totalCourses = await this.model.countDocuments();
+
+            if (!response || response.length === 0) {
+                const error = new Error('Users Not Found');
+                error.name = 'UsersNotFound';
+                throw error;
+            }
+
+            return {
+                courses: response,
+                currentPage: page,
+                totalPages: Math.ceil(totalCourses / limit),
+                totalCourses: totalCourses
+            };
         } catch (error) {
             console.log(error)
         }
     }
 
-    async getMentors(): Promise<any> {
+    
+    async getMentors(page: number = 1, limit: number = 4): Promise<any> {
         try {
-            const response = await this.model.find()
-            return response
+            const skip = (page - 1) * limit;
+
+            const response = await this.model
+                .find()
+                .skip(skip)
+                .limit(limit)
+                .sort({ createdAt: -1 });
+
+            const totalCourses = await this.model.countDocuments();
+
+            if (!response || response.length === 0) {
+                const error = new Error('Mentors Not Found');
+                error.name = 'MentorssNotFound';
+                throw error;
+            }
+
+            return {
+                courses: response,
+                currentPage: page,
+                totalPages: Math.ceil(totalCourses / limit),
+                totalCourses: totalCourses
+            };
         } catch (error) {
             console.log(error)
         }
@@ -173,14 +214,124 @@ export class AdminBaseRepository<T extends Document> {
     }
 
 
-
-
-    async getAllCategory(): Promise<any> {
+    async unListCategory(categoryId: string): Promise<any> {
         try{
-            const response = await this.model.find()
-            return response
+            const unListedCategory = await this.model.findByIdAndUpdate(
+                categoryId,
+                {isListed: false},
+                {new: true}
+            )
+            return unListedCategory
+        }catch(error: any){
+            throw error
+        }
+    }
+
+
+    async listCategory(categoryId: string): Promise<any> {
+        try{
+            const unListedCategory = await this.model.findByIdAndUpdate(
+                categoryId,
+                {isListed: true},
+                {new: true}
+            )
+            return unListedCategory
+        }catch(error: any){
+            throw error
+        }
+    }
+
+
+
+
+    async getAllCategory(page: number = 1, limit: number = 3): Promise<any> {
+        try{
+            const skip = (page - 1) * limit;
+
+            const response = await this.model
+                .find()
+                .skip(skip)
+                .limit(limit)
+                .sort({ createdAt: -1 });
+
+            const totalCourses = await this.model.countDocuments();
+
+            if (!response || response.length === 0) {
+                const error = new Error('Category Not Found');
+                error.name = 'CategoryNotFound';
+                throw error;
+            }
+
+            return {
+                courses: response,
+                currentPage: page,
+                totalPages: Math.ceil(totalCourses / limit),
+                totalCourses: totalCourses
+            };
         }catch(error){
             console.log(error)
+        }
+    }
+
+    async getAllCourse(page: number = 1, limit: number = 5): Promise<any> {
+        try{
+            const skip = (page - 1) * limit;
+
+            const response = await this.model
+                .find()
+                .skip(skip)
+                .limit(limit)
+                .sort({ createdAt: -1 });
+
+            const totalCourses = await this.model.countDocuments();
+
+            if (!response || response.length === 0) {
+                const error = new Error('Course Not Found');
+                error.name = 'CoursesNotFound';
+                throw error;
+            }
+
+            return {
+                courses: response,
+                currentPage: page,
+                totalPages: Math.ceil(totalCourses / limit),
+                totalCourses: totalCourses
+            };
+        }catch(error: any){
+            throw error
+        }
+    }
+
+
+    async unListCourse(courseId: string): Promise<any> {
+        try{
+            const updatedCourse = await this.model.findByIdAndUpdate(
+                courseId,
+                {isListed: false},
+                {new: true}
+            )
+
+            const getAllCourse = await this.model.find()
+
+            return getAllCourse
+            
+        }catch(error: any){
+            throw error
+        }
+    }
+
+
+    async listCourse(courseId: string): Promise<any> {
+        try{
+            const updatedCourse = await this.model.findByIdAndUpdate(
+                courseId,
+                {isListed: true},
+                {new: true}
+            )
+            const getAllCourse = await this.model.find()
+            return getAllCourse
+        }catch(error: any){
+            throw error
         }
     }
 
