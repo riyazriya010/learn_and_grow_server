@@ -170,5 +170,16 @@ class AdminServices {
             }
         });
     }
+    getWallet(userId, pageNumber, limitNumber) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.adminRepository.getWallet(userId, pageNumber, limitNumber);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
 }
 exports.AdminServices = AdminServices;

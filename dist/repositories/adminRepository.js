@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminRepository = void 0;
+const adminWallet_model_1 = require("../models/adminWallet.model");
 const categroy_model_1 = require("../models/categroy.model");
 const mentor_model_1 = __importDefault(require("../models/mentor.model"));
 const uploadCourse_model_1 = require("../models/uploadCourse.model");
@@ -24,6 +25,7 @@ class AdminRepository {
         this.mentorBaseRepository = new adminBase_repository_1.AdminBaseRepository(mentor_model_1.default);
         this.categoryBaseRepository = new adminBase_repository_1.AdminBaseRepository(categroy_model_1.CategoryModel);
         this.courseBaseRepository = new adminBase_repository_1.AdminBaseRepository(uploadCourse_model_1.CourseModel);
+        this.walletBaseRepository = new adminBase_repository_1.AdminBaseRepository(adminWallet_model_1.AdminWalletModel);
     }
     getUsers(page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -176,6 +178,17 @@ class AdminRepository {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield this.courseBaseRepository.listCourse(courseId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getWallet(userId, pageNumber, limitNumber) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.walletBaseRepository.getWallet(userId, pageNumber, limitNumber);
                 return response;
             }
             catch (error) {

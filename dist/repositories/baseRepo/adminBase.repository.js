@@ -290,5 +290,35 @@ class AdminBaseRepository {
             }
         });
     }
+    getWallet(adminId_1) {
+        return __awaiter(this, arguments, void 0, function* (adminId, pageNumber = 1, limitNumber = 4) {
+            try {
+                const skip = (pageNumber - 1) * limitNumber;
+                const response = yield this.model
+                    .find({ adminId })
+                    .sort({ createdAt: -1 })
+                    .skip(skip)
+                    .limit(limitNumber)
+                    .select("-__v");
+                const totalWallets = yield this.model.countDocuments({ adminId });
+                if (!response || response.length === 0) {
+                    const error = new Error("No wallet found for the admin.");
+                    error.name = "AdminNotFound";
+                    throw error;
+                }
+                return {
+                    wallets: response, // Renamed to `wallets` for better readability
+                    currentPage: pageNumber,
+                    totalPages: Math.ceil(totalWallets / limitNumber),
+                    totalWallets,
+                };
+            }
+            catch (error) {
+                // Improved error handling with additional debug info
+                console.error("Error in getWallet:", error.message);
+                throw error;
+            }
+        });
+    }
 }
 exports.AdminBaseRepository = AdminBaseRepository;

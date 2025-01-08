@@ -384,5 +384,32 @@ class AdminController {
             }
         });
     }
+    getWallet(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { page = 1, limit = 4 } = req.query;
+                const pageNumber = parseInt(page, 10);
+                const limitNumber = parseInt(limit, 10);
+                if (pageNumber < 1 || limitNumber < 1) {
+                    const error = new Error('Invalid page or limit value');
+                    error.name = 'Invalid page or limit value';
+                    throw error;
+                }
+                // const userId = await getId('accessToken', req)
+                const adminId = 'admin';
+                const response = yield this.adminServices.getWallet(adminId, pageNumber, limitNumber);
+                return res
+                    .status(200)
+                    .send({
+                    message: 'Admin Wallet Got It',
+                    success: true,
+                    data: response
+                });
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
 }
 exports.AdminController = AdminController;

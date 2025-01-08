@@ -1,3 +1,4 @@
+import { AdminWalletModel, IAdminWallet } from "../models/adminWallet.model";
 import { CategoryModel, ICategory } from "../models/categroy.model";
 import MentorModel, { IMentor } from "../models/mentor.model";
 import { CourseModel, ICourse } from "../models/uploadCourse.model";
@@ -9,12 +10,14 @@ export class AdminRepository {
     private userBaseRepository: AdminBaseRepository<IUser>;
     private categoryBaseRepository: AdminBaseRepository<ICategory>;
     private courseBaseRepository: AdminBaseRepository<ICourse>;
+    private walletBaseRepository: AdminBaseRepository<IAdminWallet>;
 
     constructor(){
         this.userBaseRepository = new AdminBaseRepository<IUser>(UserModel)
         this.mentorBaseRepository = new AdminBaseRepository<IMentor>(MentorModel)
         this.categoryBaseRepository = new AdminBaseRepository<ICategory>(CategoryModel)
         this.courseBaseRepository = new AdminBaseRepository<ICourse>(CourseModel)
+        this.walletBaseRepository = new AdminBaseRepository<IAdminWallet>(AdminWalletModel)
     }
 
     async getUsers(page: number, limit: number): Promise<any> {
@@ -154,5 +157,16 @@ export class AdminRepository {
             throw error
         }
     }
+
+
+    async getWallet(userId: string, pageNumber: number, limitNumber: number): Promise<any> {
+        try{
+            const response  = await this.walletBaseRepository.getWallet(userId, pageNumber, limitNumber)
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
+    
 }
 

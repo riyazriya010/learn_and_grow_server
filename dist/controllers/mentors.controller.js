@@ -769,8 +769,8 @@ class MentorController {
                     error.name = 'Invalid page or limit value';
                     throw error;
                 }
-                // const userId = await getId('accessToken', req)
-                const userId = '676e807be8f82e659d704d72';
+                const userId = yield (0, getId_1.default)('accessToken', req);
+                // const userId = '676e807be8f82e659d704d72'
                 const response = yield this.mentorServices.getWallet(String(userId), pageNumber, limitNumber);
                 return res
                     .status(200)

@@ -335,4 +335,38 @@ export class AdminBaseRepository<T extends Document> {
         }
     }
 
+
+
+    async getWallet(adminId: string, pageNumber: number = 1, limitNumber: number = 4): Promise<any> {
+        try {
+            const skip = (pageNumber - 1) * limitNumber;
+    
+            const response = await this.model
+                .find({ adminId })
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limitNumber)
+                .select("-__v");
+    
+            const totalWallets = await this.model.countDocuments({ adminId });
+    
+            if (!response || response.length === 0) {
+                const error = new Error("No wallet found for the admin.");
+                error.name = "AdminNotFound";
+                throw error;
+            }
+    
+            return {
+                wallets: response, // Renamed to `wallets` for better readability
+                currentPage: pageNumber,
+                totalPages: Math.ceil(totalWallets / limitNumber),
+                totalWallets,
+            };
+        } catch (error: any) {
+            // Improved error handling with additional debug info
+            console.error("Error in getWallet:", error.message);
+            throw error;
+        }
+    }
+
 }

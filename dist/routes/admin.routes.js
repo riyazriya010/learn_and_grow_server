@@ -26,5 +26,6 @@ router.get(`/get/categories`, adminController.getAllCategory.bind(adminControlle
 router.get(`/get/all-course`, adminController.getAllCourse.bind(adminController));
 router.patch(`/unlist/course`, adminController.unListCourse.bind(adminController));
 router.patch(`/list/course`, adminController.listCourse.bind(adminController));
+router.get('/get/wallet', adminController.getWallet.bind(adminController));
 const adminRoutes = router;
 exports.default = adminRoutes;

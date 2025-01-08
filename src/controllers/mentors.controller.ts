@@ -868,8 +868,8 @@ export class MentorController {
                 throw error
             }
 
-            // const userId = await getId('accessToken', req)
-            const userId = '676e807be8f82e659d704d72'
+            const userId = await getId('accessToken', req)
+            // const userId = '676e807be8f82e659d704d72'
 
             const response = await this.mentorServices.getWallet(String(userId), pageNumber, limitNumber)
 
