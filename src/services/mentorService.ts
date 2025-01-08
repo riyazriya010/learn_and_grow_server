@@ -192,4 +192,13 @@ export class MentorServices {
                 throw error
             }
         }
+
+        public async getWallet(userId: string, pageNumber: number, limitNumber: number): Promise<any> {
+            try{
+                const response  = await this.mentorRepository.getWallet(userId, pageNumber, limitNumber)
+                return response
+            }catch(error: any){
+                throw error
+            }
+        }
 }

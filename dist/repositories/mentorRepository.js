@@ -19,6 +19,7 @@ const mentor_model_1 = __importDefault(require("../models/mentor.model"));
 const quizz_model_1 = __importDefault(require("../models/quizz.model"));
 const uploadCourse_model_1 = require("../models/uploadCourse.model");
 const mentorBase_repository_1 = __importDefault(require("./baseRepo/mentorBase.repository"));
+const mentorWallet_model_1 = require("../models/mentorWallet.model");
 class MentorRepository {
     constructor() {
         this.baseRepository = new mentorBase_repository_1.default(mentor_model_1.default);
@@ -26,6 +27,7 @@ class MentorRepository {
         this.chapterBaseRepository = new mentorBase_repository_1.default(chapter_model_1.ChapterModel);
         this.categoryBaseRepository = new mentorBase_repository_1.default(categroy_model_1.CategoryModel);
         this.quizzBaseRepository = new mentorBase_repository_1.default(quizz_model_1.default);
+        this.walletBaseRepository = new mentorBase_repository_1.default(mentorWallet_model_1.MentorWalletModel);
     }
     findByEmail(email) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -238,6 +240,17 @@ class MentorRepository {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const response = yield this.quizzBaseRepository.deleteQuizz(courseId, quizId);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getWallet(userId, pageNumber, limitNumber) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.walletBaseRepository.getWallet(userId, pageNumber, limitNumber);
                 return response;
             }
             catch (error) {

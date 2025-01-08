@@ -855,6 +855,37 @@ export class MentorController {
     }
 
 
+    async getWallet(req: Request, res: Response): Promise<any> {
+        try{
+            const { page = 1, limit = 4 } = req.query;
+
+            const pageNumber = parseInt(page as string, 10);
+            const limitNumber = parseInt(limit as string, 10);
+
+            if (pageNumber < 1 || limitNumber < 1) {
+                const error = new Error('Invalid page or limit value')
+                error.name = 'Invalid page or limit value'
+                throw error
+            }
+
+            // const userId = await getId('accessToken', req)
+            const userId = '676e807be8f82e659d704d72'
+
+            const response = await this.mentorServices.getWallet(String(userId), pageNumber, limitNumber)
+
+            return res
+            .status(200)
+            .send({
+                message: 'Mentor Wallet Got It',
+                success: true,
+                data: response
+            })
+        }catch(error: any){
+            throw error
+        }
+    }
+
+
 
 
 }

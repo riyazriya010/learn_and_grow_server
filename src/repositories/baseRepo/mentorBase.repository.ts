@@ -531,4 +531,40 @@ export default class MentorBaseRepository<T extends Document> {
         }
     }
 
+
+    async getWallet(mentorId: string, pageNumber: number = 1, limitNumber: number = 4): Promise<any> {
+        try {
+            const skip = (pageNumber - 1) * limitNumber;
+    
+            // Fetch paginated wallet data for the mentor
+            const response = await this.model
+                .find({ mentorId }) // Filter by mentorId
+                .sort({ createdAt: -1 }) // Sort by creation date, descending
+                .skip(skip)
+                .limit(limitNumber)
+                .select("-__v"); // Exclude the `__v` field if unnecessary
+    
+            // Count total wallet documents for the mentor
+            const totalWallets = await this.model.countDocuments({ mentorId });
+    
+            if (!response || response.length === 0) {
+                const error = new Error("No wallet found for the mentor.");
+                error.name = "WalletNotFound";
+                throw error;
+            }
+    
+            return {
+                wallets: response, // Renamed to `wallets` for better readability
+                currentPage: pageNumber,
+                totalPages: Math.ceil(totalWallets / limitNumber),
+                totalWallets,
+            };
+        } catch (error: any) {
+            // Improved error handling with additional debug info
+            console.error("Error in getWallet:", error.message);
+            throw error;
+        }
+    }
+    
+
 }

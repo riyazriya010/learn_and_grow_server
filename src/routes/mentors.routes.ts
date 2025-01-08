@@ -51,6 +51,8 @@ router.post('/add/quizz', mentorController.addQuizz.bind(mentorController))
 router.get(`/get/all-quizz`, mentorController.getAllQuizz.bind(mentorController))
 router.delete('/delete/quizz', mentorController.deleteQuizz.bind(mentorController))
 
+router.get('/get/wallet', mentorController.getWallet.bind(mentorController))
+
 
 const mentorRoutes = router
 export default mentorRoutes;

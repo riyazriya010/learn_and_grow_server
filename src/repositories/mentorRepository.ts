@@ -6,6 +6,7 @@ import MentorModel, { IMentor } from "../models/mentor.model";
 import QuizModel, { IQuiz } from "../models/quizz.model";
 import { CourseModel, ICourse } from "../models/uploadCourse.model";
 import MentorBaseRepository from "./baseRepo/mentorBase.repository";
+import { IMentorWallet, MentorWalletModel } from "../models/mentorWallet.model";
 
 export class MentorRepository {
     private baseRepository: MentorBaseRepository<IMentor>
@@ -13,6 +14,7 @@ export class MentorRepository {
     private chapterBaseRepository: MentorBaseRepository<IChapter>
     private categoryBaseRepository: MentorBaseRepository<ICategory>
     private quizzBaseRepository: MentorBaseRepository<IQuiz>
+    private walletBaseRepository: MentorBaseRepository<IMentorWallet>
 
     constructor() {
         this.baseRepository = new MentorBaseRepository<IMentor>(MentorModel)
@@ -20,6 +22,7 @@ export class MentorRepository {
         this.chapterBaseRepository = new MentorBaseRepository<IChapter>(ChapterModel)
         this.categoryBaseRepository = new MentorBaseRepository<ICategory>(CategoryModel)
         this.quizzBaseRepository = new MentorBaseRepository<IQuiz>(QuizModel)
+        this.walletBaseRepository = new MentorBaseRepository<IMentorWallet>(MentorWalletModel)
     }
 
     async findByEmail(email: string): Promise<IMentor | null> {
@@ -210,6 +213,16 @@ export class MentorRepository {
     async deleteQuizz(courseId: string, quizId: string): Promise<any> {
         try{
             const response = await this.quizzBaseRepository.deleteQuizz(courseId, quizId)
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
+
+
+    public async getWallet(userId: string, pageNumber: number, limitNumber: number): Promise<any> {
+        try{
+            const response  = await this.walletBaseRepository.getWallet(userId, pageNumber, limitNumber)
             return response
         }catch(error: any){
             throw error
