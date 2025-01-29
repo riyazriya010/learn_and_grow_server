@@ -9,8 +9,11 @@ interface ICompletedChapter {
 export interface IPurchasedCourse extends Document {
   userId: Schema.Types.ObjectId;
   courseId: Schema.Types.ObjectId;
+  mentorId: Schema.Types.ObjectId;
   completedChapters: ICompletedChapter[];
   isCourseCompleted: boolean;
+  transactionId: string;
+  price: string;
   purchasedAt: Date;
   completedAt?: Date; // Optional: Timestamp when the course is completed
 }
@@ -25,8 +28,11 @@ const PurchasedCourseSchema = new Schema<IPurchasedCourse>(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     courseId: { type: Schema.Types.ObjectId, ref: 'Course', required: true },
+    mentorId: { type: Schema.Types.ObjectId, ref: 'Mentors', required: true },
     completedChapters: [CompletedChapterSchema],
     isCourseCompleted: { type: Boolean, default: false },
+    transactionId: { type: String},
+    price: { type: String},
     purchasedAt: { type: Date, default: Date.now },
     completedAt: { type: Date },
   },

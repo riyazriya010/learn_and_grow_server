@@ -278,7 +278,7 @@ export class AdminBaseRepository<T extends Document> {
             const skip = (page - 1) * limit;
 
             const response = await this.model
-                .find()
+                .find({isPublished: true})
                 .skip(skip)
                 .limit(limit)
                 .sort({ createdAt: -1 });

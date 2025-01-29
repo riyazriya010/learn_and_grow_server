@@ -330,17 +330,17 @@ class MentorController {
                     success: true,
                     result: response
                 });
-                // // Create and save the course
-                // const result = await CourseModel.create(req.body);
-                // // Respond with success
-                // return res.status(200).send({
-                //     message: 'Course uploaded successfully',
-                //     success: true,
-                //     result,
-                // });
             }
             catch (error) {
-                console.error('Error in addCourse:', error);
+                if (error && error.name === 'AlreadyExist') {
+                    return res
+                        .status(403)
+                        .send({
+                        message: 'Course Name Already Exist',
+                        success: false
+                    });
+                }
+                // console.error('Error in addCourse:', error);
                 return res.status(500).send({
                     message: 'An error occurred while uploading the course',
                     success: false,
@@ -394,23 +394,16 @@ class MentorController {
                     success: true,
                     data: response,
                 });
-                // Update course with new fields
-                // const updatedCourse = await CourseModel.findByIdAndUpdate(courseId, updatedFields, { new: true });
-                // if (!updatedCourse) {
-                //     return res.status(400).send({
-                //         message: 'Failed to update course',
-                //         success: false,
-                //     });
-                // }
-                // // Send response back
-                // return res.status(200).send({
-                //     message: 'Course updated successfully',
-                //     success: true,
-                //     data: updatedCourse,
-                // });
             }
             catch (error) {
-                console.error('Error:', error);
+                if (error && error.name === 'AlreadyExist') {
+                    return res
+                        .status(403)
+                        .send({
+                        message: 'Course Name Already Exist',
+                        success: false
+                    });
+                }
                 return res.status(500).send({
                     message: 'Internal Server Error',
                     success: false,
@@ -601,7 +594,8 @@ class MentorController {
                         success: false
                     });
                 }
-                const response = yield this.mentorServices.getAllCourses(pageNumber, limitNumber);
+                const userId = yield (0, getId_1.default)('accessToken', req);
+                const response = yield this.mentorServices.getAllCourses(pageNumber, limitNumber, String(userId));
                 // const response = await this.mentorServices.getAllCourses()
                 return res
                     .status(200)

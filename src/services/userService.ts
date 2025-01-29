@@ -102,9 +102,9 @@ export default class UserServices {
     }
 
 
-    public async getCourse(id: string): Promise<any> {
+    public async getCourse(id: string, userId: string): Promise<any> {
         try {
-            const response = await this.userRepositories.getCourse(id)
+            const response = await this.userRepositories.getCourse(id, userId)
             return response
         } catch (error: any) {
             throw error
@@ -231,9 +231,9 @@ export default class UserServices {
     }
 
 
-    public async getCertificates(): Promise<any> {
+    public async getCertificates(userId: string): Promise<any> {
         try {
-            const response = await this.userRepositories.getCertificates()
+            const response = await this.userRepositories.getCertificates(userId)
             return response
         } catch (error: any) {
             throw error

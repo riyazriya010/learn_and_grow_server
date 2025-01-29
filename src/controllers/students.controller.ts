@@ -18,7 +18,7 @@ export default class UserController {
         this.jwtService = new JwtService()
     }
 
-    //Student SignUp Method
+    //Student SignUp Method  // added
     public async studentSignup(req: Request, res: Response): Promise<any> {
         try {
             let { username, email, phone, password } = req.body
@@ -62,7 +62,7 @@ export default class UserController {
     }
 
 
-    // Student google SignUp Method
+    // Student google SignUp Method  // added
     public async studentGoogleSignIn(req: Request, res: Response): Promise<any> {
         try {
             const { email, displayName } = req.body
@@ -102,7 +102,7 @@ export default class UserController {
     }
 
 
-    // Student Google Login Method
+    // Student Google Login Method  //added
     public async studentGoogleLogin(req: Request, res: Response): Promise<any> {
         try {
             const { email } = req.body
@@ -150,7 +150,7 @@ export default class UserController {
     }
 
 
-    // Student Login
+    // Student Login  // added
     public async studentLogin(req: Request, res: Response): Promise<any> {
         try {
             const { email, password } = req.body
@@ -192,6 +192,7 @@ export default class UserController {
         }
     }
 
+
     public async verifyStudent(req: Request, res: Response): Promise<any> {
         try {
             const token = req.query.token as string
@@ -221,6 +222,7 @@ export default class UserController {
 
             // Verify user using the email
             const response = await this.userServices.verifyUser(email);
+
             if (!response) {
                 throw new Error('User not found or verification failed');
             }
@@ -243,6 +245,7 @@ export default class UserController {
             });
         }
     }
+
 
     public async forgetPassword(req: Request, res: Response): Promise<any> {
         try {
@@ -296,6 +299,7 @@ export default class UserController {
     }
 
 
+
     public async studentReVerify(req: Request, res: Response): Promise<any> {
         try {
             const email = req.query.email
@@ -310,6 +314,7 @@ export default class UserController {
         }
     }
 
+    
     public async profileUpdate(req: Request, res: Response): Promise<any> {
         try {
             console.log('file: ', req.file)
@@ -385,6 +390,7 @@ export default class UserController {
     public async getCourse(req: Request, res: Response): Promise<any> {
         try {
             const courseId = req.query.courseId
+            const userId = req?.query?.userId
 
             if (!courseId) {
                 return res
@@ -394,8 +400,8 @@ export default class UserController {
                         success: false
                     })
             }
-
-            const response = await this.userServices.getCourse(String(courseId))
+            
+            const response = await this.userServices.getCourse(String(courseId), String(userId))
 
             return res
                 .status(200)
@@ -507,10 +513,12 @@ export default class UserController {
     public async buyCourse(req: Request, res: Response): Promise<any> {
         try {
 
-            const courseId = req.query.courseId
-            const txnid = req.query.txnid
-            const amount = req.query.amount
-            const courseName = req.query.courseName
+            // const courseId = req.query.courseId
+            // const txnid = req.query.txnid
+            // const amount = req.query.amount
+            // const courseName = req.query.courseName
+
+            const { courseId, txnid, amount, courseName } = req.body
 
             const isCourseExist = await this.userServices.findCourseById(String(courseId), Number(amount), String(courseName))
 
@@ -555,6 +563,7 @@ export default class UserController {
                     message: 'Succes Verified',
                     success: true
                 })
+                
         } catch (error: any) {
             throw error
         }
@@ -603,7 +612,7 @@ export default class UserController {
                 success: true,
                 data: response,
             });
-        } catch (error: unknown) {
+        } catch (error: any) {
             if (error instanceof Error) {
                 if (error.name === 'Invalid page or limit value') {
                     return res.status(400).send({
@@ -736,6 +745,7 @@ export default class UserController {
         }
     }
 
+
     public async completeCourse(req: Request, res: Response): Promise<any> {
         try {
             const userId = await getId('accessToken', req)
@@ -819,7 +829,8 @@ export default class UserController {
 
     public async getCertificates(req: Request, res: Response): Promise<any> {
         try {
-            const response = await this.userServices.getCertificates()
+            const userId = await getId('accessToken', req)
+            const response = await this.userServices.getCertificates(String(userId))
             return res
                 .status(200)
                 .send({

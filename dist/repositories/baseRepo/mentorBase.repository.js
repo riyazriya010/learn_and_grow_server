@@ -17,9 +17,11 @@ const mailToken_1 = require("../../integration/mailToken");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const uploadCourse_model_1 = require("../../models/uploadCourse.model");
+const categroy_model_1 = require("../../models/categroy.model");
 class MentorBaseRepository {
     constructor(model) {
         this.courseModel = uploadCourse_model_1.CourseModel;
+        this.categoryModel = categroy_model_1.CategoryModel;
         this.model = model;
     }
     findByEmail(email) {
@@ -244,6 +246,14 @@ class MentorBaseRepository {
     addCourse(data) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                const findCategory = yield this.categoryModel.findOne({ categoryName: data.category });
+                data.categoryId = findCategory._id;
+                const isExist = yield this.model.findOne({ courseName: data.courseName });
+                if (isExist) {
+                    const error = new Error('Already Exist');
+                    error.name = 'AlreadyExist';
+                    throw error;
+                }
                 const response = yield this.model.create(data);
                 return response;
             }
@@ -255,6 +265,15 @@ class MentorBaseRepository {
     editCourse(courseId, updatedFields) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                const isExist = yield this.model.findOne({
+                    courseName: updatedFields.courseName,
+                    _id: { $ne: courseId }
+                });
+                if (isExist) {
+                    const error = new Error('Already Exist');
+                    error.name = 'AlreadyExist';
+                    throw error;
+                }
                 const response = yield this.model.findByIdAndUpdate(courseId, updatedFields, { new: true });
                 return response;
             }
@@ -322,11 +341,11 @@ class MentorBaseRepository {
         });
     }
     getAllCourses() {
-        return __awaiter(this, arguments, void 0, function* (page = 1, limit = 4) {
+        return __awaiter(this, arguments, void 0, function* (page = 1, limit = 4, userId) {
             try {
                 const skip = (page - 1) * limit;
                 const response = yield this.model
-                    .find()
+                    .find({ mentorId: userId })
                     .skip(skip)
                     .limit(limit)
                     .sort({ createdAt: -1 });
@@ -497,11 +516,6 @@ class MentorBaseRepository {
                     .select("-__v"); // Exclude the `__v` field if unnecessary
                 // Count total wallet documents for the mentor
                 const totalWallets = yield this.model.countDocuments({ mentorId });
-                if (!response || response.length === 0) {
-                    const error = new Error("No wallet found for the mentor.");
-                    error.name = "WalletNotFound";
-                    throw error;
-                }
                 return {
                     wallets: response, // Renamed to `wallets` for better readability
                     currentPage: pageNumber,

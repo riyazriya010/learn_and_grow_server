@@ -120,8 +120,8 @@ export class MentorServices {
         }
 
 
-        public async getAllCourses(page: number, limit: number): Promise<any> {
-            const response = await this.mentorRepository.getAllCourses(page, limit)
+        public async getAllCourses(page: number, limit: number, userId: string): Promise<any> {
+            const response = await this.mentorRepository.getAllCourses(page, limit, userId)
             return response
         }
 

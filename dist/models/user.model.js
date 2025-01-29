@@ -37,11 +37,12 @@ const mongoose_1 = __importStar(require("mongoose"));
 const UserSchema = new mongoose_1.Schema({
     username: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    phone: { type: String, required: true, unique: true },
+    phone: { type: String, required: true },
     password: { type: String, required: true },
     role: { type: String, required: true, default: null },
     profilePicUrl: { type: String, required: true, default: 'img not having' },
     studiedHours: { type: Number, required: true, default: 0 },
+    lastLogin: { type: Date, default: Date.now },
     isVerified: { type: Boolean, required: true, default: false },
     isBlocked: { type: Boolean, required: true, default: false }
 }, {

@@ -16,6 +16,7 @@ const user_model_1 = __importDefault(require("../../models/user.model"));
 const mailToken_1 = require("../../integration/mailToken");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const nodemailer_1 = __importDefault(require("../../integration/nodemailer"));
+const purchased_model_1 = require("../../models/purchased.model");
 const userWallet_model_1 = require("../../models/userWallet.model");
 const mentorWallet_model_1 = require("../../models/mentorWallet.model");
 const adminWallet_model_1 = require("../../models/adminWallet.model");
@@ -25,6 +26,7 @@ class BaseRepository {
         this.mentorWalletModel = mentorWallet_model_1.MentorWalletModel;
         this.adminWalletModel = adminWallet_model_1.AdminWalletModel;
         this.userModel = user_model_1.default;
+        this.purchasedCourseModel = purchased_model_1.PurchasedCourseModel;
         this.model = model;
     }
     findAll() {
@@ -342,9 +344,39 @@ class BaseRepository {
     getAllCourses() {
         return __awaiter(this, arguments, void 0, function* (page = 1, limit = 6) {
             try {
+                console.log('page ', page);
+                console.log('limit ', limit);
+                // const skip = (page - 1) * limit;
+                // // Query to fetch courses with isPublished, isListed, and categories that are also isListed
+                // const response = await this.model
+                //     .find({
+                //         isPublished: true,
+                //         isListed: true
+                //     })
+                //     .populate({
+                //         path: 'categoryId', // Reference to the Category model
+                //         match: { isListed: true }, // Ensure the category is listed
+                //         select: 'isListed categoryName', // Select relevant fields from Category
+                //     })
+                //     .skip(skip)
+                //     .limit(limit)
+                //     .sort({ createdAt: -1 }) as unknown as ICourse[]
+                // const filteredCourses = response.filter(course => course.categoryId);
+                // const totalCourses = filteredCourses.length;
+                // if (filteredCourses.length === 0) {
+                //     const error = new Error('Courses Not Found');
+                //     error.name = 'CoursesNotFound';
+                //     throw error;
+                // }
+                // return {
+                //     courses: filteredCourses,
+                //     currentPage: page,
+                //     totalPages: Math.ceil(totalCourses / limit),
+                //     totalCourses: totalCourses
+                // };
                 const skip = (page - 1) * limit;
                 const response = yield this.model
-                    .find()
+                    .find({ isPublished: true, isListed: true })
                     .skip(skip)
                     .limit(limit)
                     .sort({ createdAt: -1 });
@@ -366,7 +398,7 @@ class BaseRepository {
             }
         });
     }
-    getCourse(id) {
+    getCourse(id, userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const findCourse = yield this.model.findById(id);
@@ -374,6 +406,16 @@ class BaseRepository {
                     const error = new Error('Course Not Found');
                     error.name = 'Course Not Found';
                     throw error;
+                }
+                if (userId) {
+                    const purchasedCourse = yield this.purchasedCourseModel.findOne({ userId: userId, courseId: findCourse._id });
+                    if (purchasedCourse) {
+                        return {
+                            findCourse,
+                            alreadyBuyed: 'Already Buyed'
+                        };
+                    }
+                    return findCourse;
                 }
                 return findCourse;
             }
@@ -412,7 +454,12 @@ class BaseRepository {
             try {
                 console.log('filters: ', selectedCategory, selectedLevel, searchTerm);
                 const skip = (page - 1) * limit;
-                const query = {};
+                // Base query with isPublished and isListed checks
+                const query = {
+                    isPublished: true,
+                    isListed: true,
+                };
+                // Adding filters for selectedCategory, selectedLevel, and searchTerm
                 if (selectedCategory !== 'undefined') {
                     query.category = { $regex: `^${selectedCategory}$`, $options: 'i' };
                 }
@@ -423,15 +470,27 @@ class BaseRepository {
                     console.log('search: ', searchTerm);
                     query.courseName = { $regex: searchTerm, $options: 'i' };
                 }
-                const courses = yield this.model.find(query).skip(skip).limit(limit).sort({ createdAt: -1 });
-                const totalCourses = yield this.model.countDocuments(query);
-                if (!courses || courses.length === 0) {
+                // Fetch courses with the specified conditions
+                const response = yield this.model
+                    .find(query)
+                    .populate({
+                    path: 'categoryId', // Reference to the Category model
+                    match: { isListed: true }, // Ensure the category is listed
+                    select: 'isListed categoryName', // Select relevant fields from the Category model
+                })
+                    .skip(skip)
+                    .limit(limit)
+                    .sort({ createdAt: -1 });
+                // Filter courses to exclude those with unlisted categories
+                const filteredCourses = response.filter((course) => course.categoryId);
+                const totalCourses = filteredCourses.length;
+                if (filteredCourses.length === 0) {
                     const error = new Error('Course Not Found');
                     error.name = 'CourseNotFound';
                     throw error;
                 }
                 return {
-                    courses,
+                    courses: filteredCourses,
                     currentPage: page,
                     totalPages: Math.ceil(totalCourses / limit),
                     totalCourses,
@@ -575,11 +634,11 @@ class BaseRepository {
                 // Count the total number of courses for the user
                 const totalCourses = yield this.model.countDocuments({ userId: userId });
                 // Check if no courses are found
-                if (!response || response.length === 0) {
-                    const error = new Error("No courses found for the user.");
-                    error.name = "CoursesNotFound";
-                    throw error;
-                }
+                // if (!response || response.length === 0) {
+                //     const error = new Error("No courses found for the user.");
+                //     error.name = "CoursesNotFound";
+                //     throw error;
+                // }
                 // Return the paginated data
                 return {
                     courses: response,
@@ -734,10 +793,10 @@ class BaseRepository {
             }
         });
     }
-    getCertificates() {
+    getCertificates(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.model.find();
+                const response = yield this.model.find({ userId: userId });
                 return response;
             }
             catch (error) {

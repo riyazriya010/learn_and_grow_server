@@ -146,8 +146,8 @@ export class MentorRepository {
     }
 
 
-    public async getAllCourses(page: number, limit: number): Promise<boolean> {
-        const response = await this.courseBaseRepository.getAllCourses(page, limit)
+    public async getAllCourses(page: number, limit: number, userId: string): Promise<boolean> {
+        const response = await this.courseBaseRepository.getAllCourses(page, limit, userId)
         return response
     }
 

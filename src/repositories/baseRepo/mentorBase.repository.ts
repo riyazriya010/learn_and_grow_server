@@ -7,11 +7,13 @@ import bcrypt from 'bcrypt'
 import { IQuiz } from "../../models/quizz.model"
 import mongoose from "mongoose"
 import { CourseModel, ICourse } from "../../models/uploadCourse.model"
+import { CategoryModel, ICategory } from "../../models/categroy.model"
 
 
 export default class MentorBaseRepository<T extends Document> {
     private model: Model<T>
     private courseModel: Model<ICourse> = CourseModel as Model<ICourse>;
+    private categoryModel: Model<ICategory> = CategoryModel as Model<ICategory>;
 
     constructor(model: Model<T>) {
         this.model = model
@@ -250,6 +252,20 @@ export default class MentorBaseRepository<T extends Document> {
 
     public async addCourse(data: any): Promise<any> {
         try{
+            const findCategory = await this.categoryModel.findOne(
+                {categoryName: data.category}
+            ) as ICategory
+
+            data.categoryId = findCategory._id
+
+            const isExist = await this.model.findOne({ courseName: data.courseName })
+
+            if(isExist){
+                const error = new Error('Already Exist')
+                error.name = 'AlreadyExist'
+                throw error
+            }
+            
             const response = await this.model.create(data);
             return response
         }catch(error: any){
@@ -259,6 +275,18 @@ export default class MentorBaseRepository<T extends Document> {
 
     public async editCourse(courseId: string, updatedFields: any): Promise<any> {
         try{
+
+            const isExist = await this.model.findOne({
+                courseName: updatedFields.courseName,
+                _id: { $ne: courseId }
+              });
+
+            if(isExist){
+                const error = new Error('Already Exist')
+                error.name = 'AlreadyExist'
+                throw error
+            }
+
             const response = await this.model.findByIdAndUpdate(
                 courseId,
                 updatedFields,
@@ -344,13 +372,13 @@ export default class MentorBaseRepository<T extends Document> {
 
 
 
-    async getAllCourses(page: number = 1, limit: number = 4): Promise<any> {
+    async getAllCourses(page: number = 1, limit: number = 4, userId: string): Promise<any> {
         try {
 
             const skip = (page - 1) * limit;
 
             const response = await this.model
-                .find()
+                .find({mentorId: userId})
                 .skip(skip)
                 .limit(limit)
                 .sort({ createdAt: -1 });
@@ -546,12 +574,6 @@ export default class MentorBaseRepository<T extends Document> {
     
             // Count total wallet documents for the mentor
             const totalWallets = await this.model.countDocuments({ mentorId });
-    
-            if (!response || response.length === 0) {
-                const error = new Error("No wallet found for the mentor.");
-                error.name = "WalletNotFound";
-                throw error;
-            }
     
             return {
                 wallets: response, // Renamed to `wallets` for better readability

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { AdminServices } from "../services/adminService";
 import { JwtService } from "../integration/jwt";
+import { BagdeManagementModel } from "../models/adminBadge.model";
 
 export class AdminController {
     private adminServices: AdminServices
@@ -433,6 +434,89 @@ export class AdminController {
             })
         }catch(error: any){
             throw error
+        }
+    }
+
+
+
+    async addBadge(req: Request, res: Response): Promise<any> {
+        try{
+            const { badgeName, description, value } = req.body
+            const badge = new BagdeManagementModel({
+                badgeName,
+                description,
+                value
+            })
+            const savedBadge = await badge.save()
+            return res
+            .status(200)
+            .send({
+                message: 'Badge Saved',
+                success: true,
+                data: savedBadge
+            })
+        }catch(error: unknown){
+            
+        }
+    }
+
+
+    async getBadges(req: Request, res: Response): Promise<any> {
+        try{
+            const { page = 1, limit = 4 } = req.query;
+            const pageNumber = parseInt(page as string, 10);
+            const limitNumber = parseInt(limit as string, 10);
+
+            const skip = (pageNumber - 1) * limitNumber;
+
+            const response = await BagdeManagementModel
+                .find()
+                .skip(skip)
+                .limit(limitNumber)
+                .sort({ createdAt: -1 });
+
+                const totalCourses = await BagdeManagementModel.countDocuments();
+
+                const data = {
+                    badges: response,
+                    currentPage: page,
+                    totalPages: Math.ceil(totalCourses / limitNumber),
+                    totalCourses: totalCourses
+                };
+                return res
+                .status(200)
+                .send({
+                    message: 'Badges All Got It',
+                    success: true,
+                    result: data
+                })
+
+        }catch(error: unknown){
+            
+        }
+    }
+
+
+
+    async editBadge(req: Request, res: Response): Promise<any> {
+        try{
+            const { badgeId } = req.params
+            const { badgeName, description, value } = req.body
+            const data = {badgeName, description, value}
+            const findBadge = await BagdeManagementModel.findByIdAndUpdate(
+                badgeId,
+                data,
+                { new: true }
+            )
+            return res
+            .status(200)
+            .send({
+                message: 'Badge Saved',
+                success: true,
+                data: findBadge
+            })
+        }catch(error: unknown){
+            
         }
     }
 

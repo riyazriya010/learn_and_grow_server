@@ -121,10 +121,10 @@ class UserServices {
             }
         });
     }
-    getCourse(id) {
+    getCourse(id, userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.userRepositories.getCourse(id);
+                const response = yield this.userRepositories.getCourse(id, userId);
                 return response;
             }
             catch (error) {
@@ -264,10 +264,10 @@ class UserServices {
             }
         });
     }
-    getCertificates() {
+    getCertificates(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.userRepositories.getCertificates();
+                const response = yield this.userRepositories.getCertificates(userId);
                 return response;
             }
             catch (error) {

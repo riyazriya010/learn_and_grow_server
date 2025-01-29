@@ -8,9 +8,8 @@ const demoVideoSchema = new mongoose_1.Schema({
 });
 const CourseSchema = new mongoose_1.Schema({
     courseName: { type: String, required: true },
-    mentorId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Mentors' },
+    mentorId: { type: mongoose_1.Schema.Types.ObjectId, required: true, ref: 'Mentors' },
     categoryId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Category' },
-    // quizzId: { type: Schema.Types.ObjectId, ref: 'Quiz' },
     description: { type: String, required: true },
     demoVideo: [demoVideoSchema],
     fullVideo: [

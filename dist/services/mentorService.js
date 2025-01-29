@@ -137,9 +137,9 @@ class MentorServices {
             }
         });
     }
-    getAllCourses(page, limit) {
+    getAllCourses(page, limit, userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield this.mentorRepository.getAllCourses(page, limit);
+            const response = yield this.mentorRepository.getAllCourses(page, limit, userId);
             return response;
         });
     }

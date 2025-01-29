@@ -9,29 +9,34 @@ const adminController = new AdminController()
 router.post('/admin/login', adminController.adminLogin.bind(adminController))
 
 // student routes
-router.get('/get/users', adminController.getUsers.bind(adminController))
+router.get('/get/users',authenticateToken, adminController.getUsers.bind(adminController))
 router.patch('/block/user',authenticateToken, adminController.blockUser.bind(adminController))
 router.patch('/unblock/user',authenticateToken, adminController.unBlockUser.bind(adminController))
 
 //mentor routes
-router.get('/get/mentors', adminController.getMentors.bind(adminController))
+router.get('/get/mentors',authenticateToken, adminController.getMentors.bind(adminController))
 router.patch('/block/mentor',authenticateToken, adminController.blockMentor.bind(adminController))
 router.patch('/unblock/mentor',authenticateToken, adminController.unBlockMentor.bind(adminController))
 
 
 /* -------------------------------------- WEEK -2 -----------------------------------*/
 
-router.post(`/add/category`, adminController.addCategory.bind(adminController))
-router.patch(`/edit/category`, adminController.editCategory.bind(adminController))
-router.patch('/unList/category', adminController.unListCategory.bind(adminController))
-router.patch('/list/category', adminController.listCategory.bind(adminController))
+router.post(`/add/category`,authenticateToken, adminController.addCategory.bind(adminController))
+router.patch(`/edit/category`,authenticateToken, adminController.editCategory.bind(adminController))
+router.patch('/unList/category',authenticateToken, adminController.unListCategory.bind(adminController))
+router.patch('/list/category',authenticateToken, adminController.listCategory.bind(adminController))
+router.get(`/get/categories`,authenticateToken, adminController.getAllCategory.bind(adminController))
 
-router.get(`/get/categories`, adminController.getAllCategory.bind(adminController))
-router.get(`/get/all-course`, adminController.getAllCourse.bind(adminController))
-router.patch(`/unlist/course`, adminController.unListCourse.bind(adminController))
-router.patch(`/list/course`, adminController.listCourse.bind(adminController))
+router.get(`/get/all-course`,authenticateToken, adminController.getAllCourse.bind(adminController))
+router.patch(`/unlist/course`,authenticateToken, adminController.unListCourse.bind(adminController))
+router.patch(`/list/course`,authenticateToken, adminController.listCourse.bind(adminController))
 
-router.get('/get/wallet', adminController.getWallet.bind(adminController))
+router.get('/get/wallet',authenticateToken, adminController.getWallet.bind(adminController))
+
+////////////////////////////// WEEK -3 ///////////////////
+router.post('/add/badge', adminController.addBadge.bind(adminController))
+router.patch('/edit/badge/:badgeId', adminController.editBadge.bind(adminController))
+router.get('/get/badges', adminController.getBadges.bind(adminController))
 
 const adminRoutes = router
 export default adminRoutes;

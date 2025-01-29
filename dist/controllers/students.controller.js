@@ -22,7 +22,7 @@ class UserController {
         this.userServices = new userService_1.default();
         this.jwtService = new jwt_1.JwtService();
     }
-    //Student SignUp Method
+    //Student SignUp Method  // added
     studentSignup(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -62,7 +62,7 @@ class UserController {
             }
         });
     }
-    // Student google SignUp Method
+    // Student google SignUp Method  // added
     studentGoogleSignIn(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -99,7 +99,7 @@ class UserController {
             }
         });
     }
-    // Student Google Login Method
+    // Student Google Login Method  //added
     studentGoogleLogin(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -143,7 +143,7 @@ class UserController {
             }
         });
     }
-    // Student Login
+    // Student Login  // added
     studentLogin(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -355,8 +355,10 @@ class UserController {
     }
     getCourse(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
                 const courseId = req.query.courseId;
+                const userId = (_a = req === null || req === void 0 ? void 0 : req.query) === null || _a === void 0 ? void 0 : _a.userId;
                 if (!courseId) {
                     return res
                         .status(400)
@@ -365,7 +367,7 @@ class UserController {
                         success: false
                     });
                 }
-                const response = yield this.userServices.getCourse(String(courseId));
+                const response = yield this.userServices.getCourse(String(courseId), String(userId));
                 return res
                     .status(200)
                     .send({
@@ -460,10 +462,11 @@ class UserController {
     buyCourse(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const courseId = req.query.courseId;
-                const txnid = req.query.txnid;
-                const amount = req.query.amount;
-                const courseName = req.query.courseName;
+                // const courseId = req.query.courseId
+                // const txnid = req.query.txnid
+                // const amount = req.query.amount
+                // const courseName = req.query.courseName
+                const { courseId, txnid, amount, courseName } = req.body;
                 const isCourseExist = yield this.userServices.findCourseById(String(courseId), Number(amount), String(courseName));
                 if (isCourseExist) {
                     const chapters = yield this.userServices.findChaptersById(String(courseId));
@@ -740,7 +743,8 @@ class UserController {
     getCertificates(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield this.userServices.getCertificates();
+                const userId = yield (0, getId_1.default)('accessToken', req);
+                const response = yield this.userServices.getCertificates(String(userId));
                 return res
                     .status(200)
                     .send({

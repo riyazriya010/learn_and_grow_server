@@ -5,7 +5,7 @@ import { generateAccessToken } from "../../integration/mailToken";
 import bcrypt from 'bcrypt'
 import Mail from "../../integration/nodemailer";
 import { ICourse } from "../../models/uploadCourse.model";
-import { IPurchasedCourse } from "../../models/purchased.model";
+import { IPurchasedCourse, PurchasedCourseModel } from "../../models/purchased.model";
 import { IUserWallet, UserWalletModel } from "../../models/userWallet.model";
 import { IMentorWallet, MentorWalletModel } from "../../models/mentorWallet.model";
 import { AdminWalletModel, IAdminWallet } from "../../models/adminWallet.model";
@@ -16,6 +16,7 @@ export default class BaseRepository<T extends Document> {
     private mentorWalletModel: Model<IMentorWallet> = MentorWalletModel as Model<IMentorWallet>;
     private adminWalletModel: Model<IAdminWallet> = AdminWalletModel as Model<IAdminWallet>;
     private userModel: Model<IUser> = UserModel as Model<IUser>;
+    private purchasedCourseModel: Model<IPurchasedCourse> = PurchasedCourseModel as Model<IPurchasedCourse>;
 
     constructor(model: Model<T>) {
         this.model = model
@@ -355,10 +356,46 @@ export default class BaseRepository<T extends Document> {
 
     async getAllCourses(page: number = 1, limit: number = 6): Promise<any> {
         try {
+            console.log('page ', page)
+            console.log('limit ', limit)
+            // const skip = (page - 1) * limit;
+
+            // // Query to fetch courses with isPublished, isListed, and categories that are also isListed
+            // const response = await this.model
+            //     .find({
+            //         isPublished: true,
+            //         isListed: true
+            //     })
+            //     .populate({
+            //         path: 'categoryId', // Reference to the Category model
+            //         match: { isListed: true }, // Ensure the category is listed
+            //         select: 'isListed categoryName', // Select relevant fields from Category
+            //     })
+            //     .skip(skip)
+            //     .limit(limit)
+            //     .sort({ createdAt: -1 }) as unknown as ICourse[]
+
+            // const filteredCourses = response.filter(course => course.categoryId);
+
+            // const totalCourses = filteredCourses.length;
+
+            // if (filteredCourses.length === 0) {
+            //     const error = new Error('Courses Not Found');
+            //     error.name = 'CoursesNotFound';
+            //     throw error;
+            // }
+
+            // return {
+            //     courses: filteredCourses,
+            //     currentPage: page,
+            //     totalPages: Math.ceil(totalCourses / limit),
+            //     totalCourses: totalCourses
+            // };
+
             const skip = (page - 1) * limit;
 
             const response = await this.model
-                .find()
+                .find({ isPublished: true, isListed: true })
                 .skip(skip)
                 .limit(limit)
                 .sort({ createdAt: -1 })
@@ -382,14 +419,30 @@ export default class BaseRepository<T extends Document> {
     }
 
 
-    async getCourse(id: string): Promise<any> {
+    async getCourse(id: string, userId: string): Promise<any> {
         try {
             const findCourse = await this.model.findById(id)
+
             if (!findCourse) {
                 const error = new Error('Course Not Found')
                 error.name = 'Course Not Found'
                 throw error
             }
+            
+            if(userId){
+                const purchasedCourse = await this.purchasedCourseModel.findOne(
+                    { userId: userId, courseId: findCourse._id }
+                )
+
+                if(purchasedCourse){
+                    return {
+                        findCourse,
+                        alreadyBuyed: 'Already Buyed'
+                    }
+                }
+                return findCourse
+            }
+
             return findCourse
         } catch (error: any) {
             console.log(error)
@@ -426,12 +479,17 @@ export default class BaseRepository<T extends Document> {
 
     async filterData(page: number = 1, limit: number = 6, selectedCategory: string, selectedLevel: string, searchTerm: string): Promise<any> {
         try {
-
             console.log('filters: ', selectedCategory, selectedLevel, searchTerm);
-
+    
             const skip = (page - 1) * limit;
-
-            const query: any = {};
+    
+            // Base query with isPublished and isListed checks
+            const query: any = {
+                isPublished: true,
+                isListed: true,
+            };
+    
+            // Adding filters for selectedCategory, selectedLevel, and searchTerm
             if (selectedCategory !== 'undefined') {
                 query.category = { $regex: `^${selectedCategory}$`, $options: 'i' };
             }
@@ -439,27 +497,40 @@ export default class BaseRepository<T extends Document> {
                 query.level = { $regex: `^${selectedLevel}$`, $options: 'i' };
             }
             if (searchTerm !== 'undefined') {
-                console.log('search: ', searchTerm)
+                console.log('search: ', searchTerm);
                 query.courseName = { $regex: searchTerm, $options: 'i' };
             }
-
-            const courses = await this.model.find(query).skip(skip).limit(limit).sort({ createdAt: -1 })
-
-            const totalCourses = await this.model.countDocuments(query);
-
-            if (!courses || courses.length === 0) {
-                const error = new Error('Course Not Found')
-                error.name = 'CourseNotFound'
-                throw error
+    
+            // Fetch courses with the specified conditions
+            const response = await this.model
+                .find(query)
+                .populate({
+                    path: 'categoryId', // Reference to the Category model
+                    match: { isListed: true }, // Ensure the category is listed
+                    select: 'isListed categoryName', // Select relevant fields from the Category model
+                })
+                .skip(skip)
+                .limit(limit)
+                .sort({ createdAt: -1 }) as  unknown as ICourse[]
+    
+            // Filter courses to exclude those with unlisted categories
+            const filteredCourses = response.filter((course: any) => course.categoryId);
+    
+            const totalCourses = filteredCourses.length;
+    
+            if (filteredCourses.length === 0) {
+                const error = new Error('Course Not Found');
+                error.name = 'CourseNotFound';
+                throw error;
             }
-
+    
             return {
-                courses,
+                courses: filteredCourses,
                 currentPage: page,
                 totalPages: Math.ceil(totalCourses / limit),
                 totalCourses,
             };
-
+    
         } catch (error: any) {
             throw error;
         }
@@ -611,11 +682,11 @@ export default class BaseRepository<T extends Document> {
             const totalCourses = await this.model.countDocuments({ userId: userId });
 
             // Check if no courses are found
-            if (!response || response.length === 0) {
-                const error = new Error("No courses found for the user.");
-                error.name = "CoursesNotFound";
-                throw error;
-            }
+            // if (!response || response.length === 0) {
+            //     const error = new Error("No courses found for the user.");
+            //     error.name = "CoursesNotFound";
+            //     throw error;
+            // }
 
             // Return the paginated data
             return {
@@ -791,9 +862,9 @@ export default class BaseRepository<T extends Document> {
 
 
 
-    public async getCertificates(): Promise<any> {
+    public async getCertificates(userId: string): Promise<any> {
         try {
-            const response = await this.model.find()
+            const response = await this.model.find({userId: userId})
             return response
         } catch (error: any) {
             throw error

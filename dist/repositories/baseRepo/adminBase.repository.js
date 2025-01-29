@@ -244,7 +244,7 @@ class AdminBaseRepository {
             try {
                 const skip = (page - 1) * limit;
                 const response = yield this.model
-                    .find()
+                    .find({ isPublished: true })
                     .skip(skip)
                     .limit(limit)
                     .sort({ createdAt: -1 });

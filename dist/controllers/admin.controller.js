@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminController = void 0;
 const adminService_1 = require("../services/adminService");
 const jwt_1 = require("../integration/jwt");
+const adminBadge_model_1 = require("../models/adminBadge.model");
 class AdminController {
     constructor() {
         this.adminServices = new adminService_1.AdminServices();
@@ -408,6 +409,78 @@ class AdminController {
             }
             catch (error) {
                 throw error;
+            }
+        });
+    }
+    addBadge(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { badgeName, description, value } = req.body;
+                const badge = new adminBadge_model_1.BagdeManagementModel({
+                    badgeName,
+                    description,
+                    value
+                });
+                const savedBadge = yield badge.save();
+                return res
+                    .status(200)
+                    .send({
+                    message: 'Badge Saved',
+                    success: true,
+                    data: savedBadge
+                });
+            }
+            catch (error) {
+            }
+        });
+    }
+    getBadges(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { page = 1, limit = 4 } = req.query;
+                const pageNumber = parseInt(page, 10);
+                const limitNumber = parseInt(limit, 10);
+                const skip = (pageNumber - 1) * limitNumber;
+                const response = yield adminBadge_model_1.BagdeManagementModel
+                    .find()
+                    .skip(skip)
+                    .limit(limitNumber)
+                    .sort({ createdAt: -1 });
+                const totalCourses = yield adminBadge_model_1.BagdeManagementModel.countDocuments();
+                const data = {
+                    badges: response,
+                    currentPage: page,
+                    totalPages: Math.ceil(totalCourses / limitNumber),
+                    totalCourses: totalCourses
+                };
+                return res
+                    .status(200)
+                    .send({
+                    message: 'Badges All Got It',
+                    success: true,
+                    result: data
+                });
+            }
+            catch (error) {
+            }
+        });
+    }
+    editBadge(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { badgeId } = req.params;
+                const { badgeName, description, value } = req.body;
+                const data = { badgeName, description, value };
+                const findBadge = yield adminBadge_model_1.BagdeManagementModel.findByIdAndUpdate(badgeId, data, { new: true });
+                return res
+                    .status(200)
+                    .send({
+                    message: 'Badge Saved',
+                    success: true,
+                    data: findBadge
+                });
+            }
+            catch (error) {
             }
         });
     }
