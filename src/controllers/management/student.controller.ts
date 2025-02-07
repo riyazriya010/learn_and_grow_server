@@ -242,12 +242,12 @@ export default class StudentController {
     }
 
     async studentCheck(req: Request, res: Response): Promise<void> {
-        try{
+        try {
             const studentId = req.query.userId
             const checkStudent = await this.studentServices.studentCheck(String(studentId))
             SuccessResponse(res, 200, "Uesr Got It", checkStudent)
             return
-        }catch(error: unknown){
+        } catch (error: unknown) {
             ErrorResponse(res, 500, "Internal Server Error")
             return
         }
@@ -257,14 +257,14 @@ export default class StudentController {
     /////////////////////////////////// WEEK - 2 //////////////////////////////
 
     async studentGetAllCourses(req: Request, res: Response): Promise<void> {
-        try{
+        try {
             const { page = 1, limit = 6 } = req.query;
             const getAllCourses = await this.studentServices.studentGetAllCourses(String(page), String(limit))
             SuccessResponse(res, 200, "All Course Got It", getAllCourses)
             return
-        }catch(error: unknown){
-            if(error instanceof Error){
-                if(error.name === 'CoursesNotFound'){
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                if (error.name === 'CoursesNotFound') {
                     ErrorResponse(res, 404, "Courses Not Found")
                     return
                 }
@@ -275,7 +275,7 @@ export default class StudentController {
     }
 
     async studentGetCourse(req: Request, res: Response): Promise<void> {
-        try{
+        try {
             console.log('req.query: ', req.query)
             const courseId = req.query.courseId
             const studentId = req?.query?.userId
@@ -283,14 +283,14 @@ export default class StudentController {
             console.log('getCourse: ', getCourse)
             SuccessResponse(res, 200, "Course Got It", getCourse)
             return
-        }catch(error: unknown){
+        } catch (error: unknown) {
             ErrorResponse(res, 500, "Internal Server Error")
             return
         }
     }
 
     async studentCourseFilterData(req: Request, res: Response): Promise<void> {
-        try{
+        try {
             const { page = 1, limit = 6 } = req.query;
             const { selectedCategory, selectedLevel, searchTerm } = req.query
             const filteredCourse = await this.studentServices.studentCourseFilterData(
@@ -305,9 +305,9 @@ export default class StudentController {
 
             SuccessResponse(res, 200, "Data Filtered", filteredCourse)
             return;
-        }catch(error: unknown){
-            if(error instanceof Error){
-                if(error.name === 'CourseNotFound'){
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                if (error.name === 'CourseNotFound') {
                     ErrorResponse(res, 404, "Courses Not Found")
                     return
                 }
@@ -318,14 +318,14 @@ export default class StudentController {
     }
 
     async studentGetCoursePlay(req: Request, res: Response): Promise<void> {
-        try{
+        try {
             const courseId = req.query
             const getCoursePlay = await this.studentServices.studentGetCoursePlay(String(courseId))
             SuccessResponse(res, 200, "Course Got It", getCoursePlay)
             return
-        }catch(error: unknown){
-            if(error instanceof Error){
-                if(error.name === 'CourseNotFound'){
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                if (error.name === 'CourseNotFound') {
                     ErrorResponse(res, 404, "Course Not Found")
                 }
             }
@@ -335,14 +335,15 @@ export default class StudentController {
     }
 
     async studentBuyCourse(req: Request, res: Response): Promise<void> {
-        try{
+        try {
             const { courseId, txnid, amount, courseName } = req.body
             const userId = await getId('accessToken', req) as string
             const buyCourse = await this.studentServices.studentBuyCourse({ userId, courseId, txnid, amount })
             SuccessResponse(res, 200, "Course Buyed Successfully", buyCourse)
             return
-        }catch(error: unknown){
-            if(error instanceof Error){
+        } catch (error: unknown) {
+            console.log('payment error ',error)
+            if (error instanceof Error) {
                 ErrorResponse(res, 404, "Chapters Not Found")
                 return
             }
@@ -352,65 +353,67 @@ export default class StudentController {
     }
 
     async studentBuyedCourses(req: Request, res: Response): Promise<void> {
-        try{
+        try {
+            console.log('buyedCourse controller ', req.query)
             const { page = 1, limit = 4 } = req.query;
             const studentId = await getId('accessToken', req) as string
             const buyedCourse = await this.studentServices.studentBuyedCourses(studentId, String(page), String(limit))
             SuccessResponse(res, 200, "Buyed Courses Got It", buyedCourse)
             return
-        }catch(error: unknown){
+        } catch (error: unknown) {
+            console.info('error ',error)
             ErrorResponse(res, 500, "Internal Server Error")
             return
         }
     }
 
     async studentCoursePlay(req: Request, res: Response): Promise<void> {
-        try{
+        try {
             const purchaseId = req.query.buyedId
             const coursePlay = await this.studentServices.studentCoursePlay(String(purchaseId))
-            SuccessResponse(res, 200,"Course Got It For Play", coursePlay)
+            SuccessResponse(res, 200, "Course Got It For Play", coursePlay)
             return
-        }catch(error: unknown){
+        } catch (error: unknown) {
             ErrorResponse(res, 500, "Internal Server Error")
             return
         }
     }
 
     async studentChapterVideoEnd(req: Request, res: Response): Promise<void> {
-        try{
+        try {
             const { chapterId } = req.query
             const findCoures = await this.studentServices.studentChapterVideoEnd(String(chapterId))
             SuccessResponse(res, 200, "Chapter Video Ended", findCoures)
             return
-        }catch(error: unknown){
-            console.log('chap end ',error)
+        } catch (error: unknown) {
+            console.log('chap end ', error)
             ErrorResponse(res, 500, "Internal Server Error")
             return
         }
     }
 
     async studentGeCerfiticate(req: Request, res: Response): Promise<void> {
-        try{
+        try {
             const { certificateId } = req.query
             const getCertificate = await this.studentServices.studentGeCerfiticate(String(certificateId))
             SuccessResponse(res, 200, "Certificate Got It", getCertificate)
             return
-        }catch(error: any){
+        } catch (error: any) {
             ErrorResponse(res, 500, "Internal Server Error")
             return
         }
     }
 
     async studentCompleteCourse(req: Request, res: Response): Promise<void> {
-        try{
+        try {
             const studentId = await getId('accessToken', req)
             const { courseId } = req.query
             const completeCourse = await this.studentServices.studentCompleteCourse(String(studentId), String(courseId))
             SuccessResponse(res, 200, "Corse Completed", completeCourse)
             return
-        }catch(error: unknown){
-            if(error instanceof Error){
-                if(error.name === "CourseAlreadyCompleted"){
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                if (error.name === "CourseAlreadyCompleted") {
                     ErrorResponse(res, 401, "Course Already Completed")
                     return
                 }
@@ -421,19 +424,19 @@ export default class StudentController {
     }
 
     async studentQuizz(req: Request, res: Response): Promise<void> {
-        try{
+        try {
             const { courseId } = req.query
             const getQuizz = await this.studentServices.studentQuizz(String(courseId))
             SuccessResponse(res, 200, "Quizz Got It", getQuizz)
             return
-        }catch(error: unknown){
+        } catch (error: unknown) {
             ErrorResponse(res, 500, "Internal Server Error")
             return
         }
     }
 
     async studentCreateCertificate(req: Request, res: Response): Promise<void> {
-        try{
+        try {
             const userId = await getId('accessToken', req) as string
             const { username, courseName, mentorName, courseId } = req.body;
             const data = {
@@ -447,30 +450,30 @@ export default class StudentController {
             const createCertificate = await this.studentServices.studentCreateCertificate(data)
             SuccessResponse(res, 200, "Certificate Created", createCertificate)
             return
-        }catch(error: unknown){
+        } catch (error: unknown) {
             ErrorResponse(res, 500, "Internal Server Error")
             return
         }
     }
-    
+
     async studentGetAllCertificates(req: Request, res: Response): Promise<void> {
-        try{
+        try {
             const userId = await getId('accessToken', req)
             const getCertificates = await this.studentServices.studentGetAllCertificates(String(userId))
             SuccessResponse(res, 200, "Certificates All Got It", getCertificates)
             return
-        }catch(error: unknown){
+        } catch (error: unknown) {
             ErrorResponse(res, 500, "Internal Server Error")
             return
         }
     }
 
     async studentIsVerified(req: Request, res: Response): Promise<void> {
-        try{
+        try {
             const userId = await getId('accessToken', req)
             SuccessResponse(res, 200, "Student Verified")
             return
-        }catch(error: unknown){
+        } catch (error: unknown) {
             ErrorResponse(res, 500, "Internal Server Error")
             return
         }
@@ -479,51 +482,177 @@ export default class StudentController {
 
 
     ///////////////////////////////// WEEK - 3 ////////////////////////////
-    
-    async studentChatGetUsers(req: Request, res: Response): Promise<void> {
-        try{
-            const studentId = await getId('accessToken', req) as string
-            const getUsers = await this.studentServices.studentChatGetUsers(studentId)
-            SuccessResponse(res, 200, "Users fetched successfully", getUsers)
-            return;
-        }catch(error: unknown){
+
+    async studentChatGetMentors(req: Request, res: Response): Promise<void> {
+        try {
+            const studentId = getId("accessToken", req) as string
+            const getMentors = await this.studentServices.studentChatGetMentors(studentId)
+            SuccessResponse(res, 200, "Mentors Got It", getMentors)
+            return
+        } catch (error: unknown) {
             ErrorResponse(res, 500, "Internal Server Error")
-            return;
+            return
         }
     }
 
     async studentCreateRoom(req: Request, res: Response): Promise<void> {
-        try{
-            const { userId, mentorId } = req.body;
-            const createRoom = await this.studentServices.studentCreateRoom(String(userId), String(mentorId))
-            SuccessResponse(res, 200, "Room Created", createRoom)
+        try {
+            const { mentorId } = req.body
+            const studentId = getId("accessToken", req) as string
+            const createdRoom = await this.studentServices.studentCreateRoom(studentId, String(mentorId))
+            SuccessResponse(res, 200, "Room Created", createdRoom)
             return
-        }catch(error: unknown){
-            ErrorResponse(res, 500, "Internal Server Error")
-            return
-        }
-    }
-
-    async studentGetMessages(req: Request, res: Response): Promise<void> {
-        try{
-            const { roomId } = req.params
-            const getMessages = await this.studentServices.studentGetMessages(String(roomId))
-            SuccessResponse(res, 200, "Messages Got It", getMessages)
-            return
-        }catch(error: unknown){
+        } catch (error: unknown) {
             ErrorResponse(res, 500, "Internal Server Error")
             return
         }
     }
 
     async studentSaveMessage(req: Request, res: Response): Promise<void> {
-        try{
-            const { message, roomId, receiverId } = req.body
-            const senderId = await getId('accessToken', req) as string
-            const savedMessage = await this.studentServices.studentSaveMessage(message, roomId, receiverId, senderId)
+        try {
+            const { message, mentorId } = req.body
+            const studentId = getId("accessToken", req) as string
+            const savedMessage = await this.studentServices.studentSaveMessage(studentId, String(mentorId), String(message))
             SuccessResponse(res, 200, "Message Saved", savedMessage)
+            return
+        } catch (error: unknown) {
+            ErrorResponse(res, 500, "Internal Server Error")
+            return
+        }
+    }
+
+    async studentGetMessages(req: Request, res: Response): Promise<void> {
+        try {
+            const { mentorId } = req.params
+            const studentId = getId("accessToken", req) as string
+            const getMessage = await this.studentServices.studentGetMessages(studentId, String(mentorId))
+            SuccessResponse(res, 200, "Message Got It", getMessage)
+            return
+        } catch (error: unknown) {
+            ErrorResponse(res, 500, "Internal Server Error")
+            return
+        }
+    }
+
+    async studentDeleteEveryOne(req: Request, res: Response): Promise<void> {
+        try {
+            const { messageId } = req.params
+            const deleteEveryOne = await this.studentServices.studentDeleteEveryOne(String(messageId))
+            SuccessResponse(res, 200, "Message deleted foreveryone", deleteEveryOne)
+            return
+        } catch (error: unknown) {
+            ErrorResponse(res, 500, "Internal Server Error")
+            return
+        }
+    }
+
+    async studentDeleteForMe(req: Request, res: Response): Promise<void> {
+        try {
+            const { messageId } = req.params
+            const deleteForMe = await this.studentServices.studentDeleteForMe(String(messageId))
+            SuccessResponse(res, 200, "Message deleted me", deleteForMe)
+            return
+        } catch (error: unknown) {
+            ErrorResponse(res, 500, "Internal Server Error")
+            return
+        }
+    }
+
+    async studentResetCount(req: Request, res: Response): Promise<void> {
+        try {
+            const { mentorId } = req.params
+            const studentId = await getId('accessToken', req) as string
+            const resetCount = await this.studentServices.studentResetCount(studentId, String(mentorId))
+            SuccessResponse(res, 200, "Count Reset", resetCount)
+            return
+        } catch (error: unknown) {
+            ErrorResponse(res, 500, "Internal Server Error")
+            return
+        }
+    }
+
+
+    // Notification
+    async studentCreateNotification(req: Request, res: Response): Promise<void> {
+        try {
+            console.log('noti ',req.body)
+            const { username, senderId, receiverId } = req.body
+            const createNotify = await this.studentServices.studentCreateNotification(String(username), String(senderId), String(receiverId))
+            SuccessResponse(res, 200, "notification created", createNotify)
+            return
+        } catch (error: unknown) {
+            ErrorResponse(res, 500, "Internal Server Error")
+            return
+        }
+    }
+
+    async studentGetNotifications(req: Request, res: Response): Promise<void> {
+        try {
+            const { studentId }= req.params
+            const getNotification = await this.studentServices.studentGetNotifications(String(studentId))
+            SuccessResponse(res, 200, "notification got it", getNotification)
+            return
+        } catch (error: unknown) {
+            ErrorResponse(res, 500, "Internal Server Error")
+            return
+        }
+    }
+
+    async studentGetNotificationsCount(req: Request, res: Response): Promise<void> {
+        try {
+            const { studentId }= req.params
+            const getCount = await this.studentServices.studentGetNotificationsCount(String(studentId))
+            SuccessResponse(res, 200, "count got it", getCount)
+            return
+        } catch (error: unknown) {
+            ErrorResponse(res, 500, "Internal Server Error")
+            return
+        }
+    }
+
+    async studentGetNotificationsSeen(req: Request, res: Response): Promise<void> {
+        try {
+            const markSeen = await this.studentServices.studentGetNotificationsSeen()
+            SuccessResponse(res, 200, "marked seen", markSeen)
+            return
+        } catch (error: unknown) {
+            ErrorResponse(res, 500, "Internal Server Error")
+            return
+        }
+    }
+
+    async studentDeleteNotifications(req: Request, res: Response): Promise<void> {
+        try {
+            const { senderId } = req.params
+            const deleteNotify = await this.studentServices.studentDeleteNotifications(String(senderId))
+            SuccessResponse(res, 200, "notification deleted", deleteNotify)
+            return
+        } catch (error: unknown) {
+            ErrorResponse(res, 500, "Internal Server Error")
+            return
+        }
+    }
+
+    async studentGetMentor(req: Request, res: Response): Promise<void> {
+        try {
+            const { mentorId } = req.params;
+            const studentId = await getId("accessToken", req) as string
+            const getMentor = await this.studentServices.studentGetMentor(studentId, String(mentorId))
+            SuccessResponse(res, 200, "mentor got it", getMentor)
+            return
+        } catch (error: unknown) {
+            ErrorResponse(res, 500, "Internal Server Error")
+            return
+        }
+    }
+
+    async studentGetBadges(req: Request, res: Response): Promise<void> {
+        try {
+            const studentId = await getId('accessToken', req) as string
+            const getBadges = await this.studentServices.studentGetBadges(studentId)
+            SuccessResponse(res, 200, "Badges Got It", getBadges)
             return;
-        }catch(error: unknown){
+        } catch (error: unknown) {
             ErrorResponse(res, 500, "Internal Server Error")
             return
         }

@@ -181,5 +181,72 @@ class AdminServices {
             }
         });
     }
+    ////////////////////////////////////// WEEK - 4 ////////////////////////////
+    adminNonApprovedCourse(page, limit) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const getNotApprovedCourse = yield this.adminRepository.adminNonApprovedCourse(page, limit);
+                return getNotApprovedCourse;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    adminNonApprovedCourseDetails(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const getDetails = yield this.adminRepository.adminNonApprovedCourseDetails(courseId);
+                return getDetails;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    adminDashboard() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const getDashboard = yield this.adminRepository.adminDashboard();
+                return getDashboard;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    adminChartGraph(filters) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const getChart = yield this.adminRepository.adminChartGraph(filters);
+                return getChart;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    adminSalesReport(filters) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const getReport = yield this.adminRepository.adminSalesReport(filters);
+                return getReport;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    adminApproveCourse(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const approveIt = yield this.adminRepository.adminApproveCourse(courseId);
+                return approveIt;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
 }
 exports.AdminServices = AdminServices;

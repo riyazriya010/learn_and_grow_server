@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BagdeManagementModel = void 0;
+exports.BadgeManagementModel = void 0;
 const mongoose_1 = require("mongoose");
 const BadgeManagementSchema = new mongoose_1.Schema({
     badgeName: { type: String, required: true },
@@ -10,4 +10,4 @@ const BadgeManagementSchema = new mongoose_1.Schema({
 }, {
     timestamps: true
 });
-exports.BagdeManagementModel = (0, mongoose_1.model)('BadgeManagement', BadgeManagementSchema);
+exports.BadgeManagementModel = (0, mongoose_1.model)('BadgeManagement', BadgeManagementSchema);

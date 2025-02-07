@@ -38,6 +38,14 @@ router.post('/add/badge', adminController.addBadge.bind(adminController))
 router.patch('/edit/badge/:badgeId', adminController.editBadge.bind(adminController))
 router.get('/get/badges', adminController.getBadges.bind(adminController))
 
+//////////////////////// WEEK - 4 ////////////////////////////
+router.get('/get/non-approved/courses', authenticateToken, adminController.adminNonApprovedCourse.bind(adminController))
+router.get('/get/non-approved/course-details', authenticateToken, adminController.adminNonApprovedCourseDetails.bind(adminController))
+router.get('/get/admin/dashboard', authenticateToken, adminController.adminDashboard.bind(adminController))
+router.get('/get/admin/chart/graph/data', authenticateToken, adminController.adminChartGraph.bind(adminController))
+router.get('/get/admin/report', authenticateToken, adminController.adminSalesReport.bind(adminController))
+router.patch('/approve/course', authenticateToken, adminController.adminApproveCourse.bind(adminController))
+
 const adminRoutes = router
 export default adminRoutes;
 

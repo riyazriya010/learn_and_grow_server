@@ -14,7 +14,7 @@ const PurchasedCourseSchema = new mongoose_1.Schema({
     completedChapters: [CompletedChapterSchema],
     isCourseCompleted: { type: Boolean, default: false },
     transactionId: { type: String },
-    price: { type: String },
+    price: { type: Number },
     purchasedAt: { type: Date, default: Date.now },
     completedAt: { type: Date },
 }, { timestamps: true });

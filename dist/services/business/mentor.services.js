@@ -326,11 +326,33 @@ class MentorServices {
         });
     }
     //////////////////////////////// WEEK - 3 //////////////////////////////////
-    mentorChatGetRooms(mentorId) {
+    mentorChatGetStudents(mentorId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const getRooms = yield this.mentorRepository.mentorChatGetRooms(mentorId);
-                return getRooms;
+                const getMentor = yield this.mentorRepository.mentorChatGetStudents(mentorId);
+                return getMentor;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    mentorGetMessages(studentId, mentorId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const getMessage = yield this.mentorRepository.mentorGetMessages(studentId, mentorId);
+                return getMessage;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    mentorSaveMessage(studentId, mentorId, message) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const saveMessage = yield this.mentorRepository.mentorSaveMessage(studentId, mentorId, message);
+                return saveMessage;
             }
             catch (error) {
                 throw error;
@@ -340,30 +362,141 @@ class MentorServices {
     mentorCreateRoom(studentId, mentorId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const createRoom = yield this.mentorRepository.mentorCreateRoom(studentId, mentorId);
-                return createRoom;
+                const createdRoom = yield this.mentorRepository.mentorCreateRoom(studentId, mentorId);
+                return createdRoom;
             }
             catch (error) {
                 throw error;
             }
         });
     }
-    mentorGetMessages(roomId) {
+    mentorDeleteEveryOne(messageId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const getMessage = yield this.mentorRepository.mentorGetMessages(roomId);
-                return getMessage;
+                const deleteForEveryOne = yield this.mentorRepository.mentorDeleteEveryOne(messageId);
+                return deleteForEveryOne;
             }
             catch (error) {
                 throw error;
             }
         });
     }
-    mentorSaveMessage(message, roomId, receiverId, senderId) {
+    mentorDeleteForMe(messageId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const savedMessage = yield this.mentorRepository.mentorSaveMessage(message, roomId, receiverId, senderId);
-                return savedMessage;
+                const deleteForMe = yield this.mentorRepository.mentorDeleteForMe(messageId);
+                return deleteForMe;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    mentorResetCount(studentId, mentorId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const resetCount = yield this.mentorRepository.mentorResetCount(studentId, mentorId);
+                return resetCount;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    mentorCreateNotification(username, senderId, receiverId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const createNotify = yield this.mentorRepository.mentorCreateNotification(username, senderId, receiverId);
+                return createNotify;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    mentorGetNotificationsCount(mentorId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const getCount = yield this.mentorRepository.mentorGetNotificationsCount(mentorId);
+                return getCount;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    mentorGetNotifications(mentorId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const getNotify = yield this.mentorRepository.mentorGetNotifications(mentorId);
+                return getNotify;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    mentorGetNotificationsSeen() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const notifySeen = yield this.mentorRepository.mentorGetNotificationsSeen();
+                return notifySeen;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    mentorDeleteNotifications(senderId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const deleteNotify = yield this.mentorRepository.mentorDeleteNotifications(senderId);
+                return deleteNotify;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    mentorGetStudent(studentId, mentorId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const getStudent = yield this.mentorRepository.mentorGetStudent(studentId, mentorId);
+                return getStudent;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    ///////////////////////////////// WEEK - 4 ///////////////////////////
+    mentorDashboard(mentorId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const getData = yield this.mentorRepository.mentorDashboard(mentorId);
+                return getData;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    mentorChartGraph(mentorId, filters) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const getData = yield this.mentorRepository.mentorChartGraph(mentorId, filters);
+                return getData;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    mentorSalesReport(mentorId, filters) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const getData = yield this.mentorRepository.mentorSalesReport(mentorId, filters);
+                return getData;
             }
             catch (error) {
                 throw error;

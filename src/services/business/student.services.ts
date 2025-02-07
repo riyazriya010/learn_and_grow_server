@@ -7,6 +7,7 @@ import { IChatRooms } from "../../models/chatRooms.model";
 import { IMessages } from "../../models/messages.model";
 import { IPurchasedCourse } from "../../models/purchased.model";
 import { IQuiz } from "../../models/quizz.model";
+import { IBadge } from "../../models/studentBadges.model";
 import { ICourse } from "../../models/uploadCourse.model";
 import { IUser } from "../../models/user.model";
 import bcrypt from 'bcrypt'
@@ -24,7 +25,7 @@ export default class StudentServices {
     async studentLogin(email: string, password: string): Promise<IUser | null> {
         try {
             const findUser = await this.studentRepository.studentLogin(email, String(password))
-            console.log('find ',findUser)
+            console.log('find ', findUser)
             if (!findUser) {
                 const error = new Error('Email Not Found')
                 error.name = 'EmailNotFound'
@@ -37,14 +38,14 @@ export default class StudentServices {
                 error.name = 'PasswordInvalid'
                 throw error
             }
-            console.log('pass ',isPassword)
+            console.log('pass ', isPassword)
 
             if (findUser.isBlocked) {
                 const error = new Error('Student Blocked')
                 error.name = 'StudentBlocked'
                 throw error
             }
-            console.log('uernot block: ',findUser)
+            console.log('uernot block: ', findUser)
 
             return findUser
 
@@ -264,105 +265,198 @@ export default class StudentServices {
         }
     }
 
-    async studentCoursePlay(purchaseId: string): Promise<StudentCoursePlay>{
-        try{
+    async studentCoursePlay(purchaseId: string): Promise<StudentCoursePlay> {
+        try {
             const coursePlay = await this.studentRepository.studentCoursePlay(purchaseId)
             return coursePlay
-        }catch(error: unknown){
+        } catch (error: unknown) {
             throw error
         }
     }
 
     async studentChapterVideoEnd(chapterId: string): Promise<IPurchasedCourse> {
-        try{
+        try {
             const findCoures = await this.studentRepository.studentChapterVideoEnd(chapterId)
             return findCoures
-        }catch(error: unknown){
+        } catch (error: unknown) {
             throw error
         }
     }
 
-    async studentGeCerfiticate(certificateId: string): Promise<ICertificate>{
-        try{
+    async studentGeCerfiticate(certificateId: string): Promise<ICertificate> {
+        try {
             const getCertificate = await this.studentRepository.studentGeCerfiticate(certificateId)
             return getCertificate
-        }catch(error: unknown){
+        } catch (error: unknown) {
             throw error
         }
     }
 
-    async studentCompleteCourse(studentId: string, courseId: string): Promise<studentCompleteCourse>{
-        try{
+    async studentCompleteCourse(studentId: string, courseId: string): Promise<studentCompleteCourse> {
+        try {
             const completeCourse = await this.studentRepository.studentCompleteCourse(studentId, courseId)
             return completeCourse
-        }catch(error: unknown){
+        } catch (error: unknown) {
             throw error
         }
     }
 
     async studentQuizz(courseId: string): Promise<IQuiz> {
-        try{
+        try {
             const getQuizz = await this.studentRepository.studentQuizz(courseId)
             return getQuizz
-        }catch(error: unknown){
+        } catch (error: unknown) {
             throw error
         }
     }
 
-    async studentCreateCertificate(data: StudentCreateCreatificateData): Promise<ICertificate>{
-        try{
+    async studentCreateCertificate(data: StudentCreateCreatificateData): Promise<ICertificate> {
+        try {
             const createCertificate = await this.studentRepository.studentCreateCertificate(data)
             return createCertificate
-        }catch(error: unknown){
+        } catch (error: unknown) {
             throw error
         }
     }
 
-    async studentGetAllCertificates(studentId: string): Promise<ICertificate[]>{
-        try{
+    async studentGetAllCertificates(studentId: string): Promise<ICertificate[]> {
+        try {
             const getCertificates = await this.studentRepository.studentGetAllCertificates(studentId)
             return getCertificates
-        }catch(error: unknown){
+        } catch (error: unknown) {
             throw error
         }
     }
 
     ///////////////////////// WEEk - 3 ////////////////////////////
 
-    async studentChatGetUsers(studentId: string): Promise<StudentChatGetUsersOutput | null>{
-        try{
-            const getUsers = await this.studentRepository.studentChatGetUsers(studentId)
-            return getUsers
-        }catch(error: unknown){
+    async studentChatGetMentors(studentId: string): Promise<any> {
+        try {
+            const getMentors = await this.studentRepository.studentChatGetMentors(studentId)
+            return getMentors
+        } catch (error: unknown) {
             throw error
         }
     }
 
-    async studentCreateRoom(studentId: string, mentorId: string): Promise<IChatRooms | null>{
-        try{
-            const createRoom = await this.studentRepository.studentCreateRoom(studentId, mentorId)
-            return createRoom
-        }catch(error: unknown){
+    async studentCreateRoom(studentId: string, mentorId: string): Promise<any> {
+        try {
+            const createdRoom = await this.studentRepository.studentCreateRoom(studentId, mentorId)
+            return createdRoom
+        } catch (error: unknown) {
             throw error
         }
     }
 
-    async studentGetMessages(roomId: string): Promise<IMessages[] | null> {
-        try{
-            const getMessage = await this.studentRepository.studentGetMessages(roomId)
-            return getMessage
-        }catch(error: unknown){
-            throw error
-        }
-    }
-
-    async studentSaveMessage(message: string, roomId: string, receiverId: string, senderId: string): Promise<IMessages | null> {
-        try{
-            const savedMessage = await this.studentRepository.studentSaveMessage(message, roomId, receiverId, senderId)
+    async studentSaveMessage(studentId: string, mentorId: string, message: string): Promise<any> {
+        try {
+            const savedMessage = await this.studentRepository.studentSaveMessage(studentId, mentorId, message)
             return savedMessage
+        } catch (error: unknown) {
+            throw error
+        }
+    }
+
+    async studentGetMessages(studentId: string, mentorId: string): Promise<any> {
+        try {
+            const getMessage = await this.studentRepository.studentGetMessages(studentId, mentorId)
+            return getMessage
+        } catch (error: unknown) {
+            throw error
+        }
+    }
+
+    async studentDeleteEveryOne(messageId: string): Promise<any> {
+        try {
+            const deleteEveryOne = await this.studentRepository.studentDeleteEveryOne(messageId)
+            return deleteEveryOne
+        } catch (error: unknown) {
+            throw error
+        }
+    }
+
+    async studentDeleteForMe(messageId: string): Promise<any> {
+        try {
+            const deleteForMe = await this.studentRepository.studentDeleteForMe(messageId)
+            return deleteForMe
+        } catch (error: unknown) {
+            throw error
+        }
+    }
+
+    async studentResetCount(studentId: string, mentorId: string): Promise<any> {
+        try {
+            const resetCount = await this.studentRepository.studentResetCount(studentId, mentorId)
+            return resetCount
+        } catch (error: unknown) {
+            throw error
+        }
+    }
+
+    //Notification
+    async studentCreateNotification(username: string, senderId: string, receiverId: string): Promise<any> {
+        try {
+            const createNotify = await this.studentRepository.studentCreateNotification(username, senderId, receiverId)
+            return createNotify
+        } catch (error: unknown) {
+            throw error
+        }
+    }
+
+    async studentGetNotifications(studentId: string): Promise<any> {
+        try {
+            const getNotification = await this.studentRepository.studentGetNotifications(studentId)
+            return getNotification
+        } catch (error: unknown) {
+            throw error
+        }
+    }
+
+    async studentGetNotificationsCount(studentId: string): Promise<any> {
+        try{
+            const getCount = await this.studentRepository.studentGetNotificationsCount(studentId)
+            return getCount
         }catch(error: unknown){
             throw error
         }
     }
+
+    async studentGetNotificationsSeen(): Promise<any> {
+        try{
+            const markSeen = await this.studentRepository.studentGetNotificationsSeen()
+            return markSeen
+        }catch(error: unknown){
+            throw error
+        }
+    }
+
+    async studentDeleteNotifications(senderId: string): Promise<any> {
+        try{
+            const deleteNotify = await this.studentRepository.studentDeleteNotifications(senderId)
+            return deleteNotify
+        }catch(error: unknown){
+            throw error
+        }
+    }
+
+    async studentGetMentor(studentId: string, mentorId: string): Promise<any> {
+        try{
+            const getMentor = await this.studentRepository.studentGetMentor(studentId, mentorId)
+            return getMentor
+        }catch(error: unknown){
+            throw error
+        }
+    }
+
+    async studentGetBadges(studentId: string): Promise<IBadge[] | null> {
+        try {
+            const getBadges = await this.studentRepository.studentGetBadges(studentId)
+            return getBadges
+        } catch (error: unknown) {
+            throw error
+        }
+    }
+
+ 
 }
 

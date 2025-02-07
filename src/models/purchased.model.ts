@@ -13,7 +13,7 @@ export interface IPurchasedCourse extends Document {
   completedChapters: ICompletedChapter[];
   isCourseCompleted: boolean;
   transactionId: string;
-  price: string;
+  price: number;
   purchasedAt: Date;
   completedAt?: Date; // Optional: Timestamp when the course is completed
 }
@@ -32,7 +32,7 @@ const PurchasedCourseSchema = new Schema<IPurchasedCourse>(
     completedChapters: [CompletedChapterSchema],
     isCourseCompleted: { type: Boolean, default: false },
     transactionId: { type: String},
-    price: { type: String},
+    price: { type: Number},
     purchasedAt: { type: Date, default: Date.now },
     completedAt: { type: Date },
   },

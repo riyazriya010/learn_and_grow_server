@@ -3,6 +3,8 @@ import { IChatRooms } from "../../models/chatRooms.model";
 import { IMessages } from "../../models/messages.model";
 import { IPurchasedCourse } from "../../models/purchased.model";
 import { IQuiz } from "../../models/quizz.model";
+import { IBadge } from "../../models/studentBadges.model";
+import { IStudentNotification } from "../../models/studentNotification.model";
 import { ICourse } from "../../models/uploadCourse.model";
 import { IUser } from "../../models/user.model";
 import {
@@ -60,10 +62,25 @@ export interface IStudentMethods {
     
 
     // /////////////////////// WEEK - 3 //////////////////////////
-    studentChatGetUsers(studentId: string): Promise<StudentChatGetUsersOutput | null>
+    studentChatGetMentors(studentId: string): Promise<StudentChatGetUsersOutput | null>
     studentCreateRoom(studentId: string, mentorId: string): Promise<IChatRooms | null>
-    studentGetMessages(roomId: string): Promise<IMessages[] | null>
-    studentSaveMessage(message: string, roomId: string, receiverId: string, senderId: string): Promise<IMessages | null>
+    studentSaveMessage(studentId: string, mentorId: string, message: string): Promise<IMessages | null>
+    studentGetMessages(studentId: string, mentorId: string): Promise<IMessages[] | null>
+    studentDeleteEveryOne(messageId: string): Promise<IMessages | null>
+    studentDeleteForMe(messageId: string): Promise<IMessages | null>
+    studentResetCount(studentId: string, mentorId: string): Promise<IMessages[] | null>
+
+    // Notifications
+    studentCreateNotification(username: string, senderId: string, receiverId: string): Promise<any>
+    studentGetNotifications(studentId: string): Promise<IStudentNotification[] | null>
+    studentGetNotificationsCount(studentId: string): Promise<any>
+    studentGetNotificationsSeen(): Promise<any>
+    studentDeleteNotifications(senderId: string): Promise<any>
+    studentGetMentor(studentId: string, mentorId: string): Promise<StudentChatGetUsersOutput | null>
+
+    studentGetBadges(studentId: string): Promise<IBadge[] | null>
+
+    
 }
 
 

@@ -584,26 +584,12 @@ class MentorController {
         });
     }
     /////////////////////////////////// WEEK - 3 //////////////////////////////////////
-    mentorChatGetRooms(req, res) {
+    mentorChatGetStudents(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const mentorId = yield (0, getId_1.default)('accessToken', req);
-                const getRooms = yield this.mentorServices.mentorChatGetRooms(mentorId);
-                (0, responseUtil_1.SuccessResponse)(res, 200, "Rooms Got It", getRooms);
-                return;
-            }
-            catch (error) {
-                (0, responseUtil_1.ErrorResponse)(res, 500, 'Internal Server Error');
-                return;
-            }
-        });
-    }
-    mentorCreateRoom(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const { userId, mentorId } = req.body;
-                const createRoom = yield this.mentorServices.mentorCreateRoom(String(userId), String(mentorId));
-                (0, responseUtil_1.SuccessResponse)(res, 200, "Room Created", createRoom);
+                const mentorId = (0, getId_1.default)("accessToken", req);
+                const getStudent = yield this.mentorServices.mentorChatGetStudents(mentorId);
+                (0, responseUtil_1.SuccessResponse)(res, 200, "Students Got It", getStudent);
                 return;
             }
             catch (error) {
@@ -615,18 +601,13 @@ class MentorController {
     mentorGetMessages(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { roomId } = req.params;
-                const getMessages = yield this.mentorServices.mentorGetMessages(String(roomId));
-                (0, responseUtil_1.SuccessResponse)(res, 200, "Messages Got It", getMessages);
+                const { studentId } = req.params;
+                const mentorId = (0, getId_1.default)("accessToken", req);
+                const getMessage = yield this.mentorServices.mentorGetMessages(String(studentId), mentorId);
+                (0, responseUtil_1.SuccessResponse)(res, 200, "Messages Got It", getMessage);
                 return;
             }
             catch (error) {
-                if (error instanceof Error) {
-                    if (error.name === "MessageNotFound") {
-                        (0, responseUtil_1.ErrorResponse)(res, 404, "Messages Not Found");
-                        return;
-                    }
-                }
                 (0, responseUtil_1.ErrorResponse)(res, 500, 'Internal Server Error');
                 return;
             }
@@ -635,12 +616,198 @@ class MentorController {
     mentorSaveMessage(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('req.body ', req.body);
-                const { message, roomId, receiverId } = req.body;
-                const senderId = yield (0, getId_1.default)('accessToken', req);
-                const savedMessage = yield this.mentorServices.mentorSaveMessage(message, roomId, receiverId, senderId);
-                console.log('savedMessage ', savedMessage);
-                (0, responseUtil_1.SuccessResponse)(res, 200, "Message Saved", savedMessage);
+                const { message, studentId } = req.body;
+                const mentorId = (0, getId_1.default)("accessToken", req);
+                const saveMessage = yield this.mentorServices.mentorSaveMessage(studentId, String(mentorId), String(message));
+                (0, responseUtil_1.SuccessResponse)(res, 200, "Message saved", saveMessage);
+                return;
+            }
+            catch (error) {
+                (0, responseUtil_1.ErrorResponse)(res, 500, 'Internal Server Error');
+                return;
+            }
+        });
+    }
+    mentorCreateRoom(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { studentId } = req.body;
+                const mentorId = (0, getId_1.default)("accessToken", req);
+                const createdRoom = yield this.mentorServices.mentorCreateRoom(String(studentId), mentorId);
+                (0, responseUtil_1.SuccessResponse)(res, 200, "Room Created", createdRoom);
+                return;
+            }
+            catch (error) {
+                (0, responseUtil_1.ErrorResponse)(res, 500, 'Internal Server Error');
+                return;
+            }
+        });
+    }
+    mentorDeleteEveryOne(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { messageId } = req.params;
+                const deleteForEveryOne = yield this.mentorServices.mentorDeleteEveryOne(String(messageId));
+                (0, responseUtil_1.SuccessResponse)(res, 200, "Message Deleted For EveryOne", deleteForEveryOne);
+                return;
+            }
+            catch (error) {
+                (0, responseUtil_1.ErrorResponse)(res, 500, 'Internal Server Error');
+                return;
+            }
+        });
+    }
+    mentorDeleteForMe(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { messageId } = req.params;
+                const deleteForMe = yield this.mentorServices.mentorDeleteForMe(String(messageId));
+                (0, responseUtil_1.SuccessResponse)(res, 200, "Message Deleted For Me", deleteForMe);
+                return;
+            }
+            catch (error) {
+                (0, responseUtil_1.ErrorResponse)(res, 500, 'Internal Server Error');
+                return;
+            }
+        });
+    }
+    mentorResetCount(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { studentId } = req.params;
+                const mentorId = yield (0, getId_1.default)('accessToken', req);
+                const resetCount = yield this.mentorServices.mentorResetCount(String(studentId), mentorId);
+                (0, responseUtil_1.SuccessResponse)(res, 200, "count reset", resetCount);
+                return;
+            }
+            catch (error) {
+                (0, responseUtil_1.ErrorResponse)(res, 500, 'Internal Server Error');
+                return;
+            }
+        });
+    }
+    //Notifications
+    mentorCreateNotification(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { username, senderId, receiverId } = req.body;
+                const createNotify = yield this.mentorServices.mentorCreateNotification(String(username), String(senderId), String(receiverId));
+                (0, responseUtil_1.SuccessResponse)(res, 200, "notification created", createNotify);
+                return;
+            }
+            catch (error) {
+                (0, responseUtil_1.ErrorResponse)(res, 500, 'Internal Server Error');
+                return;
+            }
+        });
+    }
+    mentorGetNotificationsCount(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { mentorId } = req.params;
+                const getCount = yield this.mentorServices.mentorGetNotificationsCount(String(mentorId));
+                (0, responseUtil_1.SuccessResponse)(res, 200, "count get it", getCount);
+                return;
+            }
+            catch (error) {
+                (0, responseUtil_1.ErrorResponse)(res, 500, 'Internal Server Error');
+                return;
+            }
+        });
+    }
+    mentorGetNotifications(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { mentorId } = req.params;
+                const getNotify = yield this.mentorServices.mentorGetNotifications(String(mentorId));
+                (0, responseUtil_1.SuccessResponse)(res, 200, "get Notificaton", getNotify);
+                return;
+            }
+            catch (error) {
+                (0, responseUtil_1.ErrorResponse)(res, 500, 'Internal Server Error');
+                return;
+            }
+        });
+    }
+    mentorGetNotificationsSeen(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const notifySeen = yield this.mentorServices.mentorGetNotificationsSeen();
+                (0, responseUtil_1.SuccessResponse)(res, 200, "Notificaton seen", notifySeen);
+                return;
+            }
+            catch (error) {
+                (0, responseUtil_1.ErrorResponse)(res, 500, 'Internal Server Error');
+                return;
+            }
+        });
+    }
+    mentorDeleteNotifications(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { senderId } = req.params;
+                const deleteNotify = yield this.mentorServices.mentorDeleteNotifications(String(senderId));
+                (0, responseUtil_1.SuccessResponse)(res, 200, "Notificaton deleted", deleteNotify);
+                return;
+            }
+            catch (error) {
+                (0, responseUtil_1.ErrorResponse)(res, 500, 'Internal Server Error');
+                return;
+            }
+        });
+    }
+    mentorGetStudent(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { studentId } = req.params;
+                const mentorId = yield (0, getId_1.default)("accessToken", req);
+                const getStudent = yield this.mentorServices.mentorGetStudent(String(studentId), mentorId);
+                (0, responseUtil_1.SuccessResponse)(res, 200, "Student get it", getStudent);
+                return;
+            }
+            catch (error) {
+                (0, responseUtil_1.ErrorResponse)(res, 500, 'Internal Server Error');
+                return;
+            }
+        });
+    }
+    ////////////////////////////////// WEEK - 4 ////////////////////
+    mentorDashboard(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const mentorId = yield (0, getId_1.default)('accessToken', req);
+                const getDashboard = yield this.mentorServices.mentorDashboard(mentorId);
+                (0, responseUtil_1.SuccessResponse)(res, 200, "Dashborad data got it", getDashboard);
+                return;
+            }
+            catch (error) {
+                (0, responseUtil_1.ErrorResponse)(res, 500, 'Internal Server Error');
+                return;
+            }
+        });
+    }
+    mentorChartGraph(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const filters = req.query.filter ? JSON.parse(req.query.filter) : {};
+                const mentorId = yield (0, getId_1.default)('accessToken', req);
+                const getChart = yield this.mentorServices.mentorChartGraph(mentorId, filters);
+                (0, responseUtil_1.SuccessResponse)(res, 200, "Graph Chart data got it", getChart);
+                return;
+            }
+            catch (error) {
+                (0, responseUtil_1.ErrorResponse)(res, 500, 'Internal Server Error');
+                return;
+            }
+        });
+    }
+    mentorSalesReport(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const filters = req.query.filter ? JSON.parse(req.query.filter) : {};
+                const mentorId = yield (0, getId_1.default)('accessToken', req);
+                const getChart = yield this.mentorServices.mentorSalesReport(mentorId, filters);
+                (0, responseUtil_1.SuccessResponse)(res, 200, "Sales Report got it", getChart);
                 return;
             }
             catch (error) {

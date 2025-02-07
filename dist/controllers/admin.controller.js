@@ -408,7 +408,10 @@ class AdminController {
                 });
             }
             catch (error) {
-                throw error;
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
+                });
             }
         });
     }
@@ -416,7 +419,7 @@ class AdminController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { badgeName, description, value } = req.body;
-                const badge = new adminBadge_model_1.BagdeManagementModel({
+                const badge = new adminBadge_model_1.BadgeManagementModel({
                     badgeName,
                     description,
                     value
@@ -431,6 +434,10 @@ class AdminController {
                 });
             }
             catch (error) {
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
+                });
             }
         });
     }
@@ -441,12 +448,12 @@ class AdminController {
                 const pageNumber = parseInt(page, 10);
                 const limitNumber = parseInt(limit, 10);
                 const skip = (pageNumber - 1) * limitNumber;
-                const response = yield adminBadge_model_1.BagdeManagementModel
+                const response = yield adminBadge_model_1.BadgeManagementModel
                     .find()
                     .skip(skip)
                     .limit(limitNumber)
                     .sort({ createdAt: -1 });
-                const totalCourses = yield adminBadge_model_1.BagdeManagementModel.countDocuments();
+                const totalCourses = yield adminBadge_model_1.BadgeManagementModel.countDocuments();
                 const data = {
                     badges: response,
                     currentPage: page,
@@ -462,6 +469,10 @@ class AdminController {
                 });
             }
             catch (error) {
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
+                });
             }
         });
     }
@@ -471,7 +482,7 @@ class AdminController {
                 const { badgeId } = req.params;
                 const { badgeName, description, value } = req.body;
                 const data = { badgeName, description, value };
-                const findBadge = yield adminBadge_model_1.BagdeManagementModel.findByIdAndUpdate(badgeId, data, { new: true });
+                const findBadge = yield adminBadge_model_1.BadgeManagementModel.findByIdAndUpdate(badgeId, data, { new: true });
                 return res
                     .status(200)
                     .send({
@@ -481,6 +492,126 @@ class AdminController {
                 });
             }
             catch (error) {
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
+                });
+            }
+        });
+    }
+    ////////////////////////////////// WEEK - 4 ///////////////////////////////////
+    adminNonApprovedCourse(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { page = 1, limit = 1 } = req.query;
+                const pageNumber = parseInt(page, 10);
+                const limitNumber = parseInt(limit, 10);
+                const getNotApprovedCourse = yield this.adminServices.adminNonApprovedCourse(pageNumber, limitNumber);
+                return res.status(200).send({
+                    message: 'Not Approved Course Got It',
+                    success: true,
+                    result: getNotApprovedCourse
+                });
+            }
+            catch (error) {
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
+                });
+            }
+        });
+    }
+    adminNonApprovedCourseDetails(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { courseId } = req.query;
+                const getDetails = yield this.adminServices.adminNonApprovedCourseDetails(String(courseId));
+                return res.status(200).send({
+                    message: 'Course Details Got It',
+                    success: true,
+                    result: getDetails
+                });
+            }
+            catch (error) {
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
+                });
+            }
+        });
+    }
+    adminDashboard(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const getDashboard = yield this.adminServices.adminDashboard();
+                return res.status(200).send({
+                    message: 'Dashboard Details Got It',
+                    success: true,
+                    result: getDashboard
+                });
+            }
+            catch (error) {
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
+                });
+            }
+        });
+    }
+    adminChartGraph(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const filters = req.query.filter ? JSON.parse(req.query.filter) : {};
+                const getChat = yield this.adminServices.adminChartGraph(filters);
+                return res.status(200).send({
+                    message: 'Chart Graph Details Got It',
+                    success: true,
+                    result: getChat
+                });
+            }
+            catch (error) {
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
+                });
+            }
+        });
+    }
+    adminSalesReport(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const filters = req.query.filter ? JSON.parse(req.query.filter) : {};
+                const getReport = yield this.adminServices.adminSalesReport(filters);
+                return res.status(200).send({
+                    message: 'Report Details Got It',
+                    success: true,
+                    result: getReport
+                });
+            }
+            catch (error) {
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
+                });
+            }
+        });
+    }
+    adminApproveCourse(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { courseId } = req.query;
+                const approveIt = yield this.adminServices.adminApproveCourse(String(courseId));
+                return res.status(200).send({
+                    message: 'Course Approved',
+                    success: true,
+                    result: approveIt
+                });
+            }
+            catch (error) {
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
+                });
             }
         });
     }

@@ -77,17 +77,17 @@ export default class MentorController {
             const refreshToken = await this.jwtService.createRefreshToken(addedMentor?._id, String(addedMentor?.role))
 
             return res
-            .status(200)
-            .cookie('accessToken', accessToken, {
-                httpOnly: false
-            }).cookie('refreshToken', refreshToken, {
-                httpOnly: true
-            })
-            .send({
-                success: true,
-                message: 'User Signup Successfully',
-                result: addedMentor
-            })
+                .status(200)
+                .cookie('accessToken', accessToken, {
+                    httpOnly: false
+                }).cookie('refreshToken', refreshToken, {
+                    httpOnly: true
+                })
+                .send({
+                    success: true,
+                    message: 'User Signup Successfully',
+                    result: addedMentor
+                })
 
             // SuccessResponse(res, 200, "Mentor Added Successfully", addedMentor, String(accessToken), String(refreshToken))
             // return
@@ -112,17 +112,17 @@ export default class MentorController {
             const refreshToken = await this.jwtService.createRefreshToken(addedMentor?._id, String(addedMentor?.role))
 
             return res
-            .status(200)
-            .cookie('accessToken', accessToken, {
-                httpOnly: false
-            }).cookie('refreshToken', refreshToken, {
-                httpOnly: true
-            })
-            .send({
-                success: true,
-                message: 'User Google Signup Successfully',
-                result: addedMentor
-            })
+                .status(200)
+                .cookie('accessToken', accessToken, {
+                    httpOnly: false
+                }).cookie('refreshToken', refreshToken, {
+                    httpOnly: true
+                })
+                .send({
+                    success: true,
+                    message: 'User Google Signup Successfully',
+                    result: addedMentor
+                })
 
             // SuccessResponse(res, 200, "Mentor Added SucessFully", addedMentor, String(accessToken), String(refreshToken))
             // return;
@@ -147,17 +147,17 @@ export default class MentorController {
             const refreshToken = await this.jwtService.createRefreshToken(logMentor?._id, String(logMentor?.role))
 
             return res
-            .status(200)
-            .cookie('accessToken', accessToken, {
-                httpOnly: false
-            }).cookie('refreshToken', refreshToken, {
-                httpOnly: true
-            })
-            .send({
-                success: true,
-                message: 'User Signup Successfully',
-                result: logMentor
-            })
+                .status(200)
+                .cookie('accessToken', accessToken, {
+                    httpOnly: false
+                }).cookie('refreshToken', refreshToken, {
+                    httpOnly: true
+                })
+                .send({
+                    success: true,
+                    message: 'User Signup Successfully',
+                    result: logMentor
+                })
 
             // SuccessResponse(res, 200, "Mentor Logged", logMentor, String(accessToken), String(refreshToken))
             // return;
@@ -587,24 +587,12 @@ export default class MentorController {
 
 
     /////////////////////////////////// WEEK - 3 //////////////////////////////////////
-    
-    async mentorChatGetRooms(req: Request, res: Response): Promise<void> {
-        try {
-            const mentorId = await getId('accessToken', req) as string
-            const getRooms = await this.mentorServices.mentorChatGetRooms(mentorId)
-            SuccessResponse(res, 200, "Rooms Got It", getRooms)
-            return;
-        } catch (error: unknown) {
-            ErrorResponse(res, 500, 'Internal Server Error')
-            return
-        }
-    }
 
-    async mentorCreateRoom(req: Request, res: Response): Promise<void> {
+    async mentorChatGetStudents(req: Request, res: Response): Promise<void> {
         try {
-            const { userId, mentorId } = req.body;
-            const createRoom = await this.mentorServices.mentorCreateRoom(String(userId), String(mentorId))
-            SuccessResponse(res, 200, "Room Created", createRoom)
+            const mentorId = getId("accessToken", req) as string
+            const getStudent = await this.mentorServices.mentorChatGetStudents(mentorId)
+            SuccessResponse(res, 200, "Students Got It", getStudent)
             return
         } catch (error: unknown) {
             ErrorResponse(res, 500, 'Internal Server Error')
@@ -614,17 +602,12 @@ export default class MentorController {
 
     async mentorGetMessages(req: Request, res: Response): Promise<void> {
         try {
-            const { roomId } = req.params
-            const getMessages = await this.mentorServices.mentorGetMessages(String(roomId))
-            SuccessResponse(res, 200, "Messages Got It", getMessages)
+            const { studentId } = req.params
+            const mentorId = getId("accessToken", req) as string
+            const getMessage = await this.mentorServices.mentorGetMessages(String(studentId), mentorId)
+            SuccessResponse(res, 200, "Messages Got It", getMessage)
             return
         } catch (error: unknown) {
-            if (error instanceof Error) {
-                if (error.name === "MessageNotFound") {
-                    ErrorResponse(res, 404, "Messages Not Found")
-                    return;
-                }
-            }
             ErrorResponse(res, 500, 'Internal Server Error')
             return
         }
@@ -632,16 +615,181 @@ export default class MentorController {
 
     async mentorSaveMessage(req: Request, res: Response): Promise<void> {
         try {
-            console.log('req.body ', req.body)
-            const { message, roomId, receiverId } = req.body
-            const senderId = await getId('accessToken', req) as string
-            const savedMessage = await this.mentorServices.mentorSaveMessage(message, roomId, receiverId, senderId)
-            console.log('savedMessage ', savedMessage)
-            SuccessResponse(res, 200, "Message Saved", savedMessage)
-            return;
+            const { message, studentId } = req.body
+            const mentorId = getId("accessToken", req) as string
+            const saveMessage = await this.mentorServices.mentorSaveMessage(studentId, String(mentorId), String(message))
+            SuccessResponse(res, 200, "Message saved", saveMessage)
+            return
         } catch (error: unknown) {
             ErrorResponse(res, 500, 'Internal Server Error')
             return
         }
     }
+
+    async mentorCreateRoom(req: Request, res: Response): Promise<void> {
+        try {
+            const { studentId } = req.body
+            const mentorId = getId("accessToken", req) as string
+            const createdRoom = await this.mentorServices.mentorCreateRoom(String(studentId), mentorId)
+            SuccessResponse(res, 200, "Room Created", createdRoom)
+            return
+        } catch (error: unknown) {
+            ErrorResponse(res, 500, 'Internal Server Error')
+            return
+        }
+    }
+
+    async mentorDeleteEveryOne(req: Request, res: Response): Promise<void> {
+        try {
+            const { messageId } = req.params
+            const deleteForEveryOne = await this.mentorServices.mentorDeleteEveryOne(String(messageId))
+            SuccessResponse(res, 200, "Message Deleted For EveryOne", deleteForEveryOne)
+            return
+        } catch (error: unknown) {
+            ErrorResponse(res, 500, 'Internal Server Error')
+            return
+        }
+    }
+
+    async mentorDeleteForMe(req: Request, res: Response): Promise<void> {
+        try {
+            const { messageId } = req.params
+            const deleteForMe = await this.mentorServices.mentorDeleteForMe(String(messageId))
+            SuccessResponse(res, 200, "Message Deleted For Me", deleteForMe)
+            return
+        } catch (error: unknown) {
+            ErrorResponse(res, 500, 'Internal Server Error')
+            return
+        }
+    }
+
+    async mentorResetCount(req: Request, res: Response): Promise<void> {
+        try {
+            const { studentId } = req.params
+            const mentorId = await getId('accessToken', req) as string
+            const resetCount = await this.mentorServices.mentorResetCount(String(studentId), mentorId)
+            SuccessResponse(res, 200, "count reset", resetCount)
+            return
+        } catch (error: unknown) {
+            ErrorResponse(res, 500, 'Internal Server Error')
+            return
+        }
+    }
+
+
+    //Notifications
+    async mentorCreateNotification(req: Request, res: Response): Promise<void> {
+        try {
+            const { username, senderId, receiverId } = req.body
+            const createNotify = await this.mentorServices.mentorCreateNotification(String(username), String(senderId), String(receiverId))
+            SuccessResponse(res, 200, "notification created", createNotify)
+            return
+        } catch (error: unknown) {
+            ErrorResponse(res, 500, 'Internal Server Error')
+            return
+        }
+    }
+
+    async mentorGetNotificationsCount(req: Request, res: Response): Promise<void> {
+        try {
+            const { mentorId } = req.params
+            const getCount = await this.mentorServices.mentorGetNotificationsCount(String(mentorId))
+            SuccessResponse(res, 200, "count get it", getCount)
+            return
+        } catch (error: unknown) {
+            ErrorResponse(res, 500, 'Internal Server Error')
+            return
+        }
+    }
+
+    async mentorGetNotifications(req: Request, res: Response): Promise<void> {
+        try {
+            const { mentorId } = req.params
+            const getNotify = await this.mentorServices.mentorGetNotifications(String(mentorId))
+            SuccessResponse(res, 200, "get Notificaton", getNotify)
+            return
+        } catch (error: unknown) {
+            ErrorResponse(res, 500, 'Internal Server Error')
+            return
+        }
+    }
+
+    async mentorGetNotificationsSeen(req: Request, res: Response): Promise<void> {
+        try {
+            const notifySeen = await this.mentorServices.mentorGetNotificationsSeen()
+            SuccessResponse(res, 200, "Notificaton seen", notifySeen)
+            return
+        } catch (error: unknown) {
+            ErrorResponse(res, 500, 'Internal Server Error')
+            return
+        }
+    }
+
+    async mentorDeleteNotifications(req: Request, res: Response): Promise<void> {
+        try {
+            const { senderId } = req.params
+            const deleteNotify = await this.mentorServices.mentorDeleteNotifications(String(senderId))
+            SuccessResponse(res, 200, "Notificaton deleted", deleteNotify)
+            return
+        } catch (error: unknown) {
+            ErrorResponse(res, 500, 'Internal Server Error')
+            return
+        }
+    }
+
+    async mentorGetStudent(req: Request, res: Response): Promise<void> {
+        try {
+            const { studentId } = req.params;
+            const mentorId = await getId("accessToken", req) as string
+            const getStudent = await this.mentorServices.mentorGetStudent(String(studentId), mentorId)
+            SuccessResponse(res, 200, "Student get it", getStudent)
+            return
+        } catch (error: unknown) {
+            ErrorResponse(res, 500, 'Internal Server Error')
+            return
+        }
+    }
+
+
+    ////////////////////////////////// WEEK - 4 ////////////////////
+
+    async mentorDashboard(req: Request, res: Response): Promise<void> {
+        try{
+            const mentorId = await getId('accessToken',req) as string
+            const getDashboard = await this.mentorServices.mentorDashboard(mentorId)
+            SuccessResponse(res, 200, "Dashborad data got it", getDashboard)
+            return
+        }catch(error: unknown){
+            ErrorResponse(res, 500, 'Internal Server Error')
+            return
+        }
+    }
+
+    async mentorChartGraph(req: Request, res: Response): Promise<void> {
+        try{
+            const filters = req.query.filter ? JSON.parse(req.query.filter as string) : {};
+            const mentorId = await getId('accessToken',req) as string
+            const getChart = await this.mentorServices.mentorChartGraph(mentorId, filters)
+            SuccessResponse(res, 200, "Graph Chart data got it", getChart)
+            return
+        }catch(error: unknown){
+            ErrorResponse(res, 500, 'Internal Server Error')
+            return
+        }
+    }
+
+    async mentorSalesReport(req: Request, res: Response): Promise<void> {
+        try{
+            const filters = req.query.filter ? JSON.parse(req.query.filter as string) : {};
+            const mentorId = await getId('accessToken',req) as string
+            const getChart = await this.mentorServices.mentorSalesReport(mentorId, filters)
+            SuccessResponse(res, 200, "Sales Report got it", getChart)
+            return
+        }catch(error: unknown){
+            ErrorResponse(res, 500, 'Internal Server Error')
+            return
+        }
+    }
+
+
 }

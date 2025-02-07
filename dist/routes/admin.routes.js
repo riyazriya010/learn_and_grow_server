@@ -31,5 +31,12 @@ router.get('/get/wallet', verifyToken_1.default, adminController.getWallet.bind(
 router.post('/add/badge', adminController.addBadge.bind(adminController));
 router.patch('/edit/badge/:badgeId', adminController.editBadge.bind(adminController));
 router.get('/get/badges', adminController.getBadges.bind(adminController));
+//////////////////////// WEEK - 4 ////////////////////////////
+router.get('/get/non-approved/courses', verifyToken_1.default, adminController.adminNonApprovedCourse.bind(adminController));
+router.get('/get/non-approved/course-details', verifyToken_1.default, adminController.adminNonApprovedCourseDetails.bind(adminController));
+router.get('/get/admin/dashboard', verifyToken_1.default, adminController.adminDashboard.bind(adminController));
+router.get('/get/admin/chart/graph/data', verifyToken_1.default, adminController.adminChartGraph.bind(adminController));
+router.get('/get/admin/report', verifyToken_1.default, adminController.adminSalesReport.bind(adminController));
+router.patch('/approve/course', verifyToken_1.default, adminController.adminApproveCourse.bind(adminController));
 const adminRoutes = router;
 exports.default = adminRoutes;

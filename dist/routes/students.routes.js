@@ -11,7 +11,6 @@ const multer_1 = __importDefault(require("../middleware/multer"));
 const student_repository_1 = __importDefault(require("../repositories/entities/student.repository"));
 const student_services_1 = __importDefault(require("../services/business/student.services"));
 const student_controller_1 = __importDefault(require("../controllers/management/student.controller"));
-// const userController = new UserController();
 const router = (0, express_1.Router)();
 const repository = new student_repository_1.default();
 const services = new student_services_1.default(repository);
@@ -43,10 +42,21 @@ router.get('/get/certificates', verifyToken_1.default, blocked_1.default, contro
 // check verify before buy the course
 router.get('/check/verify', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentIsVerified.bind(controller));
 /////////////////////////////// WEEK - 3 /////////////////////////////
-router.get('/get/users', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentChatGetUsers.bind(controller));
+router.get('/get/mentors/', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentChatGetMentors.bind(controller));
 router.post('/create/room', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentCreateRoom.bind(controller));
-router.get('/get/message/:roomId', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentGetMessages.bind(controller));
 router.post('/save/message', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentSaveMessage.bind(controller));
+router.get('/get/messages/:mentorId', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentGetMessages.bind(controller));
+router.patch('/delete/message/everyone/:messageId', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentDeleteEveryOne.bind(controller));
+router.patch('/delete/message/me/:messageId', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentDeleteForMe.bind(controller));
+router.patch('/reset/count/:mentorId', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentResetCount.bind(controller));
+//Notification
+router.post('/create/chat/notification', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentCreateNotification.bind(controller));
+router.get('/get/student/notifications/:studentId', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentGetNotifications.bind(controller));
+router.get('/get/student/notification/count/:studentId', controller.studentGetNotificationsCount.bind(controller));
+router.patch('/student/notification/seen', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentGetNotificationsSeen.bind(controller));
+router.delete('/student/delete/notification/:senderId', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentDeleteNotifications.bind(controller));
+router.get('/get/mentor/:mentorId', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentGetMentor.bind(controller));
+router.get('/get/badges', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentGetBadges.bind(controller));
 const userRoutes = router;
 exports.default = userRoutes;
 /* ------------------------------------ WEEK - 1 ---------------------------------*/

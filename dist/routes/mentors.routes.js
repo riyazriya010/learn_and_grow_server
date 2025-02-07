@@ -50,10 +50,23 @@ router.get(`/get/all-quizz`, verifyToken_1.default, blocked_1.default, controlle
 router.delete('/delete/quizz', verifyToken_1.default, blocked_1.default, verified_1.default, controller.mentorDeleteQuizz.bind(controller));
 router.get('/get/wallet', verifyToken_1.default, blocked_1.default, verified_1.default, controller.mentorGetWallet.bind(controller));
 //////////////////////////////////// WEEK - 3 /////////////////////////
-router.get('/get/rooms', verifyToken_1.default, blocked_1.default, verified_1.default, controller.mentorChatGetRooms.bind(controller));
-router.post('/create/room', verifyToken_1.default, blocked_1.default, verified_1.default, controller.mentorCreateRoom.bind(controller));
-router.get('/get/message/:roomId', verifyToken_1.default, blocked_1.default, verified_1.default, controller.mentorGetMessages.bind(controller));
-router.post('/save/message', verifyToken_1.default, blocked_1.default, verified_1.default, controller.mentorSaveMessage.bind(controller));
+router.get('/get/students', verifyToken_1.default, blocked_1.default, verified_1.default, controller.mentorChatGetStudents.bind(controller));
+router.get('/get/mentor/messages/:studentId', verifyToken_1.default, blocked_1.default, verified_1.default, controller.mentorGetMessages.bind(controller));
+router.post('/save/mentor/message', verifyToken_1.default, blocked_1.default, verified_1.default, controller.mentorSaveMessage.bind(controller));
+router.post('/create/mentor/room', verifyToken_1.default, blocked_1.default, verified_1.default, controller.mentorCreateRoom.bind(controller));
+router.patch('/delete/mentor/message/everyone/:messageId', verifyToken_1.default, blocked_1.default, verified_1.default, controller.mentorDeleteEveryOne.bind(controller));
+router.patch('/reset/mentor/count/:studentId', verifyToken_1.default, blocked_1.default, verified_1.default, controller.mentorResetCount.bind(controller));
+//notification
+router.post('/create/mentor/chat/notification', verifyToken_1.default, blocked_1.default, verified_1.default, controller.mentorCreateNotification.bind(controller));
+router.get('/get/mentor/notification/count/:mentorId', controller.mentorGetNotificationsCount.bind(controller));
+router.get('/mentor/notifications/:mentorId', verifyToken_1.default, blocked_1.default, verified_1.default, controller.mentorGetNotifications.bind(controller));
+router.patch('/mentor/notification/seen', verifyToken_1.default, blocked_1.default, verified_1.default, controller.mentorGetNotificationsSeen.bind(controller));
+router.delete('/mentor/delete/notification/:senderId', verifyToken_1.default, blocked_1.default, verified_1.default, controller.mentorDeleteNotifications.bind(controller));
+router.get('/get/student/:studentId', verifyToken_1.default, blocked_1.default, verified_1.default, controller.mentorGetStudent.bind(controller));
+////////////////////////////////////////// WEEK - 4 ////////////////////////////////////////////////
+router.get('/get/dashboard', verifyToken_1.default, blocked_1.default, verified_1.default, controller.mentorDashboard.bind(controller));
+router.get('/get/chart/graph/data', verifyToken_1.default, blocked_1.default, verified_1.default, controller.mentorChartGraph.bind(controller));
+router.get('/get/mentor/report', verifyToken_1.default, blocked_1.default, verified_1.default, controller.mentorSalesReport.bind(controller));
 const mentorRoutes = router;
 exports.default = mentorRoutes;
 /* ------------------------------- WEEK 1 ---------------------------*/

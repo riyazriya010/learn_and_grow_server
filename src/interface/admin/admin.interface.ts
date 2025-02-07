@@ -24,4 +24,12 @@ export interface IAdminMethods {
      adminListCourse(courseId: string): Promise<ICourse | null>
      adminUnListCourse(courseId: string): Promise<ICourse | null>
      adminGetWallet(page: number, limit: number, adminId: string): Promise<IAdminWallet | null>
+
+     ////////////////////////////////// WEEK - 3 //////////////////////////
+     adminNonApprovedCourse(page: number, limit: number): Promise<any>
+     adminNonApprovedCourseDetails(): Promise<any>
+     adminDashboard(): Promise<any>
+     adminChartGraph(): Promise<any>
+     adminSalesReport(): Promise<any>
+     
 }

@@ -152,4 +152,61 @@ export class AdminServices {
             throw error
         }
     }
+
+
+    ////////////////////////////////////// WEEK - 4 ////////////////////////////
+    
+    async adminNonApprovedCourse(page: number, limit: number): Promise<any> {
+        try{
+            const getNotApprovedCourse = await this.adminRepository.adminNonApprovedCourse(page, limit)
+            return getNotApprovedCourse
+        }catch(error: any){
+            throw error
+        }
+    }
+
+    async adminNonApprovedCourseDetails(courseId: string): Promise<any> {
+        try{
+            const getDetails = await this.adminRepository.adminNonApprovedCourseDetails(courseId)
+            return getDetails
+        }catch(error: any){
+            throw error
+        }
+    }
+
+    async adminDashboard(): Promise<any> {
+        try{
+            const getDashboard = await this.adminRepository.adminDashboard()
+            return getDashboard
+        }catch(error: any){
+            throw error
+        }
+    }
+
+    async adminChartGraph(filters: any): Promise<any> {
+        try{
+            const getChart = await this.adminRepository.adminChartGraph(filters)
+            return getChart
+        }catch(error: any){
+            throw error
+        }
+    }
+
+    async adminSalesReport(filters: any): Promise<any> {
+        try{
+            const getReport = await this.adminRepository.adminSalesReport(filters)
+            return getReport
+        }catch(error: any){
+            throw error
+        }
+    }
+
+    async adminApproveCourse(courseId: string): Promise<any> {
+        try{
+            const approveIt = await this.adminRepository.adminApproveCourse(courseId)
+            return approveIt
+        }catch(error: any){
+            throw error
+        }
+    }
 }

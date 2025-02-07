@@ -17,4 +17,4 @@ const BadgeManagementSchema = new Schema<IBadgeManagement>({
 }
 )
 
-export const BagdeManagementModel = model<IBadgeManagement>('BadgeManagement', BadgeManagementSchema)
+export const BadgeManagementModel = model<IBadgeManagement>('BadgeManagement', BadgeManagementSchema)

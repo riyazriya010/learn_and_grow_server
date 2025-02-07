@@ -1,12 +1,15 @@
 import { IStudentMethods } from "../../interface/students/student.interface";
 import { StudentBuyCourseInput, StudentChatGetUsersOutput, studentCompleteCourse, StudentCourseFilterData, StudentCoursePlay, StudentCreateCreatificateData, studentFilterCoursesOuput, studentGetAllCoursesOuput, studentGetBuyedCourses, StudentGetCourseOuput, StudentGetCoursePlayOutput, StudentGoogleSignupInput, StudentProfileInput, StudentSignUpInput } from "../../interface/students/student.types";
+import { BadgeManagementModel } from "../../models/adminBadge.model";
 import { CertificateModel, ICertificate } from "../../models/certificate.model";
 import { ChapterModel, IChapter } from "../../models/chapter.model";
 import { ChatRoomsModel, IChatRooms } from "../../models/chatRooms.model";
+import MentorModel, { IMentor } from "../../models/mentor.model";
 import { IMessages, MessageModel } from "../../models/messages.model";
 import { IPurchasedCourse, PurchasedCourseModel } from "../../models/purchased.model";
 import QuizModel, { IQuiz } from "../../models/quizz.model";
-import { BagdetModel } from "../../models/studentBadges.model";
+import { BadgeModel, IBadge } from "../../models/studentBadges.model";
+import { IStudentNotification, StudentNotificationModel } from "../../models/studentNotification.model";
 import { CourseModel, ICourse } from "../../models/uploadCourse.model";
 import UserModel, { IUser } from "../../models/user.model";
 
@@ -329,6 +332,10 @@ export default class StudentRepository implements IStudentMethods {
     async studentBuyCourse(purchaseData: StudentBuyCourseInput): Promise<IPurchasedCourse> {
         try {
             const { userId, courseId, txnid, amount } = purchaseData
+
+            const course = await CourseModel.findById(courseId)
+            const mentorId = course?.mentorId
+
             const findChapters = await ChapterModel.find({ courseId: courseId })
 
             if (findChapters.length === 0) {
@@ -345,10 +352,11 @@ export default class StudentRepository implements IStudentMethods {
             const purchasedCourse = {
                 userId,
                 courseId,
+                mentorId,
                 transactionId: txnid,
                 completedChapters,
                 isCourseCompleted: false,
-                price: amount
+                price: Number(amount)
             }
 
             const document = new PurchasedCourseModel(purchasedCourse)
@@ -368,11 +376,12 @@ export default class StudentRepository implements IStudentMethods {
                 .find({ userId: studentId })
                 .sort({ createdAt: -1 })
                 .skip(skip)
-                .limit(limitNumber)
+                .limit(4)
                 .populate("courseId", "courseName level")
-                .exec();
+                .exec()
 
             const totalCourses = await PurchasedCourseModel.countDocuments({ userId: studentId });
+
 
             return {
                 courses: getCourses,
@@ -385,6 +394,7 @@ export default class StudentRepository implements IStudentMethods {
             throw error
         }
     }
+
 
     async studentCoursePlay(purchaseId: string): Promise<StudentCoursePlay> {
         try {
@@ -479,6 +489,7 @@ export default class StudentRepository implements IStudentMethods {
 
             const mentor = (courseData?.mentorId as unknown as { username: string }) || { username: null };
 
+
             return {
                 updatedCourse,
                 courseName: courseData?.courseName,
@@ -514,9 +525,9 @@ export default class StudentRepository implements IStudentMethods {
             const savedCertificate = await certificate.save();
 
             //creating badge for student
-            const badgeName = 'completion Badge'
-            const findBadge = await BagdetModel.findOne({badgeName})
-            const createBadge = new BagdetModel({
+            const findBadge = await BadgeManagementModel.findOne({ badgeName: 'Completion Badge' })
+            const createBadge = new BadgeModel({
+                userId: studentId,
                 badgeId: findBadge?._id
             })
             await createBadge.save()
@@ -529,7 +540,7 @@ export default class StudentRepository implements IStudentMethods {
 
     async studentGetAllCertificates(studentId: string): Promise<ICertificate[]> {
         try {
-            const getCertificates = await CertificateModel.find({ userId: studentId }).sort({issuedDate: -1})
+            const getCertificates = await CertificateModel.find({ userId: studentId }).sort({ issuedDate: -1 })
             return getCertificates
         } catch (error: unknown) {
             throw error
@@ -538,37 +549,48 @@ export default class StudentRepository implements IStudentMethods {
 
 
     ////////////////////////////////// WEEK - 3 //////////////////////////////////
-    async studentChatGetUsers(studentId: string): Promise<StudentChatGetUsersOutput | null> {
+
+    async studentChatGetMentors(studentId: string): Promise<any> {
         try {
-            const getUsers = await PurchasedCourseModel
-                .find({ userId: studentId })
-                // .populate({
-                //     path: "userId",
-                //     select: "_id username profilePicUrl"
-                // })
+            const getUsers = await PurchasedCourseModel.find({ userId: studentId })
                 .populate({
                     path: "mentorId",
                     select: "_id username profilePicUrl"
                 });
-                
-            const formatted = await Promise.all(
-                getUsers.map(async (data: any) => {
-                    // Find the corresponding room for the mentor
-                    const getRoom = await ChatRoomsModel.findOne({ studentId: data.userId });
-                    return {
-                        lastMessage: getRoom?.lastMessage,
-                        userData: data.userId,
-                        mentorData: data.mentorId,
-                    };
-                })
-            );
+
+            const uniqueMentors = new Set<string>();
+            const formatted: { mentorsData: any; updatedAt: Date }[] = [];
+
+            for (const data of getUsers) {
+                const mentor = data.mentorId as unknown as IMentor;
+                if (mentor && !uniqueMentors.has(mentor._id.toString())) {
+                    uniqueMentors.add(mentor._id.toString());
+
+                    const getRoom = await ChatRoomsModel.findOne({
+                        studentId,
+                        mentorId: mentor._id,
+                    });
+
+                    formatted.push({
+                        mentorsData: {
+                            ...mentor.toObject(),
+                            lastMessage: getRoom?.lastMessage || null,
+                            userMsgCount: getRoom?.userMsgCount || 0,
+                            updatedAt: getRoom?.updatedAt || new Date(0),
+                        },
+                        updatedAt: getRoom?.updatedAt || new Date(0),
+                    });
+                }
+            }
+            formatted.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+
             return formatted
         } catch (error: unknown) {
             throw error
         }
     }
 
-    async studentCreateRoom(studentId: string, mentorId: string): Promise<IChatRooms | null> {
+    async studentCreateRoom(studentId: string, mentorId: string): Promise<any> {
         try {
             const existRoom = await ChatRoomsModel.findOne({ studentId, mentorId }) as unknown as IChatRooms
             if (existRoom) {
@@ -586,39 +608,212 @@ export default class StudentRepository implements IStudentMethods {
         }
     }
 
-    async studentGetMessages(roomId: string): Promise<IMessages[] | null> {
+    async studentSaveMessage(studentId: string, mentorId: string, message: string): Promise<IMessages | null> {
         try {
-            
-            const messages = await MessageModel.find({ roomId }) as unknown as IMessages[]
-            console.log('message: ',messages)
-            if (messages.length === 0) {
-                return []; // Return empty array if no messages found
-            }
-            return messages
-        } catch (error: unknown) {
-            throw error
-        }
-    }
+            const findRoom = await ChatRoomsModel.findOne({ studentId, mentorId }) as IChatRooms
+            findRoom.lastMessage = message
+            findRoom.mentorMsgCount += 1
+            await findRoom.save()
 
-    async studentSaveMessage(message: string, roomId: string, receiverId: string, senderId: string): Promise<IMessages | null> {
-        try {
-            const lastMessage = await ChatRoomsModel.findById(roomId) as IChatRooms
-            lastMessage.lastMessage = message
-            await lastMessage.save()
-            
-            const newMessage = new MessageModel({
-                senderId: senderId,        // or mentorId
-                receiverId: receiverId,  // userId or mentorId
-                roomId: roomId,
+            const data: any = {
+                senderId: studentId,
+                receiverId: mentorId,
+                roomId: findRoom?._id,
                 message: message,
-                senderModel: 'User',     // or 'Mentor' based on who is sending the message
-                receiverModel: 'Mentors'  // or 'User' based on who is receiving the message
-            });
-
-            const savedMessage = await newMessage.save();
+                senderModel: "User",
+                receiverModel: "Mentors"
+            }
+            const newMessage = new MessageModel(data)
+            const savedMessage = await newMessage.save()
             return savedMessage
         } catch (error: unknown) {
             throw error
         }
     }
+
+    async studentGetMessages(studentId: string, mentorId: string): Promise<any> {
+        try {
+            const findRoom = await ChatRoomsModel.findOne({ studentId, mentorId }) as unknown as IChatRooms
+            const roomId = findRoom._id
+            const findMessages = await MessageModel.find({ roomId })
+            return findMessages
+        } catch (error: unknown) {
+            throw error
+        }
+    }
+
+    async studentDeleteEveryOne(messageId: string): Promise<any> {
+        try {
+            const findMessage = await MessageModel.findById(messageId) as unknown as IMessages
+            findMessage.deletedForSender = true
+            findMessage.deletedForReceiver = true
+            await findMessage.save()
+            // Update chat room's last message if necessary
+            const chatRoom = await ChatRoomsModel.findOne({ _id: findMessage.roomId });
+
+            if (chatRoom) {
+                const remainingMessages = await MessageModel.find({ roomId: chatRoom._id });
+                const validMessages = remainingMessages.filter(msg => !msg.deletedForSender && !msg.deletedForReceiver);
+
+                if (validMessages.length > 0) {
+                    const lastMessage = validMessages[validMessages.length - 1];
+                    chatRoom.lastMessage = lastMessage.message;
+                } else {
+                    chatRoom.lastMessage = '';
+                }
+
+                await chatRoom.save();
+            }
+            return findMessage
+        } catch (error: unknown) {
+            throw error
+        }
+    }
+
+    async studentDeleteForMe(messageId: string): Promise<any> {
+        try {
+            const findMessage = await MessageModel.findById(messageId) as unknown as IMessages
+            findMessage.deletedForSender = true
+            await findMessage.save()
+            // Check if this is the last message sent by the sender, and update chat room's last message
+            const chatRoom = await ChatRoomsModel.findOne({ _id: findMessage.roomId });
+
+            if (chatRoom) {
+                const remainingMessages = await MessageModel.find({ roomId: chatRoom._id });
+                const validMessages = remainingMessages.filter(msg => !msg.deletedForSender);
+
+                if (validMessages.length > 0) {
+                    const lastMessage = validMessages[validMessages.length - 1];
+                    chatRoom.lastMessage = lastMessage.message;
+                } else {
+                    chatRoom.lastMessage = '';  // No valid messages left
+                }
+
+                await chatRoom.save();
+            }
+            return findMessage
+        } catch (error: unknown) {
+            throw error
+        }
+    }
+
+    async studentResetCount(studentId: string, mentorId: string): Promise<any> {
+        try {
+            const findRoom = await ChatRoomsModel.findOne({ studentId, mentorId }) as unknown as IChatRooms
+            findRoom.userMsgCount = 0
+            await findRoom.save()
+
+            //find messages
+            const findMessages = await MessageModel.find({ roomId: findRoom.id })
+            return findMessages
+        } catch (error: unknown) {
+            throw error
+        }
+    }
+
+    ///// Notification
+    async studentCreateNotification(username: string, senderId: string, receiverId: string): Promise<any> {
+        try {
+            const data = {
+                senderId,
+                receiverId,
+                senderName: username
+            }
+            const createNotification = new StudentNotificationModel(data)
+            await createNotification.save()
+            console.log('created noti')
+        } catch (error: unknown) {
+            throw error
+        }
+    }
+
+    async studentGetNotifications(studentId: string): Promise<any> {
+        try {
+            // Fetch notifications sorted by createdAt (newest first)
+            const allNotifications = await StudentNotificationModel
+                .find({ receiverId: studentId })
+                .sort({ createdAt: -1 });
+
+            // Remove duplicate senderId notifications (keeping only the most recent)
+            const seenSenders = new Set();
+            const uniqueNotifications = allNotifications.filter(notification => {
+                if (!seenSenders.has(notification.senderId.toString())) {
+                    seenSenders.add(notification.senderId.toString());
+                    return true;
+                }
+                return false;
+            });
+            return uniqueNotifications
+        } catch (error: unknown) {
+            throw error
+        }
+    }
+
+    async studentGetNotificationsCount(studentId: string): Promise<any> {
+        try {
+            const getNotification = await StudentNotificationModel.find({ receiverId: studentId, seen: false }).countDocuments()
+            return { count: getNotification }
+        } catch (error: unknown) {
+            throw error
+        }
+    }
+
+    async studentGetNotificationsSeen(): Promise<any> {
+        try {
+            const markSeen = await StudentNotificationModel.updateMany(
+                { seen: false },
+                { $set: { seen: true } }
+            );
+            return markSeen
+        } catch (error: unknown) {
+            throw error
+        }
+    }
+
+    async studentDeleteNotifications(senderId: string): Promise<any> {
+        try {
+            const deleteMessage = await StudentNotificationModel.deleteMany({ senderId })
+            return deleteMessage
+        } catch (error: unknown) {
+            throw error
+        }
+    }
+
+    async studentGetMentor(studentId: string, mentorId: string): Promise<any> {
+        try {
+            const findMentor = await MentorModel.findById(mentorId).select("_id username profilePicUrl");
+
+            // Fetch the chat room for this student and mentor
+            const getRoom = await ChatRoomsModel.findOne({
+                studentId,
+                mentorId,
+            });
+
+            return {
+                ...findMentor?.toObject(),
+                lastMessage: getRoom?.lastMessage || null,
+                userMsgCount: getRoom?.userMsgCount || 0,
+            }
+
+        } catch (error: unknown) {
+            throw error
+        }
+    }
+
+    async studentGetBadges(studentId: string): Promise<IBadge[] | null> {
+        try {
+            const findBadges = await BadgeModel.find({ userId: studentId })
+                .populate({
+                    path: "badgeId",
+                    select: "badgeName description value"
+                })
+                .sort({ createdAt: -1 });
+
+            return findBadges;
+        } catch (error: unknown) {
+            throw error
+        }
+    }
+
+
 }

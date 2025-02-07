@@ -358,11 +358,11 @@ class StudentServices {
         });
     }
     ///////////////////////// WEEk - 3 ////////////////////////////
-    studentChatGetUsers(studentId) {
+    studentChatGetMentors(studentId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const getUsers = yield this.studentRepository.studentChatGetUsers(studentId);
-                return getUsers;
+                const getMentors = yield this.studentRepository.studentChatGetMentors(studentId);
+                return getMentors;
             }
             catch (error) {
                 throw error;
@@ -372,18 +372,29 @@ class StudentServices {
     studentCreateRoom(studentId, mentorId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const createRoom = yield this.studentRepository.studentCreateRoom(studentId, mentorId);
-                return createRoom;
+                const createdRoom = yield this.studentRepository.studentCreateRoom(studentId, mentorId);
+                return createdRoom;
             }
             catch (error) {
                 throw error;
             }
         });
     }
-    studentGetMessages(roomId) {
+    studentSaveMessage(studentId, mentorId, message) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const getMessage = yield this.studentRepository.studentGetMessages(roomId);
+                const savedMessage = yield this.studentRepository.studentSaveMessage(studentId, mentorId, message);
+                return savedMessage;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    studentGetMessages(studentId, mentorId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const getMessage = yield this.studentRepository.studentGetMessages(studentId, mentorId);
                 return getMessage;
             }
             catch (error) {
@@ -391,11 +402,111 @@ class StudentServices {
             }
         });
     }
-    studentSaveMessage(message, roomId, receiverId, senderId) {
+    studentDeleteEveryOne(messageId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const savedMessage = yield this.studentRepository.studentSaveMessage(message, roomId, receiverId, senderId);
-                return savedMessage;
+                const deleteEveryOne = yield this.studentRepository.studentDeleteEveryOne(messageId);
+                return deleteEveryOne;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    studentDeleteForMe(messageId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const deleteForMe = yield this.studentRepository.studentDeleteForMe(messageId);
+                return deleteForMe;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    studentResetCount(studentId, mentorId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const resetCount = yield this.studentRepository.studentResetCount(studentId, mentorId);
+                return resetCount;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    //Notification
+    studentCreateNotification(username, senderId, receiverId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const createNotify = yield this.studentRepository.studentCreateNotification(username, senderId, receiverId);
+                return createNotify;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    studentGetNotifications(studentId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const getNotification = yield this.studentRepository.studentGetNotifications(studentId);
+                return getNotification;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    studentGetNotificationsCount(studentId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const getCount = yield this.studentRepository.studentGetNotificationsCount(studentId);
+                return getCount;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    studentGetNotificationsSeen() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const markSeen = yield this.studentRepository.studentGetNotificationsSeen();
+                return markSeen;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    studentDeleteNotifications(senderId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const deleteNotify = yield this.studentRepository.studentDeleteNotifications(senderId);
+                return deleteNotify;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    studentGetMentor(studentId, mentorId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const getMentor = yield this.studentRepository.studentGetMentor(studentId, mentorId);
+                return getMentor;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    studentGetBadges(studentId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const getBadges = yield this.studentRepository.studentGetBadges(studentId);
+                return getBadges;
             }
             catch (error) {
                 throw error;

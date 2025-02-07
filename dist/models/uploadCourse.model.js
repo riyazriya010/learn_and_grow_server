@@ -22,6 +22,7 @@ const CourseSchema = new mongoose_1.Schema({
     level: { type: String, required: true },
     duration: { type: String, required: true },
     thumbnailUrl: { type: String, required: true },
+    approved: { type: Boolean, default: false },
     isPublished: { type: Boolean, default: true },
     isListed: { type: Boolean, default: true },
 }, { timestamps: true });

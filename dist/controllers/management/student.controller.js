@@ -359,6 +359,7 @@ class StudentController {
                 return;
             }
             catch (error) {
+                console.log('payment error ', error);
                 if (error instanceof Error) {
                     (0, responseUtil_1.ErrorResponse)(res, 404, "Chapters Not Found");
                     return;
@@ -371,6 +372,7 @@ class StudentController {
     studentBuyedCourses(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                console.log('buyedCourse controller ', req.query);
                 const { page = 1, limit = 4 } = req.query;
                 const studentId = yield (0, getId_1.default)('accessToken', req);
                 const buyedCourse = yield this.studentServices.studentBuyedCourses(studentId, String(page), String(limit));
@@ -378,6 +380,7 @@ class StudentController {
                 return;
             }
             catch (error) {
+                console.info('error ', error);
                 (0, responseUtil_1.ErrorResponse)(res, 500, "Internal Server Error");
                 return;
             }
@@ -511,12 +514,12 @@ class StudentController {
         });
     }
     ///////////////////////////////// WEEK - 3 ////////////////////////////
-    studentChatGetUsers(req, res) {
+    studentChatGetMentors(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const studentId = yield (0, getId_1.default)('accessToken', req);
-                const getUsers = yield this.studentServices.studentChatGetUsers(studentId);
-                (0, responseUtil_1.SuccessResponse)(res, 200, "Users fetched successfully", getUsers);
+                const studentId = (0, getId_1.default)("accessToken", req);
+                const getMentors = yield this.studentServices.studentChatGetMentors(studentId);
+                (0, responseUtil_1.SuccessResponse)(res, 200, "Mentors Got It", getMentors);
                 return;
             }
             catch (error) {
@@ -528,23 +531,10 @@ class StudentController {
     studentCreateRoom(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { userId, mentorId } = req.body;
-                const createRoom = yield this.studentServices.studentCreateRoom(String(userId), String(mentorId));
-                (0, responseUtil_1.SuccessResponse)(res, 200, "Room Created", createRoom);
-                return;
-            }
-            catch (error) {
-                (0, responseUtil_1.ErrorResponse)(res, 500, "Internal Server Error");
-                return;
-            }
-        });
-    }
-    studentGetMessages(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const { roomId } = req.params;
-                const getMessages = yield this.studentServices.studentGetMessages(String(roomId));
-                (0, responseUtil_1.SuccessResponse)(res, 200, "Messages Got It", getMessages);
+                const { mentorId } = req.body;
+                const studentId = (0, getId_1.default)("accessToken", req);
+                const createdRoom = yield this.studentServices.studentCreateRoom(studentId, String(mentorId));
+                (0, responseUtil_1.SuccessResponse)(res, 200, "Room Created", createdRoom);
                 return;
             }
             catch (error) {
@@ -556,10 +546,168 @@ class StudentController {
     studentSaveMessage(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { message, roomId, receiverId } = req.body;
-                const senderId = yield (0, getId_1.default)('accessToken', req);
-                const savedMessage = yield this.studentServices.studentSaveMessage(message, roomId, receiverId, senderId);
+                const { message, mentorId } = req.body;
+                const studentId = (0, getId_1.default)("accessToken", req);
+                const savedMessage = yield this.studentServices.studentSaveMessage(studentId, String(mentorId), String(message));
                 (0, responseUtil_1.SuccessResponse)(res, 200, "Message Saved", savedMessage);
+                return;
+            }
+            catch (error) {
+                (0, responseUtil_1.ErrorResponse)(res, 500, "Internal Server Error");
+                return;
+            }
+        });
+    }
+    studentGetMessages(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { mentorId } = req.params;
+                const studentId = (0, getId_1.default)("accessToken", req);
+                const getMessage = yield this.studentServices.studentGetMessages(studentId, String(mentorId));
+                (0, responseUtil_1.SuccessResponse)(res, 200, "Message Got It", getMessage);
+                return;
+            }
+            catch (error) {
+                (0, responseUtil_1.ErrorResponse)(res, 500, "Internal Server Error");
+                return;
+            }
+        });
+    }
+    studentDeleteEveryOne(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { messageId } = req.params;
+                const deleteEveryOne = yield this.studentServices.studentDeleteEveryOne(String(messageId));
+                (0, responseUtil_1.SuccessResponse)(res, 200, "Message deleted foreveryone", deleteEveryOne);
+                return;
+            }
+            catch (error) {
+                (0, responseUtil_1.ErrorResponse)(res, 500, "Internal Server Error");
+                return;
+            }
+        });
+    }
+    studentDeleteForMe(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { messageId } = req.params;
+                const deleteForMe = yield this.studentServices.studentDeleteForMe(String(messageId));
+                (0, responseUtil_1.SuccessResponse)(res, 200, "Message deleted me", deleteForMe);
+                return;
+            }
+            catch (error) {
+                (0, responseUtil_1.ErrorResponse)(res, 500, "Internal Server Error");
+                return;
+            }
+        });
+    }
+    studentResetCount(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { mentorId } = req.params;
+                const studentId = yield (0, getId_1.default)('accessToken', req);
+                const resetCount = yield this.studentServices.studentResetCount(studentId, String(mentorId));
+                (0, responseUtil_1.SuccessResponse)(res, 200, "Count Reset", resetCount);
+                return;
+            }
+            catch (error) {
+                (0, responseUtil_1.ErrorResponse)(res, 500, "Internal Server Error");
+                return;
+            }
+        });
+    }
+    // Notification
+    studentCreateNotification(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                console.log('noti ', req.body);
+                const { username, senderId, receiverId } = req.body;
+                const createNotify = yield this.studentServices.studentCreateNotification(String(username), String(senderId), String(receiverId));
+                (0, responseUtil_1.SuccessResponse)(res, 200, "notification created", createNotify);
+                return;
+            }
+            catch (error) {
+                (0, responseUtil_1.ErrorResponse)(res, 500, "Internal Server Error");
+                return;
+            }
+        });
+    }
+    studentGetNotifications(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { studentId } = req.params;
+                const getNotification = yield this.studentServices.studentGetNotifications(String(studentId));
+                (0, responseUtil_1.SuccessResponse)(res, 200, "notification got it", getNotification);
+                return;
+            }
+            catch (error) {
+                (0, responseUtil_1.ErrorResponse)(res, 500, "Internal Server Error");
+                return;
+            }
+        });
+    }
+    studentGetNotificationsCount(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { studentId } = req.params;
+                const getCount = yield this.studentServices.studentGetNotificationsCount(String(studentId));
+                (0, responseUtil_1.SuccessResponse)(res, 200, "count got it", getCount);
+                return;
+            }
+            catch (error) {
+                (0, responseUtil_1.ErrorResponse)(res, 500, "Internal Server Error");
+                return;
+            }
+        });
+    }
+    studentGetNotificationsSeen(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const markSeen = yield this.studentServices.studentGetNotificationsSeen();
+                (0, responseUtil_1.SuccessResponse)(res, 200, "marked seen", markSeen);
+                return;
+            }
+            catch (error) {
+                (0, responseUtil_1.ErrorResponse)(res, 500, "Internal Server Error");
+                return;
+            }
+        });
+    }
+    studentDeleteNotifications(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { senderId } = req.params;
+                const deleteNotify = yield this.studentServices.studentDeleteNotifications(String(senderId));
+                (0, responseUtil_1.SuccessResponse)(res, 200, "notification deleted", deleteNotify);
+                return;
+            }
+            catch (error) {
+                (0, responseUtil_1.ErrorResponse)(res, 500, "Internal Server Error");
+                return;
+            }
+        });
+    }
+    studentGetMentor(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { mentorId } = req.params;
+                const studentId = yield (0, getId_1.default)("accessToken", req);
+                const getMentor = yield this.studentServices.studentGetMentor(studentId, String(mentorId));
+                (0, responseUtil_1.SuccessResponse)(res, 200, "mentor got it", getMentor);
+                return;
+            }
+            catch (error) {
+                (0, responseUtil_1.ErrorResponse)(res, 500, "Internal Server Error");
+                return;
+            }
+        });
+    }
+    studentGetBadges(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const studentId = yield (0, getId_1.default)('accessToken', req);
+                const getBadges = yield this.studentServices.studentGetBadges(studentId);
+                (0, responseUtil_1.SuccessResponse)(res, 200, "Badges Got It", getBadges);
                 return;
             }
             catch (error) {

@@ -9,7 +9,6 @@ import StudentRepository from "../repositories/entities/student.repository";
 import StudentServices from "../services/business/student.services";
 import StudentController from "../controllers/management/student.controller";
 
-// const userController = new UserController();
 
 const router = Router();
 
@@ -52,11 +51,23 @@ router.get('/check/verify', authenticateToken, isUserBlocked, isUserVerified, co
 
 /////////////////////////////// WEEK - 3 /////////////////////////////
 
-
-router.get('/get/users', authenticateToken, isUserBlocked, isUserVerified, controller.studentChatGetUsers.bind(controller))
+router.get('/get/mentors/', authenticateToken, isUserBlocked, isUserVerified, controller.studentChatGetMentors.bind(controller))
 router.post('/create/room', authenticateToken, isUserBlocked, isUserVerified, controller.studentCreateRoom.bind(controller))
-router.get('/get/message/:roomId', authenticateToken, isUserBlocked, isUserVerified, controller.studentGetMessages.bind(controller))
 router.post('/save/message', authenticateToken, isUserBlocked, isUserVerified, controller.studentSaveMessage.bind(controller))
+router.get('/get/messages/:mentorId', authenticateToken, isUserBlocked, isUserVerified, controller.studentGetMessages.bind(controller))
+router.patch('/delete/message/everyone/:messageId', authenticateToken, isUserBlocked, isUserVerified, controller.studentDeleteEveryOne.bind(controller))
+router.patch('/delete/message/me/:messageId', authenticateToken, isUserBlocked, isUserVerified, controller.studentDeleteForMe.bind(controller))
+router.patch('/reset/count/:mentorId', authenticateToken, isUserBlocked, isUserVerified, controller.studentResetCount.bind(controller))
+
+//Notification
+router.post('/create/chat/notification', authenticateToken, isUserBlocked, isUserVerified, controller.studentCreateNotification.bind(controller))
+router.get('/get/student/notifications/:studentId', authenticateToken, isUserBlocked, isUserVerified, controller.studentGetNotifications.bind(controller))
+router.get('/get/student/notification/count/:studentId', controller.studentGetNotificationsCount.bind(controller))
+router.patch('/student/notification/seen', authenticateToken, isUserBlocked, isUserVerified, controller.studentGetNotificationsSeen.bind(controller))
+router.delete('/student/delete/notification/:senderId', authenticateToken, isUserBlocked, isUserVerified, controller.studentDeleteNotifications.bind(controller))
+router.get('/get/mentor/:mentorId', authenticateToken, isUserBlocked, isUserVerified, controller.studentGetMentor.bind(controller))
+
+router.get('/get/badges', authenticateToken, isUserBlocked, isUserVerified, controller.studentGetBadges.bind(controller))
 
 
 

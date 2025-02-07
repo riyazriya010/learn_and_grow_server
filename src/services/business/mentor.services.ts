@@ -296,38 +296,149 @@ export default class MentorServices {
 
 
     //////////////////////////////// WEEK - 3 //////////////////////////////////
-    async mentorChatGetRooms(mentorId: string): Promise<MentorChatGetRoomsOutput | null> {
-        try {
-            const getRooms = await this.mentorRepository.mentorChatGetRooms(mentorId)
-            return getRooms
-        } catch (error: unknown) {
+    
+    async mentorChatGetStudents(mentorId: string): Promise<any>{
+        try{
+            const getMentor = await this.mentorRepository.mentorChatGetStudents(mentorId)
+            return getMentor
+        }catch(error: unknown){
             throw error
         }
     }
 
-    async mentorCreateRoom(studentId: string, mentorId: string): Promise<IChatRooms | null> {
-        try {
-            const createRoom = await this.mentorRepository.mentorCreateRoom(studentId, mentorId)
-            return createRoom
-        } catch (error: unknown) {
-            throw error
-        }
-    }
-
-    async mentorGetMessages(roomId: string): Promise<IMessages[] | null> {
-        try {
-            const getMessage = await this.mentorRepository.mentorGetMessages(roomId)
+    async mentorGetMessages(studentId: string, mentorId: string): Promise<any> {
+        try{
+            const getMessage = await this.mentorRepository.mentorGetMessages(studentId, mentorId)
             return getMessage
-        } catch (error: unknown) {
+        }catch(error: unknown){
             throw error
         }
     }
 
-    async mentorSaveMessage(message: string, roomId: string, receiverId: string, senderId: string): Promise<IMessages | null> {
-        try {
-            const savedMessage = await this.mentorRepository.mentorSaveMessage(message, roomId, receiverId, senderId)
-            return savedMessage
-        } catch (error: unknown) {
+    async mentorSaveMessage(studentId: string, mentorId: string, message: string): Promise<any> {
+        try{
+            const saveMessage = await this.mentorRepository.mentorSaveMessage(studentId, mentorId, message)
+            return saveMessage
+        }catch(error: unknown){
+            throw error
+        }
+    }
+
+    async mentorCreateRoom(studentId: string, mentorId: string): Promise<any> {
+        try{
+            const createdRoom = await this.mentorRepository.mentorCreateRoom(studentId, mentorId)
+            return createdRoom
+        }catch(error: unknown){
+            throw error
+        }
+    }
+
+    async mentorDeleteEveryOne(messageId: string): Promise<any> {
+        try{
+            const deleteForEveryOne = await this.mentorRepository.mentorDeleteEveryOne(messageId)
+            return deleteForEveryOne
+        }catch(error: unknown){
+            throw error
+        }
+    }
+
+    async mentorDeleteForMe(messageId: string): Promise<any> {
+        try{
+            const deleteForMe = await this.mentorRepository.mentorDeleteForMe(messageId)
+            return deleteForMe
+        }catch(error: unknown){
+            throw error
+        }
+    }
+
+    async mentorResetCount(studentId: string, mentorId: string): Promise<any> {
+        try{
+            const resetCount = await this.mentorRepository.mentorResetCount(studentId, mentorId)
+            return resetCount
+        }catch(error: unknown){
+            throw error
+        }
+    }
+
+    async mentorCreateNotification(username: string, senderId: string, receiverId: string): Promise<any> {
+        try{
+            const createNotify = await this.mentorRepository.mentorCreateNotification(username, senderId, receiverId)
+            return createNotify
+        }catch(error: unknown){
+            throw error
+        }
+    }
+
+    async mentorGetNotificationsCount(mentorId: string): Promise<any> {
+        try{
+            const getCount = await this.mentorRepository.mentorGetNotificationsCount(mentorId)
+            return getCount
+        }catch(error: unknown){
+            throw error
+        }
+    }
+
+    async mentorGetNotifications(mentorId: string): Promise<any>{
+        try{
+            const getNotify = await this.mentorRepository.mentorGetNotifications(mentorId)
+            return getNotify
+        }catch(error: unknown){
+            throw error
+        }
+    }
+
+    async mentorGetNotificationsSeen(): Promise<any> {
+        try{
+            const notifySeen = await this.mentorRepository.mentorGetNotificationsSeen()
+            return notifySeen
+        }catch(error: unknown){
+            throw error
+        }
+    }
+
+    async mentorDeleteNotifications(senderId: string): Promise<any>{
+        try{
+            const deleteNotify = await this.mentorRepository.mentorDeleteNotifications(senderId)
+            return deleteNotify
+        }catch(error: unknown){
+            throw error
+        }
+    }
+
+    async mentorGetStudent(studentId: string, mentorId: string): Promise<any>{
+        try{
+            const getStudent = await this.mentorRepository.mentorGetStudent(studentId, mentorId)
+            return getStudent
+        }catch(error: unknown){
+            throw error
+        }
+    }
+
+
+    ///////////////////////////////// WEEK - 4 ///////////////////////////
+    async mentorDashboard(mentorId: string): Promise<any> {
+        try{
+            const getData = await this.mentorRepository.mentorDashboard(mentorId)
+            return getData
+        }catch(error: unknown){
+            throw error
+        }
+    }
+
+    async mentorChartGraph(mentorId: string, filters: any): Promise<any> {
+        try{
+            const getData = await this.mentorRepository.mentorChartGraph(mentorId, filters)
+            return getData
+        }catch(error: unknown){
+            throw error
+        }
+    }
+
+    async mentorSalesReport(mentorId: string, filters: any): Promise<any> {
+        try{
+            const getData = await this.mentorRepository.mentorSalesReport(mentorId, filters)
+            return getData
+        }catch(error: unknown){
             throw error
         }
     }

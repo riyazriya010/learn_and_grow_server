@@ -12,13 +12,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const adminBadge_model_1 = require("../../models/adminBadge.model");
 const certificate_model_1 = require("../../models/certificate.model");
 const chapter_model_1 = require("../../models/chapter.model");
 const chatRooms_model_1 = require("../../models/chatRooms.model");
+const mentor_model_1 = __importDefault(require("../../models/mentor.model"));
 const messages_model_1 = require("../../models/messages.model");
 const purchased_model_1 = require("../../models/purchased.model");
 const quizz_model_1 = __importDefault(require("../../models/quizz.model"));
 const studentBadges_model_1 = require("../../models/studentBadges.model");
+const studentNotification_model_1 = require("../../models/studentNotification.model");
 const uploadCourse_model_1 = require("../../models/uploadCourse.model");
 const user_model_1 = __importDefault(require("../../models/user.model"));
 // here we can access the data base
@@ -334,6 +337,8 @@ class StudentRepository {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { userId, courseId, txnid, amount } = purchaseData;
+                const course = yield uploadCourse_model_1.CourseModel.findById(courseId);
+                const mentorId = course === null || course === void 0 ? void 0 : course.mentorId;
                 const findChapters = yield chapter_model_1.ChapterModel.find({ courseId: courseId });
                 if (findChapters.length === 0) {
                     const error = new Error('Chapters Not Found');
@@ -347,10 +352,11 @@ class StudentRepository {
                 const purchasedCourse = {
                     userId,
                     courseId,
+                    mentorId,
                     transactionId: txnid,
                     completedChapters,
                     isCourseCompleted: false,
-                    price: amount
+                    price: Number(amount)
                 };
                 const document = new purchased_model_1.PurchasedCourseModel(purchasedCourse);
                 const savedUser = yield document.save();
@@ -369,7 +375,7 @@ class StudentRepository {
                     .find({ userId: studentId })
                     .sort({ createdAt: -1 })
                     .skip(skip)
-                    .limit(limitNumber)
+                    .limit(4)
                     .populate("courseId", "courseName level")
                     .exec();
                 const totalCourses = yield purchased_model_1.PurchasedCourseModel.countDocuments({ userId: studentId });
@@ -509,9 +515,9 @@ class StudentRepository {
                 });
                 const savedCertificate = yield certificate.save();
                 //creating badge for student
-                const badgeName = 'completion Badge';
-                const findBadge = yield studentBadges_model_1.BagdetModel.findOne({ badgeName });
-                const createBadge = new studentBadges_model_1.BagdetModel({
+                const findBadge = yield adminBadge_model_1.BadgeManagementModel.findOne({ badgeName: 'Completion Badge' });
+                const createBadge = new studentBadges_model_1.BadgeModel({
+                    userId: studentId,
                     badgeId: findBadge === null || findBadge === void 0 ? void 0 : findBadge._id
                 });
                 yield createBadge.save();
@@ -534,28 +540,31 @@ class StudentRepository {
         });
     }
     ////////////////////////////////// WEEK - 3 //////////////////////////////////
-    studentChatGetUsers(studentId) {
+    studentChatGetMentors(studentId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const getUsers = yield purchased_model_1.PurchasedCourseModel
-                    .find({ userId: studentId })
-                    // .populate({
-                    //     path: "userId",
-                    //     select: "_id username profilePicUrl"
-                    // })
+                const getUsers = yield purchased_model_1.PurchasedCourseModel.find({ userId: studentId })
                     .populate({
                     path: "mentorId",
                     select: "_id username profilePicUrl"
                 });
-                const formatted = yield Promise.all(getUsers.map((data) => __awaiter(this, void 0, void 0, function* () {
-                    // Find the corresponding room for the mentor
-                    const getRoom = yield chatRooms_model_1.ChatRoomsModel.findOne({ studentId: data.userId });
-                    return {
-                        lastMessage: getRoom === null || getRoom === void 0 ? void 0 : getRoom.lastMessage,
-                        userData: data.userId,
-                        mentorData: data.mentorId,
-                    };
-                })));
+                const uniqueMentors = new Set();
+                const formatted = [];
+                for (const data of getUsers) {
+                    const mentor = data.mentorId;
+                    if (mentor && !uniqueMentors.has(mentor._id.toString())) {
+                        uniqueMentors.add(mentor._id.toString());
+                        const getRoom = yield chatRooms_model_1.ChatRoomsModel.findOne({
+                            studentId,
+                            mentorId: mentor._id,
+                        });
+                        formatted.push({
+                            mentorsData: Object.assign(Object.assign({}, mentor.toObject()), { lastMessage: (getRoom === null || getRoom === void 0 ? void 0 : getRoom.lastMessage) || null, userMsgCount: (getRoom === null || getRoom === void 0 ? void 0 : getRoom.userMsgCount) || 0, updatedAt: (getRoom === null || getRoom === void 0 ? void 0 : getRoom.updatedAt) || new Date(0) }),
+                            updatedAt: (getRoom === null || getRoom === void 0 ? void 0 : getRoom.updatedAt) || new Date(0),
+                        });
+                    }
+                }
+                formatted.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
                 return formatted;
             }
             catch (error) {
@@ -583,37 +592,213 @@ class StudentRepository {
             }
         });
     }
-    studentGetMessages(roomId) {
+    studentSaveMessage(studentId, mentorId, message) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const messages = yield messages_model_1.MessageModel.find({ roomId });
-                console.log('message: ', messages);
-                if (messages.length === 0) {
-                    return []; // Return empty array if no messages found
-                }
-                return messages;
+                const findRoom = yield chatRooms_model_1.ChatRoomsModel.findOne({ studentId, mentorId });
+                findRoom.lastMessage = message;
+                findRoom.mentorMsgCount += 1;
+                yield findRoom.save();
+                const data = {
+                    senderId: studentId,
+                    receiverId: mentorId,
+                    roomId: findRoom === null || findRoom === void 0 ? void 0 : findRoom._id,
+                    message: message,
+                    senderModel: "User",
+                    receiverModel: "Mentors"
+                };
+                const newMessage = new messages_model_1.MessageModel(data);
+                const savedMessage = yield newMessage.save();
+                return savedMessage;
             }
             catch (error) {
                 throw error;
             }
         });
     }
-    studentSaveMessage(message, roomId, receiverId, senderId) {
+    studentGetMessages(studentId, mentorId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const lastMessage = yield chatRooms_model_1.ChatRoomsModel.findById(roomId);
-                lastMessage.lastMessage = message;
-                yield lastMessage.save();
-                const newMessage = new messages_model_1.MessageModel({
-                    senderId: senderId, // or mentorId
-                    receiverId: receiverId, // userId or mentorId
-                    roomId: roomId,
-                    message: message,
-                    senderModel: 'User', // or 'Mentor' based on who is sending the message
-                    receiverModel: 'Mentors' // or 'User' based on who is receiving the message
+                const findRoom = yield chatRooms_model_1.ChatRoomsModel.findOne({ studentId, mentorId });
+                const roomId = findRoom._id;
+                const findMessages = yield messages_model_1.MessageModel.find({ roomId });
+                return findMessages;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    studentDeleteEveryOne(messageId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const findMessage = yield messages_model_1.MessageModel.findById(messageId);
+                findMessage.deletedForSender = true;
+                findMessage.deletedForReceiver = true;
+                yield findMessage.save();
+                // Update chat room's last message if necessary
+                const chatRoom = yield chatRooms_model_1.ChatRoomsModel.findOne({ _id: findMessage.roomId });
+                if (chatRoom) {
+                    const remainingMessages = yield messages_model_1.MessageModel.find({ roomId: chatRoom._id });
+                    const validMessages = remainingMessages.filter(msg => !msg.deletedForSender && !msg.deletedForReceiver);
+                    if (validMessages.length > 0) {
+                        const lastMessage = validMessages[validMessages.length - 1];
+                        chatRoom.lastMessage = lastMessage.message;
+                    }
+                    else {
+                        chatRoom.lastMessage = '';
+                    }
+                    yield chatRoom.save();
+                }
+                return findMessage;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    studentDeleteForMe(messageId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const findMessage = yield messages_model_1.MessageModel.findById(messageId);
+                findMessage.deletedForSender = true;
+                yield findMessage.save();
+                // Check if this is the last message sent by the sender, and update chat room's last message
+                const chatRoom = yield chatRooms_model_1.ChatRoomsModel.findOne({ _id: findMessage.roomId });
+                if (chatRoom) {
+                    const remainingMessages = yield messages_model_1.MessageModel.find({ roomId: chatRoom._id });
+                    const validMessages = remainingMessages.filter(msg => !msg.deletedForSender);
+                    if (validMessages.length > 0) {
+                        const lastMessage = validMessages[validMessages.length - 1];
+                        chatRoom.lastMessage = lastMessage.message;
+                    }
+                    else {
+                        chatRoom.lastMessage = ''; // No valid messages left
+                    }
+                    yield chatRoom.save();
+                }
+                return findMessage;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    studentResetCount(studentId, mentorId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const findRoom = yield chatRooms_model_1.ChatRoomsModel.findOne({ studentId, mentorId });
+                findRoom.userMsgCount = 0;
+                yield findRoom.save();
+                //find messages
+                const findMessages = yield messages_model_1.MessageModel.find({ roomId: findRoom.id });
+                return findMessages;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    ///// Notification
+    studentCreateNotification(username, senderId, receiverId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = {
+                    senderId,
+                    receiverId,
+                    senderName: username
+                };
+                const createNotification = new studentNotification_model_1.StudentNotificationModel(data);
+                yield createNotification.save();
+                console.log('created noti');
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    studentGetNotifications(studentId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                // Fetch notifications sorted by createdAt (newest first)
+                const allNotifications = yield studentNotification_model_1.StudentNotificationModel
+                    .find({ receiverId: studentId })
+                    .sort({ createdAt: -1 });
+                // Remove duplicate senderId notifications (keeping only the most recent)
+                const seenSenders = new Set();
+                const uniqueNotifications = allNotifications.filter(notification => {
+                    if (!seenSenders.has(notification.senderId.toString())) {
+                        seenSenders.add(notification.senderId.toString());
+                        return true;
+                    }
+                    return false;
                 });
-                const savedMessage = yield newMessage.save();
-                return savedMessage;
+                return uniqueNotifications;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    studentGetNotificationsCount(studentId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const getNotification = yield studentNotification_model_1.StudentNotificationModel.find({ receiverId: studentId, seen: false }).countDocuments();
+                return { count: getNotification };
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    studentGetNotificationsSeen() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const markSeen = yield studentNotification_model_1.StudentNotificationModel.updateMany({ seen: false }, { $set: { seen: true } });
+                return markSeen;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    studentDeleteNotifications(senderId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const deleteMessage = yield studentNotification_model_1.StudentNotificationModel.deleteMany({ senderId });
+                return deleteMessage;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    studentGetMentor(studentId, mentorId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const findMentor = yield mentor_model_1.default.findById(mentorId).select("_id username profilePicUrl");
+                // Fetch the chat room for this student and mentor
+                const getRoom = yield chatRooms_model_1.ChatRoomsModel.findOne({
+                    studentId,
+                    mentorId,
+                });
+                return Object.assign(Object.assign({}, findMentor === null || findMentor === void 0 ? void 0 : findMentor.toObject()), { lastMessage: (getRoom === null || getRoom === void 0 ? void 0 : getRoom.lastMessage) || null, userMsgCount: (getRoom === null || getRoom === void 0 ? void 0 : getRoom.userMsgCount) || 0 });
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    studentGetBadges(studentId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const findBadges = yield studentBadges_model_1.BadgeModel.find({ userId: studentId })
+                    .populate({
+                    path: "badgeId",
+                    select: "badgeName description value"
+                })
+                    .sort({ createdAt: -1 });
+                return findBadges;
             }
             catch (error) {
                 throw error;

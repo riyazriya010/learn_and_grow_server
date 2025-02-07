@@ -22,6 +22,7 @@ export interface ICourse extends Document {
   level: string;
   duration: string;
   thumbnailUrl: string;
+  approved: boolean;
   isPublished: boolean;
   isListed: boolean;
   createdAt: Date;
@@ -50,6 +51,7 @@ const CourseSchema = new Schema<ICourse>(
     level: { type: String, required: true },
     duration: { type: String, required: true },
     thumbnailUrl: { type: String, required: true },
+    approved: { type: Boolean, default: false },
     isPublished: { type: Boolean, default: true },
     isListed: { type: Boolean, default: true },
   },

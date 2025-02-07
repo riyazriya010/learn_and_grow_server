@@ -57,11 +57,27 @@ router.get('/get/wallet',authenticateToken, isUserBlocked, isUserVerified, contr
 
 //////////////////////////////////// WEEK - 3 /////////////////////////
 
-router.get('/get/rooms', authenticateToken, isUserBlocked, isUserVerified, controller.mentorChatGetRooms.bind(controller))
-router.post('/create/room', authenticateToken, isUserBlocked, isUserVerified, controller.mentorCreateRoom.bind(controller))
-router.get('/get/message/:roomId', authenticateToken, isUserBlocked, isUserVerified, controller.mentorGetMessages.bind(controller))
-router.post('/save/message', authenticateToken, isUserBlocked, isUserVerified, controller.mentorSaveMessage.bind(controller))
+router.get('/get/students', authenticateToken, isUserBlocked, isUserVerified, controller.mentorChatGetStudents.bind(controller))
+router.get('/get/mentor/messages/:studentId', authenticateToken, isUserBlocked, isUserVerified, controller.mentorGetMessages.bind(controller))
+router.post('/save/mentor/message', authenticateToken, isUserBlocked, isUserVerified, controller.mentorSaveMessage.bind(controller))
+router.post('/create/mentor/room', authenticateToken, isUserBlocked, isUserVerified, controller.mentorCreateRoom.bind(controller))
+router.patch('/delete/mentor/message/everyone/:messageId', authenticateToken, isUserBlocked, isUserVerified, controller.mentorDeleteEveryOne.bind(controller))
+router.patch('/reset/mentor/count/:studentId', authenticateToken, isUserBlocked, isUserVerified, controller.mentorResetCount.bind(controller))
 
+
+//notification
+router.post('/create/mentor/chat/notification', authenticateToken, isUserBlocked, isUserVerified, controller.mentorCreateNotification.bind(controller))
+router.get('/get/mentor/notification/count/:mentorId', controller.mentorGetNotificationsCount.bind(controller))
+router.get('/mentor/notifications/:mentorId', authenticateToken, isUserBlocked, isUserVerified, controller.mentorGetNotifications.bind(controller))
+router.patch('/mentor/notification/seen', authenticateToken, isUserBlocked, isUserVerified, controller.mentorGetNotificationsSeen.bind(controller))
+router.delete('/mentor/delete/notification/:senderId', authenticateToken, isUserBlocked, isUserVerified, controller.mentorDeleteNotifications.bind(controller))
+router.get('/get/student/:studentId', authenticateToken, isUserBlocked, isUserVerified, controller.mentorGetStudent.bind(controller))
+
+
+////////////////////////////////////////// WEEK - 4 ////////////////////////////////////////////////
+router.get('/get/dashboard', authenticateToken, isUserBlocked, isUserVerified, controller.mentorDashboard.bind(controller))
+router.get('/get/chart/graph/data', authenticateToken, isUserBlocked, isUserVerified, controller.mentorChartGraph.bind(controller))
+router.get('/get/mentor/report', authenticateToken, isUserBlocked, isUserVerified, controller.mentorSalesReport.bind(controller))
 
 
 

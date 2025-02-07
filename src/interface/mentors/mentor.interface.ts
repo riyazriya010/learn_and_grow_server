@@ -42,8 +42,26 @@ export interface IMentorMethods {
 
     /////////////////////////////////////// WEEK - 3 ///////////////////////////////////////
 
-        mentorChatGetRooms(mentorId: string): Promise<MentorChatGetRoomsOutput | null>
-        mentorCreateRoom(studentId: string, mentorId: string): Promise<IChatRooms | null>
-        mentorGetMessages(roomId: string): Promise<IMessages[] | null>
-        mentorSaveMessage(message: string, roomId: string, receiverId: string, senderId: string): Promise<IMessages | null>
+
+    mentorChatGetStudents(mentorId: string): Promise<any>
+    mentorCreateRoom(studentId: string, mentorId: string): Promise<IChatRooms | null>
+    mentorSaveMessage(studentId: string, mentorId: string, message: string): Promise<IMessages | null>
+    mentorGetMessages(studentId: string, mentorId: string): Promise<IMessages[] | null>
+    mentorDeleteEveryOne(messageId: string): Promise<IMessages | null>
+    mentorDeleteForMe(messageId: string): Promise<IMessages | null>
+    mentorResetCount(studentId: string, mentorId: string): Promise<IMessages[] | null>
+
+    // Notifications
+    mentorCreateNotification(username: string, senderId: string, receiverId: string): Promise<any>
+    mentorGetNotifications(mentorId: string): Promise<any>
+    mentorGetStudent(studentId: string, mentorId: string): Promise<any>
+    mentorGetNotificationsCount(mentorId: string): Promise<any>
+    mentorGetNotificationsSeen(): Promise<any>
+    mentorDeleteNotifications(senderId: string): Promise<any>
+
+    //////////////////////////////////// WEEK - 4 ////////////////////////
+    mentorDashboard(mentorId: string): Promise<any>
+    mentorChartGraph(mentorId: string, filters: any): Promise<any>
+    mentorSalesReport(mentorId: string, filters: any): Promise<any>
+
 }
