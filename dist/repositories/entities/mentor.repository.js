@@ -635,6 +635,7 @@ class MentorRepository {
             }
         });
     }
+    //Notificaions
     mentorCreateNotification(username, senderId, receiverId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -898,7 +899,8 @@ class MentorRepository {
     mentorChartGraph(mentorId, filters) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const mentorId = new mongoose_1.Types.ObjectId("676e807be8f82e659d704d72");
+                console.log('chart mentorId: ', mentorId);
+                const mentorIdObject = new mongoose_1.Types.ObjectId(mentorId);
                 const { year, month, date } = filters;
                 const currentYear = new Date().getFullYear();
                 const currentMonth = new Date().getMonth() + 1;
@@ -914,7 +916,7 @@ class MentorRepository {
                     courseSales = yield purchased_model_1.PurchasedCourseModel.aggregate([
                         {
                             $match: {
-                                mentorId: mentorId,
+                                mentorId: mentorIdObject,
                                 purchasedAt: { $gte: startOfDay, $lt: endOfDay },
                             }
                         },
@@ -952,7 +954,7 @@ class MentorRepository {
                     revenueOrders = yield purchased_model_1.PurchasedCourseModel.aggregate([
                         {
                             $match: {
-                                mentorId: mentorId,
+                                mentorId: mentorIdObject,
                                 purchasedAt: { $gte: startOfDay, $lt: endOfDay },
                             }
                         },
@@ -981,7 +983,7 @@ class MentorRepository {
                     courseSales = yield purchased_model_1.PurchasedCourseModel.aggregate([
                         {
                             $match: {
-                                mentorId: mentorId,
+                                mentorId: mentorIdObject,
                                 purchasedAt: { $gte: startOfMonth, $lt: endOfMonth },
                             }
                         },
@@ -1019,7 +1021,7 @@ class MentorRepository {
                     revenueOrders = yield purchased_model_1.PurchasedCourseModel.aggregate([
                         {
                             $match: {
-                                mentorId: mentorId,
+                                mentorId: mentorIdObject,
                                 purchasedAt: { $gte: startOfMonth, $lt: endOfMonth },
                             }
                         },
@@ -1044,7 +1046,7 @@ class MentorRepository {
                     courseSales = yield purchased_model_1.PurchasedCourseModel.aggregate([
                         {
                             $match: {
-                                mentorId: mentorId,
+                                mentorId: mentorIdObject,
                                 purchasedAt: {
                                     $gte: new Date(`${filterYear}-01-01`),
                                     $lt: new Date(`${filterYear + 1}-01-01`),
@@ -1085,7 +1087,7 @@ class MentorRepository {
                     revenueOrders = yield purchased_model_1.PurchasedCourseModel.aggregate([
                         {
                             $match: {
-                                mentorId: mentorId,
+                                mentorId: mentorIdObject,
                                 purchasedAt: {
                                     $gte: new Date(`${filterYear}-01-01`),
                                     $lt: new Date(`${filterYear + 1}-01-01`),
@@ -1126,7 +1128,9 @@ class MentorRepository {
     mentorSalesReport(mentorId, filters) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                console.log('report mentorId', mentorId);
                 const mentorIdObject = new mongoose_1.Types.ObjectId(mentorId);
+                console.log('obj id ', mentorIdObject);
                 const { year, month, date } = filters;
                 const currentYear = new Date().getFullYear();
                 const filterYear = year ? parseInt(year) : currentYear;
@@ -1152,7 +1156,7 @@ class MentorRepository {
                 }
                 report = yield purchased_model_1.PurchasedCourseModel.aggregate([
                     {
-                        $match: Object.assign({ mentorIdObject }, dateFilter)
+                        $match: Object.assign({ mentorId: mentorIdObject }, dateFilter)
                     },
                     {
                         $lookup: {
@@ -1188,6 +1192,7 @@ class MentorRepository {
                     }
                 ]);
                 salesCount = report.length;
+                console.log('report ', report);
                 return {
                     report: report,
                     salesCount: salesCount

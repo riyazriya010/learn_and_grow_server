@@ -206,12 +206,14 @@ export default class StudentController {
 
     async studentProfleUpdate(req: Request, res: Response): Promise<void> {
         try {
+            console.log('req.body ', req.body)
             const file = req.file as any
-            const { username, phone } = req.body
+            const { username, phone, profilePicUrl } = req.body
             const data = {
                 username,
                 phone,
-                profilePicUrl: file?.location
+                // profilePicUrl: file?.location
+                profilePicUrl
             }
             const studentId = await getId('accessToken', req)
             const updateUser = await this.studentServices.studentProfleUpdate(String(studentId), data)
@@ -342,7 +344,7 @@ export default class StudentController {
             SuccessResponse(res, 200, "Course Buyed Successfully", buyCourse)
             return
         } catch (error: unknown) {
-            console.log('payment error ',error)
+            console.log('payment error ', error)
             if (error instanceof Error) {
                 ErrorResponse(res, 404, "Chapters Not Found")
                 return
@@ -361,7 +363,7 @@ export default class StudentController {
             SuccessResponse(res, 200, "Buyed Courses Got It", buyedCourse)
             return
         } catch (error: unknown) {
-            console.info('error ',error)
+            console.info('error ', error)
             ErrorResponse(res, 500, "Internal Server Error")
             return
         }
@@ -381,8 +383,8 @@ export default class StudentController {
 
     async studentChapterVideoEnd(req: Request, res: Response): Promise<void> {
         try {
-            const { chapterId } = req.query
-            const findCoures = await this.studentServices.studentChapterVideoEnd(String(chapterId))
+            const { chapterId, studiedTime } = req.query
+            const findCoures = await this.studentServices.studentChapterVideoEnd(String(chapterId), String(studiedTime))
             SuccessResponse(res, 200, "Chapter Video Ended", findCoures)
             return
         } catch (error: unknown) {
@@ -451,6 +453,7 @@ export default class StudentController {
             SuccessResponse(res, 200, "Certificate Created", createCertificate)
             return
         } catch (error: unknown) {
+            console.info('create certificate Error ::: ', error)
             ErrorResponse(res, 500, "Internal Server Error")
             return
         }
@@ -575,7 +578,7 @@ export default class StudentController {
     // Notification
     async studentCreateNotification(req: Request, res: Response): Promise<void> {
         try {
-            console.log('noti ',req.body)
+            console.log('noti ', req.body)
             const { username, senderId, receiverId } = req.body
             const createNotify = await this.studentServices.studentCreateNotification(String(username), String(senderId), String(receiverId))
             SuccessResponse(res, 200, "notification created", createNotify)
@@ -588,7 +591,7 @@ export default class StudentController {
 
     async studentGetNotifications(req: Request, res: Response): Promise<void> {
         try {
-            const { studentId }= req.params
+            const { studentId } = req.params
             const getNotification = await this.studentServices.studentGetNotifications(String(studentId))
             SuccessResponse(res, 200, "notification got it", getNotification)
             return
@@ -600,7 +603,7 @@ export default class StudentController {
 
     async studentGetNotificationsCount(req: Request, res: Response): Promise<void> {
         try {
-            const { studentId }= req.params
+            const { studentId } = req.params
             const getCount = await this.studentServices.studentGetNotificationsCount(String(studentId))
             SuccessResponse(res, 200, "count got it", getCount)
             return

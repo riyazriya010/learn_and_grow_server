@@ -1,7 +1,9 @@
 import jwt from 'jsonwebtoken';
 import { NextFunction, Request, Response } from 'express';
-import UserRepositories from '../repositories/userRepository';
-import { MentorRepository } from '../repositories/mentorRepository';
+// import UserRepositories from '../repositories/userRepository';
+// import { MentorRepository } from '../repositories/mentorRepository';
+import UserModel, { IUser } from '../models/user.model';
+import MentorModel, { IMentor } from '../models/mentor.model';
 
 interface AuthenticatedRequest extends Request {
     user?: {
@@ -12,8 +14,8 @@ interface AuthenticatedRequest extends Request {
     };
 }
 
-const userRepository = new UserRepositories()
-const mentorRepository = new MentorRepository()
+// const userRepository = new UserRepositories()
+// const mentorRepository = new MentorRepository()
 
 const isUserBlocked = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<any> => {
     try{
@@ -23,7 +25,9 @@ const isUserBlocked = async (req: AuthenticatedRequest, res: Response, next: Nex
         console.log('decodedToken: ', decodedToken)
         if(role === 'student'){
             console.log('enter1')
-            const isStudentBlock = await userRepository.isBlocked(user)
+            const findUser = await UserModel.findById(user) as unknown as IUser
+            const isStudentBlock = findUser?.isBlocked
+            // const isStudentBlock = await userRepository.isBlocked(user)
             if(isStudentBlock){
                 console.log('enter2')
                 return res
@@ -33,7 +37,9 @@ const isUserBlocked = async (req: AuthenticatedRequest, res: Response, next: Nex
                 })
             }
         }else if(role === 'mentor'){
-            const isMentorBlock = await mentorRepository.isBlocked(user)
+            const findUser = await MentorModel.findById(user) as unknown as IMentor
+            const isMentorBlock = findUser?.isBlocked
+            // const isMentorBlock = await mentorRepository.isBlocked(user)
             if(isMentorBlock){
                 return res
                 .status(403).send({

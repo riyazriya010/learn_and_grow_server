@@ -316,6 +316,7 @@ class AdminController {
             }
         });
     }
+    //Course
     getAllCourse(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -385,6 +386,65 @@ class AdminController {
             }
         });
     }
+    adminNonApprovedCourse(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { page = 1, limit = 1 } = req.query;
+                const pageNumber = parseInt(page, 10);
+                const limitNumber = parseInt(limit, 10);
+                const getNotApprovedCourse = yield this.adminServices.adminNonApprovedCourse(pageNumber, limitNumber);
+                return res.status(200).send({
+                    message: 'Not Approved Course Got It',
+                    success: true,
+                    result: getNotApprovedCourse
+                });
+            }
+            catch (error) {
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
+                });
+            }
+        });
+    }
+    adminNonApprovedCourseDetails(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { courseId } = req.query;
+                const getDetails = yield this.adminServices.adminNonApprovedCourseDetails(String(courseId));
+                return res.status(200).send({
+                    message: 'Course Details Got It',
+                    success: true,
+                    result: getDetails
+                });
+            }
+            catch (error) {
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
+                });
+            }
+        });
+    }
+    adminApproveCourse(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { courseId } = req.query;
+                const approveIt = yield this.adminServices.adminApproveCourse(String(courseId));
+                return res.status(200).send({
+                    message: 'Course Approved',
+                    success: true,
+                    result: approveIt
+                });
+            }
+            catch (error) {
+                return res.status(500).send({
+                    message: 'Internal Server Error',
+                    success: false,
+                });
+            }
+        });
+    }
     getWallet(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -408,6 +468,7 @@ class AdminController {
                 });
             }
             catch (error) {
+                console.info('wallet ', error);
                 return res.status(500).send({
                     message: 'Internal Server Error',
                     success: false,
@@ -415,6 +476,7 @@ class AdminController {
             }
         });
     }
+    //Badge
     addBadge(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -500,46 +562,6 @@ class AdminController {
         });
     }
     ////////////////////////////////// WEEK - 4 ///////////////////////////////////
-    adminNonApprovedCourse(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const { page = 1, limit = 1 } = req.query;
-                const pageNumber = parseInt(page, 10);
-                const limitNumber = parseInt(limit, 10);
-                const getNotApprovedCourse = yield this.adminServices.adminNonApprovedCourse(pageNumber, limitNumber);
-                return res.status(200).send({
-                    message: 'Not Approved Course Got It',
-                    success: true,
-                    result: getNotApprovedCourse
-                });
-            }
-            catch (error) {
-                return res.status(500).send({
-                    message: 'Internal Server Error',
-                    success: false,
-                });
-            }
-        });
-    }
-    adminNonApprovedCourseDetails(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const { courseId } = req.query;
-                const getDetails = yield this.adminServices.adminNonApprovedCourseDetails(String(courseId));
-                return res.status(200).send({
-                    message: 'Course Details Got It',
-                    success: true,
-                    result: getDetails
-                });
-            }
-            catch (error) {
-                return res.status(500).send({
-                    message: 'Internal Server Error',
-                    success: false,
-                });
-            }
-        });
-    }
     adminDashboard(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -551,6 +573,7 @@ class AdminController {
                 });
             }
             catch (error) {
+                console.info('dash ', error);
                 return res.status(500).send({
                     message: 'Internal Server Error',
                     success: false,
@@ -586,25 +609,6 @@ class AdminController {
                     message: 'Report Details Got It',
                     success: true,
                     result: getReport
-                });
-            }
-            catch (error) {
-                return res.status(500).send({
-                    message: 'Internal Server Error',
-                    success: false,
-                });
-            }
-        });
-    }
-    adminApproveCourse(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const { courseId } = req.query;
-                const approveIt = yield this.adminServices.adminApproveCourse(String(courseId));
-                return res.status(200).send({
-                    message: 'Course Approved',
-                    success: true,
-                    result: approveIt
                 });
             }
             catch (error) {

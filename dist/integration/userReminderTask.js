@@ -2,6 +2,15 @@
 // import cron from 'node-cron';
 // import userService from '../services/userService';
 // // import sendEmail from '../utils/emailSender';
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -22,30 +31,31 @@ Object.defineProperty(exports, "__esModule", { value: true });
 //   }
 // });
 const node_cron_1 = __importDefault(require("node-cron"));
-// Simulating an array of users with their last login dates
-const users = [
-    { email: 'user1@example.com', lastLogin: new Date('2025-01-07') },
-    { email: 'user2@example.com', lastLogin: new Date('2025-01-08') },
-    { email: 'user3@example.com', lastLogin: new Date('2025-01-05') },
-    { email: 'user4@example.com', lastLogin: new Date('2025-01-08') },
-];
-console.log("User Reminder Task is loaded and running...");
-// Cron job to run every day at midnight
-node_cron_1.default.schedule('* * * * *', () => {
-    console.log("Entered Task is loaded and running...");
-    // Get the date 2 days ago
-    const twoDaysAgo = new Date();
-    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
-    // Filter out the users who haven't logged in for more than 2 days
-    const inactiveUsers = users.filter(user => user.lastLogin <= twoDaysAgo);
-    // Check if there are any inactive users
-    if (inactiveUsers.length > 0) {
-        // Loop through the inactive users and log them
-        inactiveUsers.forEach(user => {
-            console.log(`User ${user.email} hasn't logged in for more than 2 days.`);
-        });
+const user_model_1 = __importDefault(require("../models/user.model"));
+const nodemailer_1 = __importDefault(require("./nodemailer"));
+node_cron_1.default.schedule('* * * * *', () => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("Checking users with 0 studied hours...");
+    try {
+        // Fetch users whose studiedHours is 0
+        const inactiveUsers = yield user_model_1.default.find({ studiedHours: 0 });
+        if (inactiveUsers.length > 0) {
+            inactiveUsers.forEach((user) => {
+                console.log(`User ${user.username} has studied 0 hours.`);
+                const mail = new nodemailer_1.default();
+                mail.sendRemainderMail(String(user === null || user === void 0 ? void 0 : user.email), String(user === null || user === void 0 ? void 0 : user.username))
+                    .then(info => {
+                    console.log('Verification email sent successfully: ');
+                })
+                    .catch(error => {
+                    console.error('Failed to send verification email:', error);
+                });
+            });
+        }
+        else {
+            console.log('No users with 0 studied hours.');
+        }
     }
-    else {
-        console.log('No users need to be reminded.');
+    catch (error) {
+        console.error("Error fetching users:", error);
     }
-});
+}));

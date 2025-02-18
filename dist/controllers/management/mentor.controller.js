@@ -90,6 +90,7 @@ class MentorController {
                 // return
             }
             catch (error) {
+                console.info('singup error: ', error);
                 if (error instanceof Error) {
                     if (error.name === 'MentorExist') {
                         (0, responseUtil_1.ErrorResponse)(res, 409, 'Mentor Already Exists');
@@ -253,6 +254,7 @@ class MentorController {
                 return;
             }
             catch (error) {
+                console.info('mentor verify error: ', error);
                 if (error instanceof Error) {
                     if (error.name === 'TokenExpired') {
                         (0, responseUtil_1.ErrorResponse)(res, 401, "Token Expired");
@@ -277,6 +279,7 @@ class MentorController {
                 return;
             }
             catch (error) {
+                console.info('mentor verify error: ', error);
                 (0, responseUtil_1.ErrorResponse)(res, 500, 'Internal Server Error');
                 return;
             }
@@ -286,25 +289,38 @@ class MentorController {
     mentorAddCourse(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                // Extract files
-                const files = req.files;
-                const mediaFiles = (files === null || files === void 0 ? void 0 : files.demoVideo) || [];
-                const thumbnailFile = (files === null || files === void 0 ? void 0 : files.thumbnail) ? files.thumbnail[0] : null;
+                console.log('req.body addcourse ', req.body);
                 // Map demo videos
-                const demoVideo = mediaFiles.map((file) => ({
-                    type: 'video',
-                    url: file.location,
-                }));
-                // Extract thumbnail URL
-                const thumbnailUrl = thumbnailFile ? thumbnailFile.location : null;
+                const demoVideo = [{
+                        type: 'video',
+                        url: req.body.demoVideoUrl,
+                    }];
                 const mentorId = yield (0, getId_1.default)('accessToken', req);
                 // Append processed fields to request body
                 req.body.demoVideo = demoVideo;
-                req.body.thumbnailUrl = thumbnailUrl;
                 req.body.mentorId = String(mentorId);
                 const data = req.body;
                 const addCourse = yield this.mentorServices.mentorAddCourse(data);
                 (0, responseUtil_1.SuccessResponse)(res, 200, "Course Added Successfully", addCourse);
+                // // Extract files
+                // const files = req.files as any;
+                // const mediaFiles = files?.demoVideo || [];
+                // const thumbnailFile = files?.thumbnail ? files.thumbnail[0] : null;
+                // // Map demo videos
+                // const demoVideo = mediaFiles.map((file: any) => ({
+                //     type: 'video',
+                //     url: file.location,
+                // }));
+                // // Extract thumbnail URL
+                // const thumbnailUrl = thumbnailFile ? thumbnailFile.location : null;
+                // const mentorId = await getId('accessToken', req)
+                // // Append processed fields to request body
+                // req.body.demoVideo = demoVideo;
+                // req.body.thumbnailUrl = thumbnailUrl;
+                // req.body.mentorId = String(mentorId)
+                // const data = req.body
+                // const addCourse = await this.mentorServices.mentorAddCourse(data)
+                // SuccessResponse(res, 200, "Course Added Successfully", addCourse)
                 return;
             }
             catch (error) {
@@ -811,6 +827,7 @@ class MentorController {
                 return;
             }
             catch (error) {
+                console.info('mentor report: ', error);
                 (0, responseUtil_1.ErrorResponse)(res, 500, 'Internal Server Error');
                 return;
             }

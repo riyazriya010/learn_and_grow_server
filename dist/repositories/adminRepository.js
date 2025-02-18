@@ -336,65 +336,75 @@ class AdminRepository {
                     },
                     { $sort: { totalEnrollments: -1 } },
                 ]);
-                const mostEnrolledCategory = categoryWiseEnrollments[0];
-                const leastEnrolledCategory = categoryWiseEnrollments[categoryWiseEnrollments.length - 1];
-                const mostEnrolledCourse = yield purchased_model_1.PurchasedCourseModel.aggregate([
-                    {
-                        $lookup: {
-                            from: "courses",
-                            localField: "courseId",
-                            foreignField: "_id",
-                            as: "courseDetails",
+                const mostEnrolledCategory = categoryWiseEnrollments.length > 0 ? categoryWiseEnrollments[0] : null;
+                const leastEnrolledCategory = categoryWiseEnrollments.length > 0 ? categoryWiseEnrollments[categoryWiseEnrollments.length - 1] : null;
+                let mostEnrolledCourse = [];
+                let leastEnrolledCourse = [];
+                if (mostEnrolledCategory) {
+                    mostEnrolledCourse = yield purchased_model_1.PurchasedCourseModel.aggregate([
+                        {
+                            $lookup: {
+                                from: "courses",
+                                localField: "courseId",
+                                foreignField: "_id",
+                                as: "courseDetails",
+                            },
                         },
-                    },
-                    { $unwind: "$courseDetails" },
-                    {
-                        $match: { "courseDetails.categoryId": mostEnrolledCategory._id },
-                    },
-                    {
-                        $group: {
-                            _id: "$courseId",
-                            courseName: { $first: "$courseDetails.courseName" },
-                            enrollments: { $sum: 1 },
+                        { $unwind: "$courseDetails" },
+                        {
+                            $match: { "courseDetails.categoryId": mostEnrolledCategory._id },
                         },
-                    },
-                    { $sort: { enrollments: -1 } },
-                    { $limit: 1 },
-                ]);
-                const leastEnrolledCourse = yield purchased_model_1.PurchasedCourseModel.aggregate([
-                    {
-                        $lookup: {
-                            from: "courses",
-                            localField: "courseId",
-                            foreignField: "_id",
-                            as: "courseDetails",
+                        {
+                            $group: {
+                                _id: "$courseId",
+                                courseName: { $first: "$courseDetails.courseName" },
+                                enrollments: { $sum: 1 },
+                            },
                         },
-                    },
-                    { $unwind: "$courseDetails" },
-                    {
-                        $match: { "courseDetails.categoryId": leastEnrolledCategory._id },
-                    },
-                    {
-                        $group: {
-                            _id: "$courseId",
-                            courseName: { $first: "$courseDetails.courseName" },
-                            enrollments: { $sum: 1 },
+                        { $sort: { enrollments: -1 } },
+                        { $limit: 1 },
+                    ]);
+                }
+                if (leastEnrolledCategory) {
+                    leastEnrolledCourse = yield purchased_model_1.PurchasedCourseModel.aggregate([
+                        {
+                            $lookup: {
+                                from: "courses",
+                                localField: "courseId",
+                                foreignField: "_id",
+                                as: "courseDetails",
+                            },
                         },
-                    },
-                    { $sort: { enrollments: 1 } },
-                    { $limit: 1 },
-                ]);
+                        { $unwind: "$courseDetails" },
+                        {
+                            $match: { "courseDetails.categoryId": leastEnrolledCategory._id },
+                        },
+                        {
+                            $group: {
+                                _id: "$courseId",
+                                courseName: { $first: "$courseDetails.courseName" },
+                                enrollments: { $sum: 1 },
+                            },
+                        },
+                        { $sort: { enrollments: 1 } },
+                        { $limit: 1 },
+                    ]);
+                }
                 const enrollmentResult = {
-                    mostEnrolledCategory: {
-                        categoryName: mostEnrolledCategory.categoryName,
-                        enrollments: mostEnrolledCategory.totalEnrollments,
-                        course: ((_a = mostEnrolledCourse[0]) === null || _a === void 0 ? void 0 : _a.courseName) || "No Course",
-                    },
-                    leastEnrolledCategory: {
-                        categoryName: leastEnrolledCategory.categoryName,
-                        enrollments: leastEnrolledCategory.totalEnrollments,
-                        course: ((_b = leastEnrolledCourse[0]) === null || _b === void 0 ? void 0 : _b.courseName) || "No Course",
-                    },
+                    mostEnrolledCategory: mostEnrolledCategory
+                        ? {
+                            categoryName: mostEnrolledCategory.categoryName,
+                            enrollments: mostEnrolledCategory.totalEnrollments,
+                            course: ((_a = mostEnrolledCourse[0]) === null || _a === void 0 ? void 0 : _a.courseName) || "No Course",
+                        }
+                        : { categoryName: "No Data", enrollments: 0, course: "No Course" },
+                    leastEnrolledCategory: leastEnrolledCategory
+                        ? {
+                            categoryName: leastEnrolledCategory.categoryName,
+                            enrollments: leastEnrolledCategory.totalEnrollments,
+                            course: ((_b = leastEnrolledCourse[0]) === null || _b === void 0 ? void 0 : _b.courseName) || "No Course",
+                        }
+                        : { categoryName: "No Data", enrollments: 0, course: "No Course" },
                 };
                 const totalStudents = yield purchased_model_1.PurchasedCourseModel.countDocuments();
                 const activeStudents = yield purchased_model_1.PurchasedCourseModel.countDocuments({
@@ -439,8 +449,6 @@ class AdminRepository {
                     totalCourses,
                     mostEnrolledCourse: enrollmentResult.mostEnrolledCategory,
                     leastEnrolledCourse: enrollmentResult.leastEnrolledCategory,
-                    // mostEnrolledCourse: mostEnrolledCourse.length ? mostEnrolledCourse[0] : "N/A",
-                    // leastEnrolledCourse: leastEnrolledCourse.length ? leastEnrolledCourse[0] : "N/A",
                     // Student Engagement
                     totalStudents,
                     activeStudents,

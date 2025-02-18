@@ -170,18 +170,6 @@ class AdminServices {
             }
         });
     }
-    getWallet(userId, pageNumber, limitNumber) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const response = yield this.adminRepository.getWallet(userId, pageNumber, limitNumber);
-                return response;
-            }
-            catch (error) {
-                throw error;
-            }
-        });
-    }
-    ////////////////////////////////////// WEEK - 4 ////////////////////////////
     adminNonApprovedCourse(page, limit) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -204,6 +192,29 @@ class AdminServices {
             }
         });
     }
+    adminApproveCourse(courseId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const approveIt = yield this.adminRepository.adminApproveCourse(courseId);
+                return approveIt;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    getWallet(userId, pageNumber, limitNumber) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield this.adminRepository.getWallet(userId, pageNumber, limitNumber);
+                return response;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    ////////////////////////////////////// WEEK - 4 ////////////////////////////
     adminDashboard() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -231,17 +242,6 @@ class AdminServices {
             try {
                 const getReport = yield this.adminRepository.adminSalesReport(filters);
                 return getReport;
-            }
-            catch (error) {
-                throw error;
-            }
-        });
-    }
-    adminApproveCourse(courseId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const approveIt = yield this.adminRepository.adminApproveCourse(courseId);
-                return approveIt;
             }
             catch (error) {
                 throw error;

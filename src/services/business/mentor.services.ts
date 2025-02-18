@@ -57,7 +57,7 @@ export default class MentorServices {
             const addedMentor = await this.mentorRepository.mentorSignUp(data)
 
             const token = await generateAccessToken({ id: String(addedMentor?._id), email: String(addedMentor?.email) })
-            const portLink = process.env.STUDENT_PORT_LINK
+            const portLink = process.env.MENTOR_PORT_LINK
             const createdLink = `${portLink}?token=${token}`
             const mail = new Mail()
             mail.sendVerificationEmail(String(addedMentor?.email), createdLink)
@@ -226,6 +226,8 @@ export default class MentorServices {
         }
     }
 
+
+    
     async mentorAddChapter(data: MentorAddChapterInput): Promise<IChapter | null>{
         try{
             const uploadChapter = await this.mentorRepository.mentorAddChapter(data)
@@ -252,6 +254,8 @@ export default class MentorServices {
             throw error
         }
     }
+
+
 
     async mentorAddQuizz(data: MentorAddQuizInput, courseId: string): Promise<IQuiz | null>{
         try{
@@ -360,6 +364,10 @@ export default class MentorServices {
         }
     }
 
+
+
+
+    //Notification
     async mentorCreateNotification(username: string, senderId: string, receiverId: string): Promise<any> {
         try{
             const createNotify = await this.mentorRepository.mentorCreateNotification(username, senderId, receiverId)
@@ -416,6 +424,7 @@ export default class MentorServices {
 
 
     ///////////////////////////////// WEEK - 4 ///////////////////////////
+    
     async mentorDashboard(mentorId: string): Promise<any> {
         try{
             const getData = await this.mentorRepository.mentorDashboard(mentorId)

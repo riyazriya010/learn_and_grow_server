@@ -92,6 +92,7 @@ export default class MentorController {
             // SuccessResponse(res, 200, "Mentor Added Successfully", addedMentor, String(accessToken), String(refreshToken))
             // return
         } catch (error: unknown) {
+            console.info('singup error: ', error)
             if (error instanceof Error) {
                 if (error.name === 'MentorExist') {
                     ErrorResponse(res, 409, 'Mentor Already Exists')
@@ -197,6 +198,7 @@ export default class MentorController {
 
     async mentorProfileUpdate(req: Request, res: Response): Promise<void> {
         try {
+
             const file = req.file as any;
             const { username, phone } = req.body
             const data = {
@@ -259,6 +261,7 @@ export default class MentorController {
             SuccessResponse(res, 200, "User Verified", verifyUser)
             return
         } catch (error: unknown) {
+            console.info('mentor verify error: ', error)
             if (error instanceof Error) {
                 if (error.name === 'TokenExpired') {
                     ErrorResponse(res, 401, "Token Expired")
@@ -281,6 +284,7 @@ export default class MentorController {
             SuccessResponse(res, 200, "User Verified", verifiyed)
             return;
         } catch (error: unknown) {
+            console.info('mentor verify error: ', error)
             ErrorResponse(res, 500, 'Internal Server Error')
             return
         }
@@ -292,25 +296,18 @@ export default class MentorController {
 
     async mentorAddCourse(req: Request, res: Response): Promise<void> {
         try {
-            // Extract files
-            const files = req.files as any;
-            const mediaFiles = files?.demoVideo || [];
-            const thumbnailFile = files?.thumbnail ? files.thumbnail[0] : null;
+            console.log('req.body addcourse ', req.body)
 
             // Map demo videos
-            const demoVideo = mediaFiles.map((file: any) => ({
+            const demoVideo = [{
                 type: 'video',
-                url: file.location,
-            }));
-
-            // Extract thumbnail URL
-            const thumbnailUrl = thumbnailFile ? thumbnailFile.location : null;
+                url: req.body.demoVideoUrl,
+            }]
 
             const mentorId = await getId('accessToken', req)
 
             // Append processed fields to request body
             req.body.demoVideo = demoVideo;
-            req.body.thumbnailUrl = thumbnailUrl;
             req.body.mentorId = String(mentorId)
 
 
@@ -319,6 +316,36 @@ export default class MentorController {
             const addCourse = await this.mentorServices.mentorAddCourse(data)
 
             SuccessResponse(res, 200, "Course Added Successfully", addCourse)
+
+
+
+            // // Extract files
+            // const files = req.files as any;
+            // const mediaFiles = files?.demoVideo || [];
+            // const thumbnailFile = files?.thumbnail ? files.thumbnail[0] : null;
+
+            // // Map demo videos
+            // const demoVideo = mediaFiles.map((file: any) => ({
+            //     type: 'video',
+            //     url: file.location,
+            // }));
+
+            // // Extract thumbnail URL
+            // const thumbnailUrl = thumbnailFile ? thumbnailFile.location : null;
+
+            // const mentorId = await getId('accessToken', req)
+
+            // // Append processed fields to request body
+            // req.body.demoVideo = demoVideo;
+            // req.body.thumbnailUrl = thumbnailUrl;
+            // req.body.mentorId = String(mentorId)
+
+
+            // const data = req.body
+
+            // const addCourse = await this.mentorServices.mentorAddCourse(data)
+
+            // SuccessResponse(res, 200, "Course Added Successfully", addCourse)
             return
         } catch (error: unknown) {
             if (error instanceof Error) {
@@ -470,6 +497,9 @@ export default class MentorController {
         }
     }
 
+
+    
+
     async mentorAddChapter(req: Request, res: Response): Promise<void> {
         try {
             const { courseId } = req.query; // Extract courseId from the query
@@ -525,6 +555,8 @@ export default class MentorController {
         }
     }
 
+
+    
     async mentorAddQuizz(req: Request, res: Response): Promise<void> {
         try {
             const { courseId } = req.query;
@@ -786,6 +818,7 @@ export default class MentorController {
             SuccessResponse(res, 200, "Sales Report got it", getChart)
             return
         }catch(error: unknown){
+            console.info('mentor report: ',error)
             ErrorResponse(res, 500, 'Internal Server Error')
             return
         }

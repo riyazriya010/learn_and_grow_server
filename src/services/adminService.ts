@@ -143,19 +143,6 @@ export class AdminServices {
         }
     }
 
-
-    async getWallet(userId: string, pageNumber: number, limitNumber: number): Promise<any> {
-        try{
-            const response  = await this.adminRepository.getWallet(userId, pageNumber, limitNumber)
-            return response
-        }catch(error: any){
-            throw error
-        }
-    }
-
-
-    ////////////////////////////////////// WEEK - 4 ////////////////////////////
-    
     async adminNonApprovedCourse(page: number, limit: number): Promise<any> {
         try{
             const getNotApprovedCourse = await this.adminRepository.adminNonApprovedCourse(page, limit)
@@ -173,6 +160,30 @@ export class AdminServices {
             throw error
         }
     }
+
+    async adminApproveCourse(courseId: string): Promise<any> {
+        try{
+            const approveIt = await this.adminRepository.adminApproveCourse(courseId)
+            return approveIt
+        }catch(error: any){
+            throw error
+        }
+    }
+
+
+    async getWallet(userId: string, pageNumber: number, limitNumber: number): Promise<any> {
+        try{
+            const response  = await this.adminRepository.getWallet(userId, pageNumber, limitNumber)
+            return response
+        }catch(error: any){
+            throw error
+        }
+    }
+
+
+    ////////////////////////////////////// WEEK - 4 ////////////////////////////
+    
+
 
     async adminDashboard(): Promise<any> {
         try{
@@ -201,12 +212,5 @@ export class AdminServices {
         }
     }
 
-    async adminApproveCourse(courseId: string): Promise<any> {
-        try{
-            const approveIt = await this.adminRepository.adminApproveCourse(courseId)
-            return approveIt
-        }catch(error: any){
-            throw error
-        }
-    }
+   
 }

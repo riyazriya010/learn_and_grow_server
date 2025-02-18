@@ -212,12 +212,14 @@ class StudentController {
     studentProfleUpdate(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                console.log('req.body ', req.body);
                 const file = req.file;
-                const { username, phone } = req.body;
+                const { username, phone, profilePicUrl } = req.body;
                 const data = {
                     username,
                     phone,
-                    profilePicUrl: file === null || file === void 0 ? void 0 : file.location
+                    // profilePicUrl: file?.location
+                    profilePicUrl
                 };
                 const studentId = yield (0, getId_1.default)('accessToken', req);
                 const updateUser = yield this.studentServices.studentProfleUpdate(String(studentId), data);
@@ -403,8 +405,8 @@ class StudentController {
     studentChapterVideoEnd(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { chapterId } = req.query;
-                const findCoures = yield this.studentServices.studentChapterVideoEnd(String(chapterId));
+                const { chapterId, studiedTime } = req.query;
+                const findCoures = yield this.studentServices.studentChapterVideoEnd(String(chapterId), String(studiedTime));
                 (0, responseUtil_1.SuccessResponse)(res, 200, "Chapter Video Ended", findCoures);
                 return;
             }
@@ -481,6 +483,7 @@ class StudentController {
                 return;
             }
             catch (error) {
+                console.info('create certificate Error ::: ', error);
                 (0, responseUtil_1.ErrorResponse)(res, 500, "Internal Server Error");
                 return;
             }

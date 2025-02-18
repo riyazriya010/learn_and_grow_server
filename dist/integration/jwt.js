@@ -19,7 +19,7 @@ class JwtService {
     createToken(user, role) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const syncToken = yield jsonwebtoken_1.default.sign({ user, role }, String(constants_1.JWT_SECRET), { expiresIn: '1h' });
+                const syncToken = yield jsonwebtoken_1.default.sign({ user, role }, String(constants_1.JWT_SECRET), { expiresIn: '2h' });
                 return syncToken;
             }
             catch (error) {

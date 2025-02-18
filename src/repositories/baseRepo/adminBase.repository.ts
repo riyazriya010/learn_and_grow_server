@@ -241,9 +241,6 @@ export class AdminBaseRepository<T extends Document> {
         }
     }
 
-
-
-
     async getAllCategory(page: number = 1, limit: number = 3): Promise<any> {
         try{
             const skip = (page - 1) * limit;
@@ -273,6 +270,7 @@ export class AdminBaseRepository<T extends Document> {
         }
     }
 
+    //Course
     async getAllCourse(page: number = 1, limit: number = 5): Promise<any> {
         try{
             const skip = (page - 1) * limit;
@@ -349,12 +347,6 @@ export class AdminBaseRepository<T extends Document> {
                 .select("-__v");
     
             const totalWallets = await this.model.countDocuments({ adminId });
-    
-            if (!response || response.length === 0) {
-                const error = new Error("No wallet found for the admin.");
-                error.name = "AdminNotFound";
-                throw error;
-            }
     
             return {
                 wallets: response, // Renamed to `wallets` for better readability

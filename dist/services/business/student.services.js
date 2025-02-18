@@ -195,6 +195,7 @@ class StudentServices {
             }
         });
     }
+    ////////////////
     studentGetCourse(courseId, studentId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -291,10 +292,10 @@ class StudentServices {
             }
         });
     }
-    studentChapterVideoEnd(chapterId) {
+    studentChapterVideoEnd(chapterId, studiedTime) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const findCoures = yield this.studentRepository.studentChapterVideoEnd(chapterId);
+                const findCoures = yield this.studentRepository.studentChapterVideoEnd(chapterId, studiedTime);
                 return findCoures;
             }
             catch (error) {

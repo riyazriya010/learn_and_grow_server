@@ -294,8 +294,6 @@ export class AdminController {
         }
     }
 
-
-
     async getAllCategory(req: Request, res: Response): Promise<any> {
         try {
 
@@ -332,7 +330,7 @@ export class AdminController {
         }
     }
 
-
+//Course
     async getAllCourse(req: Request, res: Response): Promise<any> {
         try {
             const { page = 1, limit = 4 } = req.query;
@@ -406,6 +404,62 @@ export class AdminController {
         }
     }
 
+    async adminNonApprovedCourse(req: Request, res: Response): Promise<any> {
+        try {
+            const { page = 1, limit = 1 } = req.query
+
+            const pageNumber = parseInt(page as string, 10);
+            const limitNumber = parseInt(limit as string, 10);
+
+            const getNotApprovedCourse = await this.adminServices.adminNonApprovedCourse(pageNumber, limitNumber)
+
+            return res.status(200).send({
+                message: 'Not Approved Course Got It',
+                success: true,
+                result: getNotApprovedCourse
+            })
+        } catch (error: any) {
+            return res.status(500).send({
+                message: 'Internal Server Error',
+                success: false,
+            });
+        }
+    }
+
+    async adminNonApprovedCourseDetails(req: Request, res: Response): Promise<any> {
+        try {
+            const { courseId } = req.query
+            const getDetails = await this.adminServices.adminNonApprovedCourseDetails(String(courseId))
+            return res.status(200).send({
+                message: 'Course Details Got It',
+                success: true,
+                result: getDetails
+            })
+        } catch (error: any) {
+            return res.status(500).send({
+                message: 'Internal Server Error',
+                success: false,
+            });
+        }
+    }
+
+    async adminApproveCourse(req: Request, res: Response): Promise<any> {
+        try {
+            const { courseId } = req.query
+            const approveIt = await this.adminServices.adminApproveCourse(String(courseId))
+            return res.status(200).send({
+                message: 'Course Approved',
+                success: true,
+                result: approveIt
+            })
+        } catch (error: any) {
+            return res.status(500).send({
+                message: 'Internal Server Error',
+                success: false,
+            });
+        }
+    }
+
 
     async getWallet(req: Request, res: Response): Promise<any> {
         try {
@@ -433,6 +487,7 @@ export class AdminController {
                     data: response
                 })
         } catch (error: any) {
+            console.info('wallet ',error)
             return res.status(500).send({
                 message: 'Internal Server Error',
                 success: false,
@@ -441,7 +496,7 @@ export class AdminController {
     }
 
 
-
+//Badge
     async addBadge(req: Request, res: Response): Promise<any> {
         try {
             const { badgeName, description, value } = req.body
@@ -535,44 +590,6 @@ export class AdminController {
 
     ////////////////////////////////// WEEK - 4 ///////////////////////////////////
 
-    async adminNonApprovedCourse(req: Request, res: Response): Promise<any> {
-        try {
-            const { page = 1, limit = 1 } = req.query
-
-            const pageNumber = parseInt(page as string, 10);
-            const limitNumber = parseInt(limit as string, 10);
-
-            const getNotApprovedCourse = await this.adminServices.adminNonApprovedCourse(pageNumber, limitNumber)
-
-            return res.status(200).send({
-                message: 'Not Approved Course Got It',
-                success: true,
-                result: getNotApprovedCourse
-            })
-        } catch (error: any) {
-            return res.status(500).send({
-                message: 'Internal Server Error',
-                success: false,
-            });
-        }
-    }
-
-    async adminNonApprovedCourseDetails(req: Request, res: Response): Promise<any> {
-        try {
-            const { courseId } = req.query
-            const getDetails = await this.adminServices.adminNonApprovedCourseDetails(String(courseId))
-            return res.status(200).send({
-                message: 'Course Details Got It',
-                success: true,
-                result: getDetails
-            })
-        } catch (error: any) {
-            return res.status(500).send({
-                message: 'Internal Server Error',
-                success: false,
-            });
-        }
-    }
 
     async adminDashboard(req: Request, res: Response): Promise<any> {
         try {
@@ -583,6 +600,7 @@ export class AdminController {
                 result: getDashboard
             })
         } catch (error: any) {
+            console.info('dash ',error)
             return res.status(500).send({
                 message: 'Internal Server Error',
                 success: false,
@@ -625,22 +643,7 @@ export class AdminController {
         }
     }
 
-    async adminApproveCourse(req: Request, res: Response): Promise<any> {
-        try {
-            const { courseId } = req.query
-            const approveIt = await this.adminServices.adminApproveCourse(String(courseId))
-            return res.status(200).send({
-                message: 'Course Approved',
-                success: true,
-                result: approveIt
-            })
-        } catch (error: any) {
-            return res.status(500).send({
-                message: 'Internal Server Error',
-                success: false,
-            });
-        }
-    }
+ 
 
 
 }

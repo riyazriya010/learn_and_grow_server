@@ -4,12 +4,7 @@ import { IPurchasedCourse } from "../../models/purchased.model";
 /////////////////////// WEEK - 1 ///////////////////////
 
 // Input
-export type StudentSignUpInput = {
-    username: string;
-    email: string;
-    phone: number;
-    password: string;
-}
+
 
 export type StudentGoogleSignupInput = {
     email: string;
@@ -115,3 +110,35 @@ export type StudentChatGetUsersOutput = Array<{
       [key: string]: any; // Additional properties
     };
   }>;
+
+
+
+
+
+
+
+
+  ////////////////////////// Auth ////////////////
+
+  export interface StudentAuthResponse {
+    success: boolean;
+    message: string;
+    result?: {
+        _id: string;
+        username: string;
+        email: string;
+        role: string;
+        accessToken: string;
+        refreshToken: string;
+    };
+}
+
+export type StudentSignUpInput = {
+    username: string;
+    email: string;
+    phone: number | string;
+    password: string;
+    role?: string;
+    studiedHours?: number;
+    isVerified?: boolean;
+}

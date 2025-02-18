@@ -7,56 +7,104 @@ const express_1 = require("express");
 const verifyToken_1 = __importDefault(require("../middleware/verifyToken"));
 const blocked_1 = __importDefault(require("../middleware/blocked"));
 const verified_1 = __importDefault(require("../middleware/verified"));
-const multer_1 = __importDefault(require("../middleware/multer"));
-const student_repository_1 = __importDefault(require("../repositories/entities/student.repository"));
-const student_services_1 = __importDefault(require("../services/business/student.services"));
-const student_controller_1 = __importDefault(require("../controllers/management/student.controller"));
+const auth_controller_1 = require("../controllers/management/studentControllers/auth.controller");
+const course_controller_1 = require("../controllers/management/studentControllers/course.controller");
+const certificate_controller_1 = require("../controllers/management/studentControllers/certificate.controller");
+const chat_controller_1 = require("../controllers/management/studentControllers/chat.controller");
+const notification_controller_1 = require("../controllers/management/studentControllers/notification.controller");
 const router = (0, express_1.Router)();
-const repository = new student_repository_1.default();
-const services = new student_services_1.default(repository);
-const controller = new student_controller_1.default(services);
-/////////////////////////////// WEEK - 1 /////////////////////////////
-router.post('/student/login', controller.studentLogin.bind(controller));
-router.post('/student/signup', controller.studentSignUp.bind(controller));
-router.post('/student/google-signUp', controller.studentGoogleSignUp.bind(controller));
-router.post('/student/google-login', controller.studentGoogleLogin.bind(controller));
-router.patch('/student/forget-password', controller.studentForgetPassword.bind(controller));
-router.patch('/verify', controller.studentVerify.bind(controller));
-router.patch('/student/profile-update', verifyToken_1.default, blocked_1.default, verified_1.default, multer_1.default.single('profile'), controller.studentProfleUpdate.bind(controller));
-router.get('/student/re-verify', verifyToken_1.default, blocked_1.default, controller.studentReVerify.bind(controller));
-router.get('/student/check', verifyToken_1.default, blocked_1.default, controller.studentCheck.bind(controller));
-/////////////////////////////// WEEK - 2 /////////////////////////////
-router.get('/get/all-course', controller.studentGetAllCourses.bind(controller));
-router.get('/filter/data', controller.studentCourseFilterData.bind(controller));
-router.get('/get/course', controller.studentGetCourse.bind(controller));
-router.get('/get/course/play', verifyToken_1.default, blocked_1.default, controller.studentGetCoursePlay.bind(controller));
-router.post('/payment', verifyToken_1.default, blocked_1.default, controller.studentBuyCourse.bind(controller));
-router.get('/get/buyedCourses', verifyToken_1.default, blocked_1.default, controller.studentBuyedCourses.bind(controller));
-router.get('/course-play', verifyToken_1.default, blocked_1.default, controller.studentCoursePlay.bind(controller));
-router.patch('/chapter-end', verifyToken_1.default, blocked_1.default, controller.studentChapterVideoEnd.bind(controller));
-router.get('/get/certificate', verifyToken_1.default, blocked_1.default, controller.studentGeCerfiticate.bind(controller));
-router.get('/complete/course', verifyToken_1.default, blocked_1.default, controller.studentCompleteCourse.bind(controller));
-router.get('/get/quizz', verifyToken_1.default, blocked_1.default, controller.studentQuizz.bind(controller));
-router.post('/create/certificate', verifyToken_1.default, blocked_1.default, controller.studentCreateCertificate.bind(controller));
-router.get('/get/certificates', verifyToken_1.default, blocked_1.default, controller.studentGetAllCertificates.bind(controller));
+//Auth Routes
+router.post('/student/login', auth_controller_1.studentAuthController.studentLogin.bind(auth_controller_1.studentAuthController));
+router.post('/student/signup', auth_controller_1.studentAuthController.studentSignUp.bind(auth_controller_1.studentAuthController));
+router.post('/student/google-signUp', auth_controller_1.studentAuthController.studentGoogleSignUp.bind(auth_controller_1.studentAuthController));
+router.post('/student/google-login', auth_controller_1.studentAuthController.studentGoogleLogin.bind(auth_controller_1.studentAuthController));
+router.patch('/student/forget-password', auth_controller_1.studentAuthController.studentForgetPassword.bind(auth_controller_1.studentAuthController));
+router.patch('/verify', auth_controller_1.studentAuthController.studentVerify.bind(auth_controller_1.studentAuthController));
+router.patch('/student/profile-update', verifyToken_1.default, blocked_1.default, verified_1.default, auth_controller_1.studentAuthController.studentProfleUpdate.bind(auth_controller_1.studentAuthController));
+router.get('/student/re-verify', verifyToken_1.default, blocked_1.default, auth_controller_1.studentAuthController.studentReVerify.bind(auth_controller_1.studentAuthController));
+router.get('/student/check', verifyToken_1.default, blocked_1.default, auth_controller_1.studentAuthController.studentCheck.bind(auth_controller_1.studentAuthController));
+router.post('/student/generate-presigned-url', verifyToken_1.default, blocked_1.default, verified_1.default, auth_controller_1.studentAuthController.getSignedUrl.bind(auth_controller_1.studentAuthController));
+//Courses Routes
+router.get('/get/all-course', course_controller_1.studentCourseController.studentGetAllCourses.bind(course_controller_1.studentCourseController));
+router.get('/filter/data', course_controller_1.studentCourseController.studentCourseFilterData.bind(course_controller_1.studentCourseController));
+router.get('/get/course', course_controller_1.studentCourseController.studentGetCourse.bind(course_controller_1.studentCourseController));
+router.get('/get/course/play', verifyToken_1.default, blocked_1.default, course_controller_1.studentCourseController.studentGetCoursePlay.bind(course_controller_1.studentCourseController));
+router.post('/payment', verifyToken_1.default, blocked_1.default, course_controller_1.studentCourseController.studentBuyCourse.bind(course_controller_1.studentCourseController));
+router.get('/get/buyedCourses', verifyToken_1.default, blocked_1.default, course_controller_1.studentCourseController.studentBuyedCourses.bind(course_controller_1.studentCourseController));
+router.get('/course-play', verifyToken_1.default, blocked_1.default, course_controller_1.studentCourseController.studentCoursePlay.bind(course_controller_1.studentCourseController));
+router.patch('/chapter-end', verifyToken_1.default, blocked_1.default, course_controller_1.studentCourseController.studentChapterVideoEnd.bind(course_controller_1.studentCourseController));
 // check verify before buy the course
-router.get('/check/verify', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentIsVerified.bind(controller));
+router.get('/check/verify', verifyToken_1.default, blocked_1.default, verified_1.default, course_controller_1.studentCourseController.studentIsVerified.bind(course_controller_1.studentCourseController));
+router.get('/complete/course', verifyToken_1.default, blocked_1.default, course_controller_1.studentCourseController.studentCompleteCourse.bind(course_controller_1.studentCourseController));
+router.get('/get/quizz', verifyToken_1.default, blocked_1.default, course_controller_1.studentCourseController.studentQuizz.bind(course_controller_1.studentCourseController));
+router.get('/already/buyed/course/:courseId', verifyToken_1.default, blocked_1.default, verified_1.default, course_controller_1.studentCourseController.studentCheckAlreadyBuyed.bind(course_controller_1.studentCourseController));
+//Certificate Routes
+router.get('/get/certificate', verifyToken_1.default, blocked_1.default, certificate_controller_1.studentCertificateController.studentGeCerfiticate.bind(certificate_controller_1.studentCertificateController));
+router.post('/create/certificate', verifyToken_1.default, blocked_1.default, certificate_controller_1.studentCertificateController.studentCreateCertificate.bind(certificate_controller_1.studentCertificateController));
+router.get('/get/certificates', verifyToken_1.default, blocked_1.default, certificate_controller_1.studentCertificateController.studentGetAllCertificates.bind(certificate_controller_1.studentCertificateController));
+//Chat Routes
+router.get('/get/mentors', verifyToken_1.default, blocked_1.default, verified_1.default, chat_controller_1.studentChatController.studentChatGetMentors.bind(chat_controller_1.studentChatController));
+router.post('/create/room', verifyToken_1.default, blocked_1.default, verified_1.default, chat_controller_1.studentChatController.studentCreateRoom.bind(chat_controller_1.studentChatController));
+router.post('/save/message', verifyToken_1.default, blocked_1.default, verified_1.default, chat_controller_1.studentChatController.studentSaveMessage.bind(chat_controller_1.studentChatController));
+router.get('/get/messages/:mentorId', verifyToken_1.default, blocked_1.default, verified_1.default, chat_controller_1.studentChatController.studentGetMessages.bind(chat_controller_1.studentChatController));
+router.patch('/delete/message/everyone/:messageId', verifyToken_1.default, blocked_1.default, verified_1.default, chat_controller_1.studentChatController.studentDeleteEveryOne.bind(chat_controller_1.studentChatController));
+router.patch('/delete/message/me/:messageId', verifyToken_1.default, blocked_1.default, verified_1.default, chat_controller_1.studentChatController.studentDeleteForMe.bind(chat_controller_1.studentChatController));
+router.patch('/reset/count/:mentorId', verifyToken_1.default, blocked_1.default, verified_1.default, chat_controller_1.studentChatController.studentResetCount.bind(chat_controller_1.studentChatController));
+//Notifications Routes
+router.post('/create/chat/notification', verifyToken_1.default, blocked_1.default, verified_1.default, notification_controller_1.studentNotificationController.studentCreateNotification.bind(notification_controller_1.studentNotificationController));
+router.get('/get/student/notifications/:studentId', verifyToken_1.default, blocked_1.default, verified_1.default, notification_controller_1.studentNotificationController.studentGetNotifications.bind(notification_controller_1.studentNotificationController));
+router.get('/get/student/notification/count/:studentId', verifyToken_1.default, blocked_1.default, verified_1.default, notification_controller_1.studentNotificationController.studentGetNotificationsCount.bind(notification_controller_1.studentNotificationController));
+router.patch('/student/notification/seen', verifyToken_1.default, blocked_1.default, verified_1.default, notification_controller_1.studentNotificationController.studentGetNotificationsSeen.bind(notification_controller_1.studentNotificationController));
+router.delete('/student/delete/notification/:senderId', verifyToken_1.default, blocked_1.default, verified_1.default, notification_controller_1.studentNotificationController.studentDeleteNotifications.bind(notification_controller_1.studentNotificationController));
+router.get('/get/mentor/:mentorId', verifyToken_1.default, blocked_1.default, verified_1.default, notification_controller_1.studentNotificationController.studentGetMentor.bind(notification_controller_1.studentNotificationController));
+router.get('/get/badges', verifyToken_1.default, blocked_1.default, verified_1.default, notification_controller_1.studentNotificationController.studentGetBadges.bind(notification_controller_1.studentNotificationController));
+// const repository = new StudentRepository()
+// const services = new StudentServices(repository)
+// const controller = new StudentController(services)
+/////////////////////////////// WEEK - 1 /////////////////////////////
+// router.post('/student/login', controller.studentLogin.bind(controller));
+// router.post('/student/signup', controller.studentSignUp.bind(controller));
+// router.post('/student/google-signUp', controller.studentGoogleSignUp.bind(controller));
+// router.post('/student/google-login', controller.studentGoogleLogin.bind(controller));
+// router.patch('/student/forget-password', controller.studentForgetPassword.bind(controller));
+// router.patch('/verify', controller.studentVerify.bind(controller));
+// router.patch('/student/profile-update', authenticateToken, isUserBlocked, isUserVerified, uploadMiddleware.single('profile'), controller.studentProfleUpdate.bind(controller))
+// router.patch('/student/profile-update', authenticateToken, isUserBlocked, isUserVerified, controller.studentProfleUpdate.bind(controller))
+// router.get('/student/re-verify', authenticateToken, isUserBlocked, controller.studentReVerify.bind(controller));
+// router.get('/student/check', authenticateToken, isUserBlocked, controller.studentCheck.bind(controller));
+/////////////////////////////// WEEK - 2 /////////////////////////////
+// router.get('/get/all-course', controller.studentGetAllCourses.bind(controller))
+// router.get('/filter/data', controller.studentCourseFilterData.bind(controller))
+// router.get('/get/course', controller.studentGetCourse.bind(controller))
+// router.get('/get/course/play', authenticateToken, isUserBlocked, controller.studentGetCoursePlay.bind(controller))
+// router.post('/payment', authenticateToken, isUserBlocked, controller.studentBuyCourse.bind(controller))
+// router.get('/get/buyedCourses', authenticateToken, isUserBlocked, controller.studentBuyedCourses.bind(controller))
+// router.get('/course-play', authenticateToken, isUserBlocked, controller.studentCoursePlay.bind(controller))
+// router.patch('/chapter-end', authenticateToken, isUserBlocked, controller.studentChapterVideoEnd.bind(controller))
+// router.get('/complete/course', authenticateToken, isUserBlocked, controller.studentCompleteCourse.bind(controller))
+// check verify before buy the course
+// router.get('/check/verify', authenticateToken, isUserBlocked, isUserVerified, controller.studentIsVerified.bind(controller))
+// router.get('/get/quizz', authenticateToken, isUserBlocked, controller.studentQuizz.bind(controller))
+//certificates
+// router.get('/get/certificate', authenticateToken, isUserBlocked, controller.studentGeCerfiticate.bind(controller))
+// router.post('/create/certificate', authenticateToken, isUserBlocked, controller.studentCreateCertificate.bind(controller))
+// router.get('/get/certificates', authenticateToken, isUserBlocked, controller.studentGetAllCertificates.bind(controller))
 /////////////////////////////// WEEK - 3 /////////////////////////////
-router.get('/get/mentors/', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentChatGetMentors.bind(controller));
-router.post('/create/room', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentCreateRoom.bind(controller));
-router.post('/save/message', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentSaveMessage.bind(controller));
-router.get('/get/messages/:mentorId', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentGetMessages.bind(controller));
-router.patch('/delete/message/everyone/:messageId', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentDeleteEveryOne.bind(controller));
-router.patch('/delete/message/me/:messageId', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentDeleteForMe.bind(controller));
-router.patch('/reset/count/:mentorId', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentResetCount.bind(controller));
+// router.get('/get/mentors/', authenticateToken, isUserBlocked, isUserVerified, controller.studentChatGetMentors.bind(controller))
+// router.post('/create/room', authenticateToken, isUserBlocked, isUserVerified, controller.studentCreateRoom.bind(controller))
+// router.post('/save/message', authenticateToken, isUserBlocked, isUserVerified, controller.studentSaveMessage.bind(controller))
+// router.get('/get/messages/:mentorId', authenticateToken, isUserBlocked, isUserVerified, controller.studentGetMessages.bind(controller))
+// router.patch('/delete/message/everyone/:messageId', authenticateToken, isUserBlocked, isUserVerified, controller.studentDeleteEveryOne.bind(controller))
+// router.patch('/delete/message/me/:messageId', authenticateToken, isUserBlocked, isUserVerified, controller.studentDeleteForMe.bind(controller))
+// router.patch('/reset/count/:mentorId', authenticateToken, isUserBlocked, isUserVerified, controller.studentResetCount.bind(controller))
 //Notification
-router.post('/create/chat/notification', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentCreateNotification.bind(controller));
-router.get('/get/student/notifications/:studentId', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentGetNotifications.bind(controller));
-router.get('/get/student/notification/count/:studentId', controller.studentGetNotificationsCount.bind(controller));
-router.patch('/student/notification/seen', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentGetNotificationsSeen.bind(controller));
-router.delete('/student/delete/notification/:senderId', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentDeleteNotifications.bind(controller));
-router.get('/get/mentor/:mentorId', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentGetMentor.bind(controller));
-router.get('/get/badges', verifyToken_1.default, blocked_1.default, verified_1.default, controller.studentGetBadges.bind(controller));
+// router.post('/create/chat/notification', authenticateToken, isUserBlocked, isUserVerified, controller.studentCreateNotification.bind(controller))
+// router.get('/get/student/notifications/:studentId', authenticateToken, isUserBlocked, isUserVerified, controller.studentGetNotifications.bind(controller))
+// router.get('/get/student/notification/count/:studentId', controller.studentGetNotificationsCount.bind(controller))
+// router.patch('/student/notification/seen', authenticateToken, isUserBlocked, isUserVerified, controller.studentGetNotificationsSeen.bind(controller))
+// router.delete('/student/delete/notification/:senderId', authenticateToken, isUserBlocked, isUserVerified, controller.studentDeleteNotifications.bind(controller))
+// router.get('/get/mentor/:mentorId', authenticateToken, isUserBlocked, isUserVerified, controller.studentGetMentor.bind(controller))
+// router.get('/get/badges', authenticateToken, isUserBlocked, isUserVerified, controller.studentGetBadges.bind(controller))
 const userRoutes = router;
 exports.default = userRoutes;
 /* ------------------------------------ WEEK - 1 ---------------------------------*/

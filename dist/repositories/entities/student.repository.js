@@ -13,10 +13,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const adminBadge_model_1 = require("../../models/adminBadge.model");
+const adminWallet_model_1 = require("../../models/adminWallet.model");
 const certificate_model_1 = require("../../models/certificate.model");
 const chapter_model_1 = require("../../models/chapter.model");
 const chatRooms_model_1 = require("../../models/chatRooms.model");
 const mentor_model_1 = __importDefault(require("../../models/mentor.model"));
+const mentorWallet_model_1 = require("../../models/mentorWallet.model");
 const messages_model_1 = require("../../models/messages.model");
 const purchased_model_1 = require("../../models/purchased.model");
 const quizz_model_1 = __importDefault(require("../../models/quizz.model"));
@@ -237,11 +239,11 @@ class StudentRepository {
             try {
                 const skip = (pageNumber - 1) * limitNumber;
                 const getAllCourse = yield uploadCourse_model_1.CourseModel
-                    .find({ isPublished: true, isListed: true })
+                    .find({ isPublished: true, isListed: true, approved: true })
                     .skip(skip)
                     .limit(limitNumber)
                     .sort({ createdAt: -1 });
-                const totalCourses = yield uploadCourse_model_1.CourseModel.countDocuments();
+                const totalCourses = yield uploadCourse_model_1.CourseModel.find({ isPublished: true, isListed: true, approved: true }).countDocuments();
                 if (!getAllCourse || getAllCourse.length === 0) {
                     const error = new Error('Courses Not Found');
                     error.name = 'CoursesNotFound';
@@ -268,6 +270,7 @@ class StudentRepository {
                 const query = {
                     isPublished: true,
                     isListed: true,
+                    approved: true
                 };
                 if (selectedCategory !== 'undefined') {
                     query.category = { $regex: `^${selectedCategory}$`, $options: 'i' };
@@ -360,6 +363,67 @@ class StudentRepository {
                 };
                 const document = new purchased_model_1.PurchasedCourseModel(purchasedCourse);
                 const savedUser = yield document.save();
+                //Mentor Payment And Admin Commission for Purchase To their Wallet
+                const courseName = course === null || course === void 0 ? void 0 : course.courseName;
+                // Calculate the 90% for mentor and 10% for admin
+                const mentorAmount = (Number(amount) * 90) / 100;
+                const adminCommission = (Number(amount) * 10) / 100;
+                // Add 90% to mentor's wallet
+                const mentorWallet = yield mentorWallet_model_1.MentorWalletModel.findOne({ mentorId });
+                if (mentorWallet) {
+                    mentorWallet.balance += Number(mentorAmount);
+                    mentorWallet.transactions.push({
+                        type: "credit",
+                        amount: Number(mentorAmount),
+                        date: new Date(),
+                        courseName,
+                        adminCommission: `${adminCommission.toFixed(2)} (10%)`,
+                    });
+                    yield mentorWallet.save();
+                }
+                else {
+                    // Create a new wallet if it doesn't exist
+                    yield mentorWallet_model_1.MentorWalletModel.create({
+                        mentorId,
+                        balance: Number(mentorAmount),
+                        transactions: [
+                            {
+                                type: "credit",
+                                amount: Number(mentorAmount),
+                                date: new Date(),
+                                courseName,
+                                adminCommission: `${adminCommission.toFixed(2)} (10%)`,
+                            },
+                        ],
+                    });
+                }
+                // Add 10% to admin's wallet
+                const adminWallet = yield adminWallet_model_1.AdminWalletModel.findOne({ adminId: "admin" });
+                if (adminWallet) {
+                    adminWallet.balance += Number(adminCommission);
+                    adminWallet.transactions.push({
+                        type: "credit",
+                        amount: Number(adminCommission),
+                        date: new Date(),
+                        courseName,
+                    });
+                    yield adminWallet.save();
+                }
+                else {
+                    // Create a new wallet if it doesn't exist
+                    yield adminWallet_model_1.AdminWalletModel.create({
+                        adminId: "admin",
+                        balance: Number(adminCommission),
+                        transactions: [
+                            {
+                                type: "credit",
+                                amount: Number(adminCommission),
+                                date: new Date(),
+                                courseName,
+                            },
+                        ],
+                    });
+                }
                 return savedUser;
             }
             catch (error) {
@@ -427,10 +491,66 @@ class StudentRepository {
             }
         });
     }
-    studentChapterVideoEnd(chapterId) {
+    studentChapterVideoEnd(chapterId, studiedTime) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                // console.log('Received chapterId:', chapterId);
+                // console.log('Received studiedTime (minutes):', studiedTime);
+                // // Convert studiedTime from string to number
+                // const studiedMinutes = parseFloat(studiedTime);
+                // if (isNaN(studiedMinutes) || studiedMinutes <= 0) {
+                //     throw new Error("Invalid studiedTime received");
+                // }
+                // // Convert minutes to hours
+                // const studiedHours = studiedMinutes / 60; // 13 minutes -> 0.2167 hours
+                // console.log('Converted studiedHours:', studiedHours);
+                // // Find the purchased course that contains this chapter
+                // const findChapter = await PurchasedCourseModel.findOne({
+                //     "completedChapters.chapterId": chapterId
+                // }) as unknown as IPurchasedCourse;
+                // if (!findChapter) {
+                //     throw new Error("Chapter not found in purchased course");
+                // }
+                // console.log('Found Chapter:', findChapter);
+                // // Mark chapter as completed
+                // const chapterIndex = findChapter.completedChapters.findIndex(
+                //     (chapter) => chapter.chapterId.toString() === chapterId
+                // );
+                // if (chapterIndex === -1) {
+                //     throw new Error("Chapter not found in completedChapters");
+                // }
+                // findChapter.completedChapters[chapterIndex].isCompleted = true;
+                // const studentId = '67a6379edaacf33f8a2e8fe4'
+                // // Update user's studied hours
+                // const user = await UserModel.findById(studentId);
+                // if (!user) {
+                //     throw new Error("User not found");
+                // }
+                // console.log("Previous studiedHours:", user.studiedHours);
+                // // Add the studied hours and store with precision up to 2 decimal places
+                // user.studiedHours = parseFloat((user.studiedHours + studiedHours).toFixed(2));
+                // console.log("Updated studiedHours:", user.studiedHours);
+                // // **CHECK IF STUDIED HOURS REACHED OR EXCEEDED 1 HOUR**
+                // if (user.studiedHours >= 0.26) {
+                //     console.log("User has completed 1 hour of study! 🎉");
+                //     // ***SPACE FOR ADDITIONAL LOGIC WHEN USER COMPLETES 1 HOUR***
+                //     // Example: Grant reward, issue certificate, notify mentor, etc.
+                //     // ----------------------------------------------------------
+                //     // Your custom logic here
+                //     // Example: await RewardService.grantReward(user._id);
+                //     // ----------------------------------------------------------
+                //     // **RESET STUDIED HOURS BACK TO 0 AFTER PROCESSING LOGIC**
+                //     user.studiedHours = 0;
+                //     console.log("Studied hours reset to 0.");
+                // }
+                // // Save both the user and course updates
+                // await user.save();
+                // const updatedChapters = await findChapter.save();
+                // console.log('find chap ',findChapter)
+                // return updatedChapters;
+                /////////////////////
                 console.log('id: ', chapterId);
+                console.log('studiedTime: ', studiedTime);
                 const findChapter = yield purchased_model_1.PurchasedCourseModel.findOne({
                     "completedChapters.chapterId": chapterId
                 });
@@ -515,7 +635,7 @@ class StudentRepository {
                 });
                 const savedCertificate = yield certificate.save();
                 //creating badge for student
-                const findBadge = yield adminBadge_model_1.BadgeManagementModel.findOne({ badgeName: 'Completion Badge' });
+                const findBadge = yield adminBadge_model_1.BadgeManagementModel.findOne({ badgeName: 'Course Completion' });
                 const createBadge = new studentBadges_model_1.BadgeModel({
                     userId: studentId,
                     badgeId: findBadge === null || findBadge === void 0 ? void 0 : findBadge._id

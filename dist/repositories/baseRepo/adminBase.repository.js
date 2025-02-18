@@ -239,6 +239,7 @@ class AdminBaseRepository {
             }
         });
     }
+    //Course
     getAllCourse() {
         return __awaiter(this, arguments, void 0, function* (page = 1, limit = 5) {
             try {
@@ -301,11 +302,6 @@ class AdminBaseRepository {
                     .limit(limitNumber)
                     .select("-__v");
                 const totalWallets = yield this.model.countDocuments({ adminId });
-                if (!response || response.length === 0) {
-                    const error = new Error("No wallet found for the admin.");
-                    error.name = "AdminNotFound";
-                    throw error;
-                }
                 return {
                     wallets: response, // Renamed to `wallets` for better readability
                     currentPage: pageNumber,

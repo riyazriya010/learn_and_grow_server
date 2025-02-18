@@ -22,35 +22,32 @@
 
 
 import cron from 'node-cron';
+import UserModel from '../models/user.model';
+import Mail from './nodemailer';
 
-// Simulating an array of users with their last login dates
-const users = [
-  { email: 'user1@example.com', lastLogin: new Date('2025-01-07') },
-  { email: 'user2@example.com', lastLogin: new Date('2025-01-08') },
-  { email: 'user3@example.com', lastLogin: new Date('2025-01-05') },
-  { email: 'user4@example.com', lastLogin: new Date('2025-01-08') },
-];
+cron.schedule('* * * * *', async () => {
+  console.log("Checking users with 0 studied hours...");
 
-console.log("User Reminder Task is loaded and running...");
+  try {
+    // Fetch users whose studiedHours is 0
+    const inactiveUsers = await UserModel.find({ studiedHours: 0 });
 
-// Cron job to run every day at midnight
-cron.schedule('* * * * *', () => {
-    console.log("Entered Task is loaded and running...");
-  // Get the date 2 days ago
-  const twoDaysAgo = new Date();
-  twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
-
-  // Filter out the users who haven't logged in for more than 2 days
-  const inactiveUsers = users.filter(user => user.lastLogin <= twoDaysAgo);
-
-  // Check if there are any inactive users
-  if (inactiveUsers.length > 0) {
-    // Loop through the inactive users and log them
-    inactiveUsers.forEach(user => {
-      console.log(`User ${user.email} hasn't logged in for more than 2 days.`);
-    });
-  } else {
-    console.log('No users need to be reminded.');
+    if (inactiveUsers.length > 0) {
+      inactiveUsers.forEach((user: any) => {
+        console.log(`User ${user.username} has studied 0 hours.`);
+        const mail = new Mail()
+        mail.sendRemainderMail(String(user?.email), String(user?.username))
+          .then(info => {
+            console.log('Verification email sent successfully: ');
+          })
+          .catch(error => {
+            console.error('Failed to send verification email:', error);
+          });
+      });
+    } else {
+      console.log('No users with 0 studied hours.');
+    }
+  } catch (error) {
+    console.error("Error fetching users:", error);
   }
-  
 });

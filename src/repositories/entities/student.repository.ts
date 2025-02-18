@@ -1,10 +1,12 @@
 import { IStudentMethods } from "../../interface/students/student.interface";
 import { StudentBuyCourseInput, StudentChatGetUsersOutput, studentCompleteCourse, StudentCourseFilterData, StudentCoursePlay, StudentCreateCreatificateData, studentFilterCoursesOuput, studentGetAllCoursesOuput, studentGetBuyedCourses, StudentGetCourseOuput, StudentGetCoursePlayOutput, StudentGoogleSignupInput, StudentProfileInput, StudentSignUpInput } from "../../interface/students/student.types";
 import { BadgeManagementModel } from "../../models/adminBadge.model";
+import { AdminWalletModel } from "../../models/adminWallet.model";
 import { CertificateModel, ICertificate } from "../../models/certificate.model";
 import { ChapterModel, IChapter } from "../../models/chapter.model";
 import { ChatRoomsModel, IChatRooms } from "../../models/chatRooms.model";
 import MentorModel, { IMentor } from "../../models/mentor.model";
+import { MentorWalletModel } from "../../models/mentorWallet.model";
 import { IMessages, MessageModel } from "../../models/messages.model";
 import { IPurchasedCourse, PurchasedCourseModel } from "../../models/purchased.model";
 import QuizModel, { IQuiz } from "../../models/quizz.model";
@@ -223,12 +225,12 @@ export default class StudentRepository implements IStudentMethods {
             const skip = (pageNumber - 1) * limitNumber;
 
             const getAllCourse = await CourseModel
-                .find({ isPublished: true, isListed: true })
+                .find({ isPublished: true, isListed: true, approved: true })
                 .skip(skip)
                 .limit(limitNumber)
                 .sort({ createdAt: -1 })
 
-            const totalCourses = await CourseModel.countDocuments();
+            const totalCourses = await CourseModel.find({ isPublished: true, isListed: true, approved: true }).countDocuments();
 
             if (!getAllCourse || getAllCourse.length === 0) {
                 const error = new Error('Courses Not Found');
@@ -257,6 +259,7 @@ export default class StudentRepository implements IStudentMethods {
             const query: any = {
                 isPublished: true,
                 isListed: true,
+                approved: true
             };
 
             if (selectedCategory !== 'undefined') {
@@ -362,6 +365,73 @@ export default class StudentRepository implements IStudentMethods {
             const document = new PurchasedCourseModel(purchasedCourse)
             const savedUser = await document.save()
 
+
+            //Mentor Payment And Admin Commission for Purchase To their Wallet
+            const courseName = course?.courseName as string
+
+            // Calculate the 90% for mentor and 10% for admin
+            const mentorAmount = (Number(amount) * 90) / 100;
+            const adminCommission = (Number(amount) * 10) / 100;
+
+            // Add 90% to mentor's wallet
+            const mentorWallet = await MentorWalletModel.findOne({ mentorId });
+
+            if (mentorWallet) {
+                mentorWallet.balance += Number(mentorAmount);
+                mentorWallet.transactions.push({
+                    type: "credit",
+                    amount: Number(mentorAmount),
+                    date: new Date(),
+                    courseName,
+                    adminCommission: `${adminCommission.toFixed(2)} (10%)`,
+                });
+                await mentorWallet.save();
+            } else {
+                // Create a new wallet if it doesn't exist
+                await MentorWalletModel.create({
+                    mentorId,
+                    balance: Number(mentorAmount),
+                    transactions: [
+                        {
+                            type: "credit",
+                            amount: Number(mentorAmount),
+                            date: new Date(),
+                            courseName,
+                            adminCommission: `${adminCommission.toFixed(2)} (10%)`,
+                        },
+                    ],
+                });
+            }
+
+            // Add 10% to admin's wallet
+            const adminWallet = await AdminWalletModel.findOne({ adminId: "admin" });
+
+            if (adminWallet) {
+                adminWallet.balance += Number(adminCommission);
+                adminWallet.transactions.push({
+                    type: "credit",
+                    amount: Number(adminCommission),
+                    date: new Date(),
+                    courseName,
+                });
+                await adminWallet.save();
+            } else {
+                // Create a new wallet if it doesn't exist
+                await AdminWalletModel.create({
+                    adminId: "admin",
+                    balance: Number(adminCommission),
+                    transactions: [
+                        {
+                            type: "credit",
+                            amount: Number(adminCommission),
+                            date: new Date(),
+                            courseName,
+                        },
+                    ],
+                });
+            }
+
+
             return savedUser
 
         } catch (error: unknown) {
@@ -432,9 +502,87 @@ export default class StudentRepository implements IStudentMethods {
         }
     }
 
-    async studentChapterVideoEnd(chapterId: string): Promise<IPurchasedCourse> {
+    async studentChapterVideoEnd(chapterId: string, studiedTime: string): Promise<IPurchasedCourse> {
         try {
+
+            // console.log('Received chapterId:', chapterId);
+            // console.log('Received studiedTime (minutes):', studiedTime);
+    
+            // // Convert studiedTime from string to number
+            // const studiedMinutes = parseFloat(studiedTime);
+            // if (isNaN(studiedMinutes) || studiedMinutes <= 0) {
+            //     throw new Error("Invalid studiedTime received");
+            // }
+    
+            // // Convert minutes to hours
+            // const studiedHours = studiedMinutes / 60; // 13 minutes -> 0.2167 hours
+    
+            // console.log('Converted studiedHours:', studiedHours);
+    
+            // // Find the purchased course that contains this chapter
+            // const findChapter = await PurchasedCourseModel.findOne({
+            //     "completedChapters.chapterId": chapterId
+            // }) as unknown as IPurchasedCourse;
+    
+            // if (!findChapter) {
+            //     throw new Error("Chapter not found in purchased course");
+            // }
+    
+            // console.log('Found Chapter:', findChapter);
+    
+            // // Mark chapter as completed
+            // const chapterIndex = findChapter.completedChapters.findIndex(
+            //     (chapter) => chapter.chapterId.toString() === chapterId
+            // );
+    
+            // if (chapterIndex === -1) {
+            //     throw new Error("Chapter not found in completedChapters");
+            // }
+    
+            // findChapter.completedChapters[chapterIndex].isCompleted = true;
+
+            // const studentId = '67a6379edaacf33f8a2e8fe4'
+            // // Update user's studied hours
+            // const user = await UserModel.findById(studentId);
+            // if (!user) {
+            //     throw new Error("User not found");
+            // }
+    
+            // console.log("Previous studiedHours:", user.studiedHours);
+    
+            // // Add the studied hours and store with precision up to 2 decimal places
+            // user.studiedHours = parseFloat((user.studiedHours + studiedHours).toFixed(2));
+    
+            // console.log("Updated studiedHours:", user.studiedHours);
+    
+            // // **CHECK IF STUDIED HOURS REACHED OR EXCEEDED 1 HOUR**
+            // if (user.studiedHours >= 0.26) {
+            //     console.log("User has completed 1 hour of study! 🎉");
+    
+            //     // ***SPACE FOR ADDITIONAL LOGIC WHEN USER COMPLETES 1 HOUR***
+            //     // Example: Grant reward, issue certificate, notify mentor, etc.
+            //     // ----------------------------------------------------------
+            //     // Your custom logic here
+            //     // Example: await RewardService.grantReward(user._id);
+            //     // ----------------------------------------------------------
+    
+            //     // **RESET STUDIED HOURS BACK TO 0 AFTER PROCESSING LOGIC**
+            //     user.studiedHours = 0;
+            //     console.log("Studied hours reset to 0.");
+            // }
+    
+            // // Save both the user and course updates
+            // await user.save();
+            // const updatedChapters = await findChapter.save();
+            // console.log('find chap ',findChapter)
+    
+            // return updatedChapters;
+
+            /////////////////////
             console.log('id: ', chapterId)
+            console.log('studiedTime: ', studiedTime)
+
+
             const findChapter = await PurchasedCourseModel.findOne({
                 "completedChapters.chapterId": chapterId
             }) as unknown as IPurchasedCourse
@@ -525,7 +673,7 @@ export default class StudentRepository implements IStudentMethods {
             const savedCertificate = await certificate.save();
 
             //creating badge for student
-            const findBadge = await BadgeManagementModel.findOne({ badgeName: 'Completion Badge' })
+            const findBadge = await BadgeManagementModel.findOne({ badgeName: 'Course Completion' })
             const createBadge = new BadgeModel({
                 userId: studentId,
                 badgeId: findBadge?._id

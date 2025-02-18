@@ -186,6 +186,8 @@ export default class StudentServices {
         }
     }
 
+
+    ////////////////
     async studentGetCourse(courseId: string, studentId: string): Promise<StudentGetCourseOuput | null> {
         try {
             const getCourse = await this.studentRepository.studentGetCourse(courseId, studentId)
@@ -274,9 +276,9 @@ export default class StudentServices {
         }
     }
 
-    async studentChapterVideoEnd(chapterId: string): Promise<IPurchasedCourse> {
+    async studentChapterVideoEnd(chapterId: string, studiedTime: string): Promise<IPurchasedCourse> {
         try {
-            const findCoures = await this.studentRepository.studentChapterVideoEnd(chapterId)
+            const findCoures = await this.studentRepository.studentChapterVideoEnd(chapterId, studiedTime)
             return findCoures
         } catch (error: unknown) {
             throw error

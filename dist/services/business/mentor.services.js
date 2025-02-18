@@ -53,7 +53,7 @@ class MentorServices {
                 data.password = hashPassword;
                 const addedMentor = yield this.mentorRepository.mentorSignUp(data);
                 const token = yield (0, mailToken_1.generateAccessToken)({ id: String(addedMentor === null || addedMentor === void 0 ? void 0 : addedMentor._id), email: String(addedMentor === null || addedMentor === void 0 ? void 0 : addedMentor.email) });
-                const portLink = process.env.STUDENT_PORT_LINK;
+                const portLink = process.env.MENTOR_PORT_LINK;
                 const createdLink = `${portLink}?token=${token}`;
                 const mail = new nodemailer_1.default();
                 mail.sendVerificationEmail(String(addedMentor === null || addedMentor === void 0 ? void 0 : addedMentor.email), createdLink)
@@ -403,6 +403,7 @@ class MentorServices {
             }
         });
     }
+    //Notification
     mentorCreateNotification(username, senderId, receiverId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {

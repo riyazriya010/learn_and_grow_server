@@ -22,3 +22,5 @@ const ChapterSchema = new Schema<IChapter>({
 }, { timestamps: true });
 
 export const ChapterModel = model<IChapter>('Chapter', ChapterSchema);
+
+

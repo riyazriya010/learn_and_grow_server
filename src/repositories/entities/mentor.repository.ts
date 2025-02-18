@@ -313,6 +313,9 @@ export default class MentorRepository implements IMentorMethods {
         }
     }
 
+
+
+    
     async mentorAddChapter(data: MentorAddChapterInput): Promise<IChapter | null> {
         try {
             const newDocument = new ChapterModel(data)
@@ -364,6 +367,9 @@ export default class MentorRepository implements IMentorMethods {
             throw error
         }
     }
+
+
+
 
     async mentorAddQuizz(data: MentorAddQuizInput, courseId: string): Promise<IQuiz | null> {
         try {
@@ -613,6 +619,9 @@ export default class MentorRepository implements IMentorMethods {
         }
     }
 
+
+
+    //Notificaions
     async mentorCreateNotification(username: string, senderId: string, receiverId: string): Promise<any> {
         try {
             const data = {
@@ -892,245 +901,245 @@ export default class MentorRepository implements IMentorMethods {
         }
     }
 
-
     async mentorChartGraph(mentorId: string, filters: any): Promise<any> {
         try {
-            const mentorId = new Types.ObjectId("676e807be8f82e659d704d72");
-    const { year, month, date } = filters;
+            console.log('chart mentorId: ', mentorId)
+            const mentorIdObject = new Types.ObjectId(mentorId);
+            const { year, month, date } = filters;
 
-    const currentYear = new Date().getFullYear();
-    const currentMonth = new Date().getMonth() + 1;
+            const currentYear = new Date().getFullYear();
+            const currentMonth = new Date().getMonth() + 1;
 
-    const filterYear = year ? parseInt(year as string) : currentYear;
+            const filterYear = year ? parseInt(year as string) : currentYear;
 
-    // Default empty arrays for courseSales and revenueOrders
-    let courseSales = [];
-    let revenueOrders = [];
+            // Default empty arrays for courseSales and revenueOrders
+            let courseSales = [];
+            let revenueOrders = [];
 
-    // If the date is provided, filter for the specific date
-    if (date) {
-      const specificDate = new Date(date as string);
-      const startOfDay = new Date(specificDate.setHours(0, 0, 0, 0));
-      const endOfDay = new Date(specificDate.setHours(23, 59, 59, 999));
+            // If the date is provided, filter for the specific date
+            if (date) {
+                const specificDate = new Date(date as string);
+                const startOfDay = new Date(specificDate.setHours(0, 0, 0, 0));
+                const endOfDay = new Date(specificDate.setHours(23, 59, 59, 999));
 
-      courseSales = await PurchasedCourseModel.aggregate([
-        {
-          $match: {
-            mentorId: mentorId,
-            purchasedAt: { $gte: startOfDay, $lt: endOfDay },
-          }
-        },
-        {
-          $group: {
-            _id: "$courseId",
-            totalSales: { $sum: 1 }
-          }
-        },
-        {
-          $lookup: {
-            from: "courses",
-            localField: "_id",
-            foreignField: "_id",
-            as: "courseDetails"
-          }
-        },
-        { $unwind: "$courseDetails" },
-        {
-          $project: {
-            _id: 0,
-            courseName: "$courseDetails.courseName",
-            totalSales: 1
-          }
-        }
-      ]);
+                courseSales = await PurchasedCourseModel.aggregate([
+                    {
+                        $match: {
+                            mentorId: mentorIdObject,
+                            purchasedAt: { $gte: startOfDay, $lt: endOfDay },
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: "$courseId",
+                            totalSales: { $sum: 1 }
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "courses",
+                            localField: "_id",
+                            foreignField: "_id",
+                            as: "courseDetails"
+                        }
+                    },
+                    { $unwind: "$courseDetails" },
+                    {
+                        $project: {
+                            _id: 0,
+                            courseName: "$courseDetails.courseName",
+                            totalSales: 1
+                        }
+                    }
+                ]);
 
-      let totalPurchases = courseSales.reduce((sum, course) => sum + course.totalSales, 0);
-      courseSales = courseSales.map(course => ({
-        courseName: course.courseName,
-        percentage: totalPurchases > 0 ? ((course.totalSales / totalPurchases) * 100).toFixed(2) : "0.00"
-      }));
+                let totalPurchases = courseSales.reduce((sum, course) => sum + course.totalSales, 0);
+                courseSales = courseSales.map(course => ({
+                    courseName: course.courseName,
+                    percentage: totalPurchases > 0 ? ((course.totalSales / totalPurchases) * 100).toFixed(2) : "0.00"
+                }));
 
-      if (courseSales.length === 0) {
-        courseSales = [{ courseName: "No sales data", percentage: "0.00" }];
-      }
+                if (courseSales.length === 0) {
+                    courseSales = [{ courseName: "No sales data", percentage: "0.00" }];
+                }
 
-      revenueOrders = await PurchasedCourseModel.aggregate([
-        {
-          $match: {
-            mentorId: mentorId,
-            purchasedAt: { $gte: startOfDay, $lt: endOfDay },
-          }
-        },
-        {
-          $group: {
-            _id: null,
-            totalRevenue: { $sum: "$price" },
-            totalOrders: { $sum: 1 }
-          }
-        },
-        {
-          $project: {
-            totalRevenue: 1,
-            totalOrders: 1,
-            _id: 0
-          }
-        }
-      ]);
-    }
-    // If year and month are provided, filter by year and month
-    else if (month) {
-      const monthIndex = new Date(`${month} 1, 2022`).getMonth() + 1;
-      const startOfMonth = new Date(`${filterYear}-${String(monthIndex).padStart(2, '0')}-01`);
-      const endOfMonth = new Date(startOfMonth);
-      endOfMonth.setMonth(endOfMonth.getMonth() + 1);
-
-      courseSales = await PurchasedCourseModel.aggregate([
-        {
-          $match: {
-            mentorId: mentorId,
-            purchasedAt: { $gte: startOfMonth, $lt: endOfMonth },
-          }
-        },
-        {
-          $group: {
-            _id: "$courseId",
-            totalSales: { $sum: 1 }
-          }
-        },
-        {
-          $lookup: {
-            from: "courses",
-            localField: "_id",
-            foreignField: "_id",
-            as: "courseDetails"
-          }
-        },
-        { $unwind: "$courseDetails" },
-        {
-          $project: {
-            _id: 0,
-            courseName: "$courseDetails.courseName",
-            totalSales: 1
-          }
-        }
-      ]);
-
-      let totalPurchases = courseSales.reduce((sum, course) => sum + course.totalSales, 0);
-      courseSales = courseSales.map(course => ({
-        courseName: course.courseName,
-        percentage: totalPurchases > 0 ? ((course.totalSales / totalPurchases) * 100).toFixed(2) : "0.00"
-      }));
-
-      if (courseSales.length === 0) {
-        courseSales = [{ courseName: "No sales data", percentage: "0.00" }];
-      }
-
-      revenueOrders = await PurchasedCourseModel.aggregate([
-        {
-          $match: {
-            mentorId: mentorId,
-            purchasedAt: { $gte: startOfMonth, $lt: endOfMonth },
-          }
-        },
-        {
-          $group: {
-            _id: null,
-            totalRevenue: { $sum: "$price" },
-            totalOrders: { $sum: 1 }
-          }
-        },
-        {
-          $project: {
-            totalRevenue: 1,
-            totalOrders: 1,
-            _id: 0
-          }
-        }
-      ]);
-
-    }
-    // If only the year is provided, fetch data for the whole year
-    else {
-      courseSales = await PurchasedCourseModel.aggregate([
-        {
-          $match: {
-            mentorId: mentorId,
-            purchasedAt: {
-              $gte: new Date(`${filterYear}-01-01`),
-              $lt: new Date(`${filterYear + 1}-01-01`),
+                revenueOrders = await PurchasedCourseModel.aggregate([
+                    {
+                        $match: {
+                            mentorId: mentorIdObject,
+                            purchasedAt: { $gte: startOfDay, $lt: endOfDay },
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: null,
+                            totalRevenue: { $sum: "$price" },
+                            totalOrders: { $sum: 1 }
+                        }
+                    },
+                    {
+                        $project: {
+                            totalRevenue: 1,
+                            totalOrders: 1,
+                            _id: 0
+                        }
+                    }
+                ]);
             }
-          }
-        },
-        {
-          $group: {
-            _id: "$courseId",
-            totalSales: { $sum: 1 }
-          }
-        },
-        {
-          $lookup: {
-            from: "courses",
-            localField: "_id",
-            foreignField: "_id",
-            as: "courseDetails"
-          }
-        },
-        { $unwind: "$courseDetails" },
-        {
-          $project: {
-            _id: 0,
-            courseName: "$courseDetails.courseName",
-            totalSales: 1
-          }
-        }
-      ]);
+            // If year and month are provided, filter by year and month
+            else if (month) {
+                const monthIndex = new Date(`${month} 1, 2022`).getMonth() + 1;
+                const startOfMonth = new Date(`${filterYear}-${String(monthIndex).padStart(2, '0')}-01`);
+                const endOfMonth = new Date(startOfMonth);
+                endOfMonth.setMonth(endOfMonth.getMonth() + 1);
 
-      let totalPurchases = courseSales.reduce((sum, course) => sum + course.totalSales, 0);
-      courseSales = courseSales.map(course => ({
-        courseName: course.courseName,
-        percentage: totalPurchases > 0 ? ((course.totalSales / totalPurchases) * 100).toFixed(2) : "0.00"
-      }));
+                courseSales = await PurchasedCourseModel.aggregate([
+                    {
+                        $match: {
+                            mentorId: mentorIdObject,
+                            purchasedAt: { $gte: startOfMonth, $lt: endOfMonth },
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: "$courseId",
+                            totalSales: { $sum: 1 }
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "courses",
+                            localField: "_id",
+                            foreignField: "_id",
+                            as: "courseDetails"
+                        }
+                    },
+                    { $unwind: "$courseDetails" },
+                    {
+                        $project: {
+                            _id: 0,
+                            courseName: "$courseDetails.courseName",
+                            totalSales: 1
+                        }
+                    }
+                ]);
 
-      if (courseSales.length === 0) {
-        courseSales = [{ courseName: "No sales data", percentage: "0.00" }];
-      }
+                let totalPurchases = courseSales.reduce((sum, course) => sum + course.totalSales, 0);
+                courseSales = courseSales.map(course => ({
+                    courseName: course.courseName,
+                    percentage: totalPurchases > 0 ? ((course.totalSales / totalPurchases) * 100).toFixed(2) : "0.00"
+                }));
 
-      revenueOrders = await PurchasedCourseModel.aggregate([
-        {
-          $match: {
-            mentorId: mentorId,
-            purchasedAt: {
-              $gte: new Date(`${filterYear}-01-01`),
-              $lt: new Date(`${filterYear + 1}-01-01`),
+                if (courseSales.length === 0) {
+                    courseSales = [{ courseName: "No sales data", percentage: "0.00" }];
+                }
+
+                revenueOrders = await PurchasedCourseModel.aggregate([
+                    {
+                        $match: {
+                            mentorId: mentorIdObject,
+                            purchasedAt: { $gte: startOfMonth, $lt: endOfMonth },
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: null,
+                            totalRevenue: { $sum: "$price" },
+                            totalOrders: { $sum: 1 }
+                        }
+                    },
+                    {
+                        $project: {
+                            totalRevenue: 1,
+                            totalOrders: 1,
+                            _id: 0
+                        }
+                    }
+                ]);
+
             }
-          }
-        },
-        {
-          $group: {
-            _id: { $month: "$purchasedAt" },
-            totalRevenue: { $sum: "$price" },
-            totalOrders: { $sum: 1 }
-          }
-        },
-        {
-          $sort: { _id: 1 }
-        },
-        {
-          $project: {
-            month: "$_id",
-            totalRevenue: 1,
-            totalOrders: 1,
-            _id: 0
-          }
-        }
-      ]);
-    }
+            // If only the year is provided, fetch data for the whole year
+            else {
+                courseSales = await PurchasedCourseModel.aggregate([
+                    {
+                        $match: {
+                            mentorId: mentorIdObject,
+                            purchasedAt: {
+                                $gte: new Date(`${filterYear}-01-01`),
+                                $lt: new Date(`${filterYear + 1}-01-01`),
+                            }
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: "$courseId",
+                            totalSales: { $sum: 1 }
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "courses",
+                            localField: "_id",
+                            foreignField: "_id",
+                            as: "courseDetails"
+                        }
+                    },
+                    { $unwind: "$courseDetails" },
+                    {
+                        $project: {
+                            _id: 0,
+                            courseName: "$courseDetails.courseName",
+                            totalSales: 1
+                        }
+                    }
+                ]);
 
-    return {
-        year: filterYear,
-        courseSales: courseSales,
-        revenueOrders: revenueOrders
-      }
+                let totalPurchases = courseSales.reduce((sum, course) => sum + course.totalSales, 0);
+                courseSales = courseSales.map(course => ({
+                    courseName: course.courseName,
+                    percentage: totalPurchases > 0 ? ((course.totalSales / totalPurchases) * 100).toFixed(2) : "0.00"
+                }));
+
+                if (courseSales.length === 0) {
+                    courseSales = [{ courseName: "No sales data", percentage: "0.00" }];
+                }
+
+                revenueOrders = await PurchasedCourseModel.aggregate([
+                    {
+                        $match: {
+                            mentorId: mentorIdObject,
+                            purchasedAt: {
+                                $gte: new Date(`${filterYear}-01-01`),
+                                $lt: new Date(`${filterYear + 1}-01-01`),
+                            }
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: { $month: "$purchasedAt" },
+                            totalRevenue: { $sum: "$price" },
+                            totalOrders: { $sum: 1 }
+                        }
+                    },
+                    {
+                        $sort: { _id: 1 }
+                    },
+                    {
+                        $project: {
+                            month: "$_id",
+                            totalRevenue: 1,
+                            totalOrders: 1,
+                            _id: 0
+                        }
+                    }
+                ]);
+            }
+
+            return {
+                year: filterYear,
+                courseSales: courseSales,
+                revenueOrders: revenueOrders
+            }
         } catch (error: unknown) {
             throw error
         }
@@ -1138,7 +1147,9 @@ export default class MentorRepository implements IMentorMethods {
 
     async mentorSalesReport(mentorId: string, filters: any): Promise<any> {
         try {
+            console.log('report mentorId', mentorId)
             const mentorIdObject = new Types.ObjectId(mentorId);
+            console.log('obj id ',mentorIdObject)
             const { year, month, date } = filters;
 
             const currentYear = new Date().getFullYear();
@@ -1170,7 +1181,7 @@ export default class MentorRepository implements IMentorMethods {
             report = await PurchasedCourseModel.aggregate([
                 {
                     $match: {
-                        mentorIdObject,
+                        mentorId: mentorIdObject,
                         ...dateFilter
                     }
                 },
@@ -1209,7 +1220,7 @@ export default class MentorRepository implements IMentorMethods {
             ]);
 
             salesCount = report.length;
-
+            console.log('report ', report)
             return {
                 report: report,
                 salesCount: salesCount
@@ -1218,4 +1229,5 @@ export default class MentorRepository implements IMentorMethods {
             throw error
         }
     }
+    
 }

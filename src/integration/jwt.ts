@@ -7,11 +7,11 @@ export class JwtService {
             const syncToken = await jwt.sign(
                 { user, role },
                 String(JWT_SECRET),
-                { expiresIn: '1h' }
+                { expiresIn: '2h' }
             )
             return syncToken
         } catch (error: any) {
-            console.log(error.message)   
+            console.log(error.message)
         }
     }
 

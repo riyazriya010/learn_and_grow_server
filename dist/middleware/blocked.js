@@ -13,10 +13,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const userRepository_1 = __importDefault(require("../repositories/userRepository"));
-const mentorRepository_1 = require("../repositories/mentorRepository");
-const userRepository = new userRepository_1.default();
-const mentorRepository = new mentorRepository_1.MentorRepository();
+// import UserRepositories from '../repositories/userRepository';
+// import { MentorRepository } from '../repositories/mentorRepository';
+const user_model_1 = __importDefault(require("../models/user.model"));
+const mentor_model_1 = __importDefault(require("../models/mentor.model"));
+// const userRepository = new UserRepositories()
+// const mentorRepository = new MentorRepository()
 const isUserBlocked = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const token = req.cookies['accessToken'];
@@ -25,7 +27,9 @@ const isUserBlocked = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         console.log('decodedToken: ', decodedToken);
         if (role === 'student') {
             console.log('enter1');
-            const isStudentBlock = yield userRepository.isBlocked(user);
+            const findUser = yield user_model_1.default.findById(user);
+            const isStudentBlock = findUser === null || findUser === void 0 ? void 0 : findUser.isBlocked;
+            // const isStudentBlock = await userRepository.isBlocked(user)
             if (isStudentBlock) {
                 console.log('enter2');
                 return res
@@ -36,7 +40,9 @@ const isUserBlocked = (req, res, next) => __awaiter(void 0, void 0, void 0, func
             }
         }
         else if (role === 'mentor') {
-            const isMentorBlock = yield mentorRepository.isBlocked(user);
+            const findUser = yield mentor_model_1.default.findById(user);
+            const isMentorBlock = findUser === null || findUser === void 0 ? void 0 : findUser.isBlocked;
+            // const isMentorBlock = await mentorRepository.isBlocked(user)
             if (isMentorBlock) {
                 return res
                     .status(403).send({

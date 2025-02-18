@@ -203,7 +203,7 @@ export class AdminRepository {
     async adminNonApprovedCourseDetails(courseId: string): Promise<any> {
         try {
             const checkApprove = await CourseModel.findById(courseId) as ICourse
-            if(checkApprove.approved){
+            if (checkApprove.approved) {
                 return []
             }
             const getChapters = await ChapterModel.find({ courseId }).exec()
@@ -321,68 +321,81 @@ export class AdminRepository {
                 { $sort: { totalEnrollments: -1 } },
             ]);
 
-            const mostEnrolledCategory = categoryWiseEnrollments[0];
-            const leastEnrolledCategory = categoryWiseEnrollments[categoryWiseEnrollments.length - 1];
 
-            const mostEnrolledCourse = await PurchasedCourseModel.aggregate([
-                {
-                    $lookup: {
-                        from: "courses",
-                        localField: "courseId",
-                        foreignField: "_id",
-                        as: "courseDetails",
-                    },
-                },
-                { $unwind: "$courseDetails" },
-                {
-                    $match: { "courseDetails.categoryId": mostEnrolledCategory._id },
-                },
-                {
-                    $group: {
-                        _id: "$courseId",
-                        courseName: { $first: "$courseDetails.courseName" },
-                        enrollments: { $sum: 1 },
-                    },
-                },
-                { $sort: { enrollments: -1 } },
-                { $limit: 1 },
-            ]);
+            const mostEnrolledCategory = categoryWiseEnrollments.length > 0 ? categoryWiseEnrollments[0] : null;
+            const leastEnrolledCategory = categoryWiseEnrollments.length > 0 ? categoryWiseEnrollments[categoryWiseEnrollments.length - 1] : null;
 
-            const leastEnrolledCourse = await PurchasedCourseModel.aggregate([
-                {
-                    $lookup: {
-                        from: "courses",
-                        localField: "courseId",
-                        foreignField: "_id",
-                        as: "courseDetails",
+            let mostEnrolledCourse = [];
+            let leastEnrolledCourse = [];
+
+            if (mostEnrolledCategory) {
+                mostEnrolledCourse = await PurchasedCourseModel.aggregate([
+                    {
+                        $lookup: {
+                            from: "courses",
+                            localField: "courseId",
+                            foreignField: "_id",
+                            as: "courseDetails",
+                        },
                     },
-                },
-                { $unwind: "$courseDetails" },
-                {
-                    $match: { "courseDetails.categoryId": leastEnrolledCategory._id },
-                },
-                {
-                    $group: {
-                        _id: "$courseId",
-                        courseName: { $first: "$courseDetails.courseName" },
-                        enrollments: { $sum: 1 },
+                    { $unwind: "$courseDetails" },
+                    {
+                        $match: { "courseDetails.categoryId": mostEnrolledCategory._id },
                     },
-                },
-                { $sort: { enrollments: 1 } },
-                { $limit: 1 },
-            ]);
+                    {
+                        $group: {
+                            _id: "$courseId",
+                            courseName: { $first: "$courseDetails.courseName" },
+                            enrollments: { $sum: 1 },
+                        },
+                    },
+                    { $sort: { enrollments: -1 } },
+                    { $limit: 1 },
+                ]);
+            }
+
+            if (leastEnrolledCategory) {
+                leastEnrolledCourse = await PurchasedCourseModel.aggregate([
+                    {
+                        $lookup: {
+                            from: "courses",
+                            localField: "courseId",
+                            foreignField: "_id",
+                            as: "courseDetails",
+                        },
+                    },
+                    { $unwind: "$courseDetails" },
+                    {
+                        $match: { "courseDetails.categoryId": leastEnrolledCategory._id },
+                    },
+                    {
+                        $group: {
+                            _id: "$courseId",
+                            courseName: { $first: "$courseDetails.courseName" },
+                            enrollments: { $sum: 1 },
+                        },
+                    },
+                    { $sort: { enrollments: 1 } },
+                    { $limit: 1 },
+                ]);
+            }
 
             const enrollmentResult = {
-                mostEnrolledCategory: {
-                    categoryName: mostEnrolledCategory.categoryName,
-                    enrollments: mostEnrolledCategory.totalEnrollments,
-                    course: mostEnrolledCourse[0]?.courseName || "No Course",
-                },
-                leastEnrolledCategory: {
-                    categoryName: leastEnrolledCategory.categoryName,
-                    enrollments: leastEnrolledCategory.totalEnrollments,
-                    course: leastEnrolledCourse[0]?.courseName || "No Course",
-                },
+                mostEnrolledCategory: mostEnrolledCategory
+                    ? {
+                        categoryName: mostEnrolledCategory.categoryName,
+                        enrollments: mostEnrolledCategory.totalEnrollments,
+                        course: mostEnrolledCourse[0]?.courseName || "No Course",
+                    }
+                    : { categoryName: "No Data", enrollments: 0, course: "No Course" },
+
+                leastEnrolledCategory: leastEnrolledCategory
+                    ? {
+                        categoryName: leastEnrolledCategory.categoryName,
+                        enrollments: leastEnrolledCategory.totalEnrollments,
+                        course: leastEnrolledCourse[0]?.courseName || "No Course",
+                    }
+                    : { categoryName: "No Data", enrollments: 0, course: "No Course" },
             };
 
 
@@ -437,8 +450,6 @@ export class AdminRepository {
                 totalCourses,
                 mostEnrolledCourse: enrollmentResult.mostEnrolledCategory,
                 leastEnrolledCourse: enrollmentResult.leastEnrolledCategory,
-                // mostEnrolledCourse: mostEnrolledCourse.length ? mostEnrolledCourse[0] : "N/A",
-                // leastEnrolledCourse: leastEnrolledCourse.length ? leastEnrolledCourse[0] : "N/A",
 
                 // Student Engagement
                 totalStudents,
