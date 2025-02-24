@@ -48,7 +48,9 @@ export default class StudentAuthController {
                 .send({
                     success: true,
                     message: 'User Logged Successfully',
-                    result: loginUser
+                    result: loginUser,
+                    accessToken: accessToken,
+                    refreshToken: refreshToken
                 })
 
         } catch (error: unknown) {
