@@ -12,6 +12,7 @@ const course_controller_1 = require("../controllers/management/studentController
 const certificate_controller_1 = require("../controllers/management/studentControllers/certificate.controller");
 const chat_controller_1 = require("../controllers/management/studentControllers/chat.controller");
 const notification_controller_1 = require("../controllers/management/studentControllers/notification.controller");
+const badge_controller_1 = require("../controllers/management/studentControllers/badge.controller");
 const router = (0, express_1.Router)();
 //Auth Routes
 router.post('/student/login', auth_controller_1.studentAuthController.studentLogin.bind(auth_controller_1.studentAuthController));
@@ -58,6 +59,11 @@ router.patch('/student/notification/seen', verifyToken_1.default, blocked_1.defa
 router.delete('/student/delete/notification/:senderId', verifyToken_1.default, blocked_1.default, verified_1.default, notification_controller_1.studentNotificationController.studentDeleteNotifications.bind(notification_controller_1.studentNotificationController));
 router.get('/get/mentor/:mentorId', verifyToken_1.default, blocked_1.default, verified_1.default, notification_controller_1.studentNotificationController.studentGetMentor.bind(notification_controller_1.studentNotificationController));
 router.get('/get/badges', verifyToken_1.default, blocked_1.default, verified_1.default, notification_controller_1.studentNotificationController.studentGetBadges.bind(notification_controller_1.studentNotificationController));
+//rewards Routes
+router.get('/convert-badge/money/:badgeId', verifyToken_1.default, blocked_1.default, verified_1.default, badge_controller_1.studentRewardController.studentRewardConvert.bind(badge_controller_1.studentRewardController));
+router.get('/get/student/wallet', verifyToken_1.default, blocked_1.default, verified_1.default, badge_controller_1.studentRewardController.studentWallet.bind(badge_controller_1.studentRewardController));
+router.get('/get/wallet/balance', verifyToken_1.default, blocked_1.default, verified_1.default, badge_controller_1.studentRewardController.studentWalletBalance.bind(badge_controller_1.studentRewardController));
+router.post('/buy/course/wallet', verifyToken_1.default, blocked_1.default, verified_1.default, badge_controller_1.studentRewardController.studentwalletBuyCourse.bind(badge_controller_1.studentRewardController));
 // const repository = new StudentRepository()
 // const services = new StudentServices(repository)
 // const controller = new StudentController(services)

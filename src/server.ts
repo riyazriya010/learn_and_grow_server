@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express, { NextFunction, Request, Response } from 'express'
 import { FRONTEND_URL, PORT } from './utils/constants'
 import morgan from 'morgan'
@@ -31,17 +34,32 @@ const io = new Server(server, {
 
 connectDB()
 
-const origin = 'http://localhost:3000'
+// const origin = 'http://localhost:3000'
+// const corsOptions = {
+//   // origin: FRONTEND_URL() || "*",
+//   // origin: origin || "*",
+//   origin: [
+//     "http://localhost:3000",
+//     "http://localhost:8001",
+//   ],
+//   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+//   credentials: true
+// }
+
+
+// Load frontend URLs from env or fallback
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
+  "http://localhost:3000",
+  "http://localhost:8001",
+  "https://learn-and-grow-client.vercel.app",
+];
+
+// Configure CORS
 const corsOptions = {
-  // origin: FRONTEND_URL() || "*",
-  // origin: origin || "*",
-  origin: [
-    "http://localhost:3000",
-    "http://localhost:8001",
-  ],
+  origin: allowedOrigins,
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-  credentials: true
-}
+  credentials: true,
+};
 
 app.use(cors(corsOptions))
 app.use(morgan('dev'))
@@ -52,11 +70,11 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  next();
-});
+// app.use((req, res, next) => {
+//   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+//   res.setHeader('Access-Control-Allow-Credentials', 'true');
+//   next();
+// });
 
 
 ////// Pre Signed URL //////////
@@ -211,3 +229,5 @@ app.use("/api/admin-service", adminRoutes)
 server.listen(PORT, () => {
   console.log(`Server is running on ${PORT}`);
 })
+
+

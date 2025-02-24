@@ -16,6 +16,7 @@ import { studentCourseController } from "../controllers/management/studentContro
 import { studentCertificateController } from "../controllers/management/studentControllers/certificate.controller";
 import { studentChatController } from "../controllers/management/studentControllers/chat.controller";
 import { studentNotificationController } from "../controllers/management/studentControllers/notification.controller";
+import { studentRewardController } from "../controllers/management/studentControllers/badge.controller";
 
 
 const router = Router();
@@ -76,6 +77,12 @@ router.patch('/student/notification/seen', authenticateToken, isUserBlocked, isU
 router.delete('/student/delete/notification/:senderId', authenticateToken, isUserBlocked, isUserVerified, studentNotificationController.studentDeleteNotifications.bind(studentNotificationController))
 router.get('/get/mentor/:mentorId', authenticateToken, isUserBlocked, isUserVerified, studentNotificationController.studentGetMentor.bind(studentNotificationController))
 router.get('/get/badges', authenticateToken, isUserBlocked, isUserVerified, studentNotificationController.studentGetBadges.bind(studentNotificationController))
+
+//rewards Routes
+router.get('/convert-badge/money/:badgeId', authenticateToken, isUserBlocked, isUserVerified, studentRewardController.studentRewardConvert.bind(studentRewardController))
+router.get('/get/student/wallet', authenticateToken, isUserBlocked, isUserVerified, studentRewardController.studentWallet.bind(studentRewardController))
+router.get('/get/wallet/balance', authenticateToken, isUserBlocked, isUserVerified, studentRewardController.studentWalletBalance.bind(studentRewardController))
+router.post('/buy/course/wallet', authenticateToken, isUserBlocked, isUserVerified, studentRewardController.studentwalletBuyCourse.bind(studentRewardController))
 
 
 
