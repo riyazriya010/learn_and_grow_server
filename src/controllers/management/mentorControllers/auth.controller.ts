@@ -40,9 +40,15 @@ export default class MentorAuthController {
             return res
                 .status(200)
                 .cookie('accessToken', accessToken, {
-                    httpOnly: false
+                    httpOnly: false,
+                    secure: true,
+                    sameSite: "strict",
+                    domain: '.learngrow.live'
                 }).cookie('refreshToken', refreshToken, {
-                    httpOnly: true
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: "strict",
+                    domain: '.learngrow.live'
                 })
                 .send({
                     success: true,
@@ -305,34 +311,34 @@ export default class MentorAuthController {
     }
 
     async getSignedUrl(req: Request, res: Response): Promise<any> {
-            try {
-                const { files } = req.body;
-                if (!Array.isArray(files) || files.length === 0) {
-                    return res.status(400).json({ message: "No files provided" });
-                }
-    
-                const urls = await Promise.all(
-                    files.map(async (file) => {
-                        const fileKey = `courses/${Date.now()}-${file.fileName}`;
-    
-                        const command = new PutObjectCommand({
-                            Bucket: process.env.BUCKET_NAME,
-                            Key: fileKey,
-                            ContentType: file.fileType,
-                        });
-    
-                        const presignedUrl = await getSignedUrl(s3, command, { expiresIn: 300 });
-    
-                        return { fileKey, presignedUrl };
-                    })
-                );
-    
-                res.status(200).json({ urls });
-            } catch (error: unknown) {
-                ErrorResponse(res, 500, "Internal Server Error")
-                return
+        try {
+            const { files } = req.body;
+            if (!Array.isArray(files) || files.length === 0) {
+                return res.status(400).json({ message: "No files provided" });
             }
+
+            const urls = await Promise.all(
+                files.map(async (file) => {
+                    const fileKey = `courses/${Date.now()}-${file.fileName}`;
+
+                    const command = new PutObjectCommand({
+                        Bucket: process.env.BUCKET_NAME,
+                        Key: fileKey,
+                        ContentType: file.fileType,
+                    });
+
+                    const presignedUrl = await getSignedUrl(s3, command, { expiresIn: 300 });
+
+                    return { fileKey, presignedUrl };
+                })
+            );
+
+            res.status(200).json({ urls });
+        } catch (error: unknown) {
+            ErrorResponse(res, 500, "Internal Server Error")
+            return
         }
+    }
 
 }
 
