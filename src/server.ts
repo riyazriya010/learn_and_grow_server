@@ -36,18 +36,19 @@ const io = new Server(server, {
 connectDB()
 
 const allowedOrigins = [
-  "http://localhost:3000",
-  "http://localhost:8001",
+  // "http://localhost:3000",
+  // "http://localhost:8001",
   "https://www.learngrow.live",
   "https://api.learngrow.live",
-  "*"
 ];
 
 const corsOptions = {
   origin: (origin: any, callback: any) => {
+
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.error(`Blocked by CORS: ${origin}`);
       callback(new Error("Not allowed by CORS"));
     }
   },
