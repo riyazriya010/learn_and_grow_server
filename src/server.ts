@@ -39,7 +39,8 @@ const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:8001",
   "https://www.learngrow.live",
-  "https://api.learngrow.live"
+  "https://api.learngrow.live",
+  "*"
 ];
 
 const corsOptions = {
