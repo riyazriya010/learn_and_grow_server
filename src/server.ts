@@ -24,7 +24,8 @@ const app = express()
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    // origin: "http://localhost:3000",
+    origin: "https://www.learngrow.live",
     methods: ["GET", "POST", 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Role'],
     credentials: true
@@ -34,40 +35,43 @@ const io = new Server(server, {
 
 connectDB()
 
-// const origin = 'http://localhost:3000'
-// const corsOptions = {
-//   // origin: FRONTEND_URL() || "*",
-//   // origin: origin || "*",
-//   origin: [
-//     "http://localhost:3000",
-//     "http://localhost:8001",
-//   ],
-//   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-//   credentials: true
-// }
-
-
-// Load frontend URLs from env or fallback
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
-  "http://localhost:3000",
-  "http://localhost:8001",
-  "https://learn-and-grow-client.vercel.app",
-  "https://www.learngrow.live",
-  "https://api.learngrow.live"
-];
-
-const corsOptions: cors.CorsOptions = {
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+const origin = 'http://localhost:3000'
+const corsOptions = {
+  // origin: FRONTEND_URL() || "*",
+  // origin: origin || "*",
+  origin: [
+    "http://localhost:3000",
+    "http://localhost:8001",
+    "https://www.learngrow.live",
+    "https://api.learngrow.live"
+  ],
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Role'],
-  credentials: true,
-};
+  credentials: true
+}
+
+
+// // Load frontend URLs from env or fallback
+// const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
+//   "http://localhost:3000",
+//   "http://localhost:8001",
+//   "https://learn-and-grow-client.vercel.app",
+
+//   "https://www.learngrow.live",
+//   "https://api.learngrow.live"
+// ];
+
+// const corsOptions: cors.CorsOptions = {
+//   origin: function (origin, callback) {
+//     if (!origin || allowedOrigins.includes(origin)) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//   },
+//   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+//   allowedHeaders: ['Content-Type', 'Authorization', 'Role'],
+//   credentials: true,
+// };
 
 app.use(cors(corsOptions));
 
@@ -84,6 +88,12 @@ app.use(cookieParser())
 //   res.setHeader('Access-Control-Allow-Credentials', 'true');
 //   next();
 // });
+
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', 'https://www.learngrow.live');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  next();
+});
 
 
 ////// Pre Signed URL //////////
