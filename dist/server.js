@@ -2,7 +2,6 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
@@ -17,7 +16,7 @@ const mentors_routes_1 = __importDefault(require("./routes/mentors.routes"));
 const admin_routes_1 = __importDefault(require("./routes/admin.routes"));
 const body_parser_1 = __importDefault(require("body-parser"));
 // import "./integration/userReminderTask"
-const logger_1 = __importDefault(require("./utils/logger"));
+// import logger from './utils/logger'
 const http_1 = __importDefault(require("http"));
 const socket_io_1 = require("socket.io");
 const app = (0, express_1.default)();
@@ -25,7 +24,8 @@ const app = (0, express_1.default)();
 const server = http_1.default.createServer(app);
 const io = new socket_io_1.Server(server, {
     cors: {
-        origin: "http://localhost:3000",
+        // origin: "http://localhost:3000",
+        origin: "https://www.learngrow.live",
         methods: ["GET", "POST", 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
         allowedHeaders: ['Content-Type', 'Authorization', 'Role'],
         credentials: true
@@ -33,32 +33,28 @@ const io = new socket_io_1.Server(server, {
 });
 //////////////////////////
 (0, database_1.connectDB)();
-// const origin = 'http://localhost:3000'
-// const corsOptions = {
-//   // origin: FRONTEND_URL() || "*",
-//   // origin: origin || "*",
-//   origin: [
-//     "http://localhost:3000",
-//     "http://localhost:8001",
-//   ],
-//   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-//   credentials: true
-// }
-// Load frontend URLs from env or fallback
-const allowedOrigins = ((_a = process.env.ALLOWED_ORIGINS) === null || _a === void 0 ? void 0 : _a.split(',')) || [
-    "http://localhost:3000",
-    "http://localhost:8001",
-    "https://learn-and-grow-client.vercel.app",
+const allowedOrigins = [
+    // "http://localhost:3000",
+    // "http://localhost:8001",
+    "https://www.learngrow.live",
+    "https://api.learngrow.live",
 ];
-// Configure CORS
 const corsOptions = {
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        }
+        else {
+            console.error(`Blocked by CORS: ${origin}`);
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-    credentials: true,
+    credentials: true
 };
 app.use((0, cors_1.default)(corsOptions));
 app.use((0, morgan_1.default)('dev'));
-app.use(logger_1.default); // for logging morgan in the separate file
+// app.use(logger);
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.use(express_1.default.json());
@@ -66,6 +62,11 @@ app.use(express_1.default.urlencoded({ extended: true }));
 app.use((0, cookie_parser_1.default)());
 // app.use((req, res, next) => {
 //   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+//   res.setHeader('Access-Control-Allow-Credentials', 'true');
+//   next();
+// });
+// app.use((req, res, next) => {
+//   res.setHeader('Access-Control-Allow-Origin', 'https://www.learngrow.live');
 //   res.setHeader('Access-Control-Allow-Credentials', 'true');
 //   next();
 // });

@@ -38,12 +38,14 @@ export default class StudentAuthController {
                 .status(200)
                 .cookie('accessToken', accessToken, {
                     httpOnly: false,
-                    sameSite: 'none',
-                    secure: true
+                    secure: true,
+                    sameSite: "strict",
+                    domain: '.learngrow.live'
                 }).cookie('refreshToken', refreshToken, {
                     httpOnly: true,
-                    sameSite: 'none',
-                    secure: true
+                    secure: true,
+                    sameSite: "strict",
+                    domain: '.learngrow.live'
                 })
                 .send({
                     success: true,
