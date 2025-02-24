@@ -12,7 +12,7 @@ import mentorRoutes from './routes/mentors.routes'
 import adminRoutes from './routes/admin.routes'
 import bodyParser from 'body-parser'
 // import "./integration/userReminderTask"
-import logger from './utils/logger'
+// import logger from './utils/logger'
 
 import http from 'http';
 import { Server } from 'socket.io';
@@ -60,7 +60,7 @@ app.use(cors(corsOptions));
 
 
 app.use(morgan('dev'))
-app.use(logger); // for logging morgan in the separate file
+// app.use(logger);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json())
