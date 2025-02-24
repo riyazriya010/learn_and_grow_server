@@ -52,16 +52,25 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
   "http://localhost:3000",
   "http://localhost:8001",
   "https://learn-and-grow-client.vercel.app",
+  "https://www.learngrow.live",
+  "https://api.learngrow.live"
 ];
 
-// Configure CORS
-const corsOptions = {
-  origin: allowedOrigins,
+const corsOptions: cors.CorsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Role'],
   credentials: true,
 };
 
-app.use(cors(corsOptions))
+app.use(cors(corsOptions));
+
 app.use(morgan('dev'))
 app.use(logger); // for logging morgan in the separate file
 app.use(bodyParser.json());
