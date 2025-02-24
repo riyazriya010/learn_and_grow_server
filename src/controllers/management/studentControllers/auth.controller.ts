@@ -37,9 +37,13 @@ export default class StudentAuthController {
             return res
                 .status(200)
                 .cookie('accessToken', accessToken, {
-                    httpOnly: false
+                    httpOnly: false,
+                    sameSite: 'none',
+                    secure: true
                 }).cookie('refreshToken', refreshToken, {
-                    httpOnly: true
+                    httpOnly: true,
+                    sameSite: 'none',
+                    secure: true
                 })
                 .send({
                     success: true,
