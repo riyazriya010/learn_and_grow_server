@@ -12,17 +12,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const mailToken_1 = require("../../../integration/mailToken");
+const nodemailer_1 = __importDefault(require("../../../integration/nodemailer"));
+const otp_model_1 = require("../../../models/otp.model");
 const user_model_1 = __importDefault(require("../../../models/user.model"));
-const studentAuthBaseRepository_1 = __importDefault(require("../../baseRepositories/studentBaseRepositories/studentAuthBaseRepository"));
+const commonBaseRepository_1 = __importDefault(require("../../baseRepositories/commonBaseRepository"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
-class StudentAuthRepository extends studentAuthBaseRepository_1.default {
+class StudentAuthRepository extends commonBaseRepository_1.default {
     constructor() {
-        super(user_model_1.default);
+        super({
+            UserModel: user_model_1.default,
+            Otp: otp_model_1.OTPModel
+        });
     }
     studentLogin(email, password) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const findUser = yield this.findByEmail(email);
+                const findUser = yield this.findOne('UserModel', { email: email });
                 console.log('findUser: ', findUser);
                 if (!findUser) {
                     const error = new Error('Email Not Found');
@@ -51,7 +57,7 @@ class StudentAuthRepository extends studentAuthBaseRepository_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { username, email, phone, password } = userData;
-                const existUser = yield this.findByEmail(userData.email);
+                const existUser = yield this.findOne('UserModel', { email: userData.email });
                 if (existUser) {
                     const error = new Error('User Already Exist');
                     error.name = 'UserExist';
@@ -65,8 +71,27 @@ class StudentAuthRepository extends studentAuthBaseRepository_1.default {
                     role: 'student',
                     studiedHours: 0,
                 };
-                const addUser = yield this.createStudent(modifiedUser);
-                return addUser;
+                const addUser = yield this.createData('UserModel', modifiedUser);
+                // create otp
+                const otp = yield (0, mailToken_1.generateRandomFourDigitNumber)();
+                const otpData = {
+                    email,
+                    otp: String(otp)
+                };
+                const createdOtp = yield this.createData('Otp', otpData);
+                const mail = new nodemailer_1.default();
+                mail.sendVerificationEmail(String(email), String(otp))
+                    .then(info => {
+                    console.log('Otp email sent successfully: ');
+                })
+                    .catch(error => {
+                    console.error('Failed to send Otp email:', error);
+                });
+                console.log('createdOtp ::: ', createdOtp);
+                return {
+                    addUser,
+                    createdOtp
+                };
             }
             catch (error) {
                 throw error;
@@ -76,7 +101,7 @@ class StudentAuthRepository extends studentAuthBaseRepository_1.default {
     studentGoogleSignUp(userData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const existUser = yield this.findByEmail(userData.email);
+                const existUser = yield this.findOne('UserModel', { email: userData.email });
                 if (existUser) {
                     const error = new Error('User Already Exist');
                     error.name = 'UserExist';
@@ -91,7 +116,7 @@ class StudentAuthRepository extends studentAuthBaseRepository_1.default {
                     role: 'student',
                     isVerified: true
                 };
-                const addUser = yield this.createStudent(modifiedUser);
+                const addUser = yield this.createData('UserModel', modifiedUser);
                 return addUser;
             }
             catch (error) {
@@ -102,7 +127,7 @@ class StudentAuthRepository extends studentAuthBaseRepository_1.default {
     studentGoogleLogin(email) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const findUser = yield this.findByEmail(email);
+                const findUser = yield this.findOne('UserModel', { email: email });
                 if (!findUser) {
                     const error = new Error('User Not Found');
                     error.name = 'UserNotFound';
@@ -118,7 +143,7 @@ class StudentAuthRepository extends studentAuthBaseRepository_1.default {
     studentForgetPassword(email, password) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const findUser = yield this.findByEmail(email);
+                const findUser = yield this.findOne('UserModel', { email: email });
                 if (!findUser) {
                     const error = new Error('User Not Found');
                     error.name = 'UserNotFound';
@@ -136,7 +161,7 @@ class StudentAuthRepository extends studentAuthBaseRepository_1.default {
     studentVerify(email) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const findUser = yield this.findByEmail(email);
+                const findUser = yield this.findOne('UserModel', { email: email });
                 if (!findUser) {
                     const error = new Error('User Not Found');
                     error.name = 'UserNotFound';
@@ -154,7 +179,8 @@ class StudentAuthRepository extends studentAuthBaseRepository_1.default {
     studentProfleUpdate(studentId, userData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const updateUser = yield this.findByIdAndUpdate(studentId, userData);
+                // const updateUser = await this.findByIdAndUpdate(studentId, userData)
+                const updateUser = yield this.updateById('UserModel', studentId, userData);
                 return updateUser;
             }
             catch (error) {
@@ -165,7 +191,7 @@ class StudentAuthRepository extends studentAuthBaseRepository_1.default {
     studentReVerify(email) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const findUser = yield this.findByEmail(email);
+                const findUser = yield this.findOne('UserModel', { email: email });
                 if (!findUser) {
                     const error = new Error('User Not Found');
                     error.name = 'UserNotFound';
@@ -181,7 +207,8 @@ class StudentAuthRepository extends studentAuthBaseRepository_1.default {
     studentCheck(studentId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const findUser = yield this.findById(studentId);
+                // const findUser = await this.findById(studentId)
+                const findUser = yield this.findById('UserModel', studentId);
                 return findUser;
             }
             catch (error) {

@@ -15,15 +15,17 @@ class Mail {
             subject: 'Email Verification',
         };
     }
-    sendVerificationEmail(email, verifyLink) {
-        console.log('mail class signup studnet link ::: ', verifyLink);
+    sendVerificationEmail(email, otp) {
+        console.log('mail class signup studnet link ::: ', otp);
         this.mailOptions.to = email,
-            this.mailOptions.html = `<h2>Email Verification</h2>
-            <p>Click the link below to verify your email address:</p>
-            <br>
-            <p><a href="${verifyLink}" style="color: #433D8B; text-decoration: underline;">${verifyLink}</a></p>
-            <br>
-            <p>If you didn't sign up for an account, please ignore this email.</p>`;
+            this.mailOptions.html = `
+        <h2>Email Verification</h2>
+        <p>Your One-Time Password (OTP) for verification is:</p>
+        <h3 style="color: #433D8B; font-size: 24px;">${otp}</h3>
+        <p>Please enter this OTP to complete the verification process.</p>
+        <br>
+        <p>If you didn't request this, please ignore this email.</p>
+    `;
         // this.mailOptions.html = `<h2>Email Verification</h2>
         //     <p>Click the button below to verify your email address:</p>
         //     <a href="${verifyLink}" style="text-decoration: none; padding: 10px 20px; background-color: #433D8B; color: white; border-radius: 5px; font-size: 16px; text-align: center; display: inline-block;">

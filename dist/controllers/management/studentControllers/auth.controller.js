@@ -79,7 +79,8 @@ class StudentAuthController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { username, email, phone, password } = req.body;
-                const addUser = yield this.studentAuthServices.studentSignUp({ email, username, phone, password });
+                const userData = yield this.studentAuthServices.studentSignUp({ email, username, phone, password });
+                const { addUser, createdOtp } = userData;
                 const accessToken = yield this.jwtService.createToken(addUser === null || addUser === void 0 ? void 0 : addUser._id, String(addUser === null || addUser === void 0 ? void 0 : addUser.role));
                 const refreshToken = yield this.jwtService.createRefreshToken(addUser === null || addUser === void 0 ? void 0 : addUser._id, String(addUser === null || addUser === void 0 ? void 0 : addUser.role));
                 return res
@@ -98,7 +99,8 @@ class StudentAuthController {
                     .send({
                     success: true,
                     message: 'User signup Successfully',
-                    result: addUser
+                    result: addUser,
+                    otp: createdOtp
                 });
             }
             catch (error) {
