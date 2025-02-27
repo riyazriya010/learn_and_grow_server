@@ -41,6 +41,7 @@ class StudentAuthServices {
                 const addUser = yield this.studentAuthRepository.studentSignUp(data);
                 const token = yield (0, mailToken_1.generateAccessToken)({ id: String(addUser === null || addUser === void 0 ? void 0 : addUser._id), email: String(addUser === null || addUser === void 0 ? void 0 : addUser.email) });
                 const portLink = constants_1.STUDENT_PORT_LINK;
+                console.log('verify link :::: ', portLink);
                 const createdLink = `${portLink}?token=${token}`;
                 const mail = new nodemailer_1.default();
                 mail.sendVerificationEmail(String(addUser === null || addUser === void 0 ? void 0 : addUser.email), createdLink)
