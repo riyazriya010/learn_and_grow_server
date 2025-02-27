@@ -23,7 +23,7 @@ export default class StudentAuthRepository extends CommonBaseRepository<{
 
     async studentLogin(email: string, password: string): Promise<IUser | null> {
         try {
-            const findUser = await this.findOne('UserModel',{email: email})
+            const findUser = await this.findOne('UserModel', { email: email })
             console.log('findUser: ', findUser)
             if (!findUser) {
                 const error = new Error('Email Not Found')
@@ -54,7 +54,7 @@ export default class StudentAuthRepository extends CommonBaseRepository<{
         try {
             const { username, email, phone, password } = userData
 
-            const existUser = await this.findOne('UserModel',{email: userData.email})
+            const existUser = await this.findOne('UserModel', { email: userData.email })
             if (existUser) {
                 const error = new Error('User Already Exist')
                 error.name = 'UserExist'
@@ -74,12 +74,12 @@ export default class StudentAuthRepository extends CommonBaseRepository<{
 
             // create otp
             const otp = await generateRandomFourDigitNumber()
-            
+
             const otpData = {
                 email,
                 otp: String(otp)
             }
-            const createdOtp = await this.createData('Otp',otpData)
+            const createdOtp = await this.createData('Otp', otpData)
 
             const mail = new Mail()
             mail.sendVerificationEmail(String(email), String(otp))
@@ -89,7 +89,7 @@ export default class StudentAuthRepository extends CommonBaseRepository<{
                 .catch(error => {
                     console.error('Failed to send Otp email:', error);
                 });
-                console.log('createdOtp ::: ', createdOtp)
+            console.log('createdOtp ::: ', createdOtp)
             return {
                 addUser,
                 createdOtp
@@ -101,7 +101,7 @@ export default class StudentAuthRepository extends CommonBaseRepository<{
 
     async studentGoogleSignUp(userData: StudentGoogleSignupInput): Promise<IUser | null> {
         try {
-            const existUser = await this.findOne('UserModel',{email: userData.email})
+            const existUser = await this.findOne('UserModel', { email: userData.email })
             if (existUser) {
                 const error = new Error('User Already Exist')
                 error.name = 'UserExist'
@@ -126,7 +126,7 @@ export default class StudentAuthRepository extends CommonBaseRepository<{
 
     async studentGoogleLogin(email: string): Promise<IUser | null> {
         try {
-            const findUser = await this.findOne('UserModel',{email: email})
+            const findUser = await this.findOne('UserModel', { email: email })
             if (!findUser) {
                 const error = new Error('User Not Found')
                 error.name = 'UserNotFound'
@@ -140,7 +140,7 @@ export default class StudentAuthRepository extends CommonBaseRepository<{
 
     async studentForgetPassword(email: string, password: string): Promise<IUser | null> {
         try {
-            const findUser = await this.findOne('UserModel',{email: email})
+            const findUser = await this.findOne('UserModel', { email: email })
             if (!findUser) {
                 const error = new Error('User Not Found')
                 error.name = 'UserNotFound'
@@ -154,53 +154,61 @@ export default class StudentAuthRepository extends CommonBaseRepository<{
         }
     }
 
-    async studentVerify(email: string): Promise<IUser | null> {
+    async studentVerify(otp: string, email: string): Promise<any | null> {
         try {
-            const findUser = await this.findOne('UserModel',{email: email})
-            if (!findUser) {
-                const error = new Error('User Not Found')
-                error.name = 'UserNotFound'
+            const verifyOtp = await this.findOne('Otp', {email, otp })
+            if (!verifyOtp) {
+                const error = new Error('Otp Not Found')
+                error.name = 'OtpNotFound'
                 throw error
             }
+            return verifyOtp
 
-            findUser.isVerified = true
-            await findUser.save()
-            return findUser
+            // const findUser = await this.findOne('UserModel',{email: email})
+            // if (!findUser) {
+            //     const error = new Error('User Not Found')
+            //     error.name = 'UserNotFound'
+            //     throw error
+            // }
+
+            // findUser.isVerified = true
+            // await findUser.save()
+            // return findUser
         } catch (error: unknown) {
             throw error
         }
     }
 
     async studentProfleUpdate(studentId: string, userData: StudentProfileInput): Promise<IUser | null> {
-        try{
+        try {
             // const updateUser = await this.findByIdAndUpdate(studentId, userData)
             const updateUser = await this.updateById('UserModel', studentId, userData)
             return updateUser
-        }catch(error: unknown){
+        } catch (error: unknown) {
             throw error
         }
     }
 
     async studentReVerify(email: string): Promise<IUser | null> {
-        try{
-            const findUser = await this.findOne('UserModel',{email: email})
+        try {
+            const findUser = await this.findOne('UserModel', { email: email })
             if (!findUser) {
                 const error = new Error('User Not Found')
                 error.name = 'UserNotFound'
                 throw error
             }
             return findUser
-        }catch(error: unknown){
+        } catch (error: unknown) {
             throw error
         }
     }
 
     async studentCheck(studentId: string): Promise<IUser | null> {
-        try{
+        try {
             // const findUser = await this.findById(studentId)
             const findUser = await this.findById('UserModel', studentId)
             return findUser
-        }catch(error: unknown){
+        } catch (error: unknown) {
             throw error
         }
     }

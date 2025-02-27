@@ -29,7 +29,7 @@ export interface IStudentAuthMethods {
     studentLogin(email: string, password: string): Promise<IUser | null>
     studentGoogleSignUp(userData: StudentGoogleSignupInput): Promise<IUser | null>
     studentGoogleLogin(email: string): Promise<IUser | null>
-    studentVerify(email: string): Promise<IUser | null>
+    studentVerify(otp: string, email: string): Promise<IUser | null>
     studentForgetPassword(email: string, password: string): Promise<IUser | null>
     studentCheck(studentId: string): Promise<IUser | null>
     studentReVerify(email: string): Promise<IUser | null>

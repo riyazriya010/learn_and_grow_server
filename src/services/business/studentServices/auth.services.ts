@@ -80,23 +80,23 @@ export default class StudentAuthServices {
         }
     }
 
-    async studentVerify(token: string): Promise<IUser | null> {
+    async studentVerify(otp: string, email: string): Promise<any | null> {
         try {
-            const verifiedToken = await verifyToken(token)
-            if (!verifiedToken.status) {
-                const error = new Error('Token Expired')
-                error.name = 'tokenExpired'
-                throw error
-            }
+            // const verifiedToken = await verifyToken(token)
+            // if (!verifiedToken.status) {
+            //     const error = new Error('Token Expired')
+            //     error.name = 'tokenExpired'
+            //     throw error
+            // }
 
-            const payload = verifiedToken.payload;
-            if (!payload || typeof payload !== 'object' || !('id' in payload) || !('email' in payload)) {
-                const error = new Error('Invalid token payload')
-                error.name = 'Invalidtokenpayload'
-                throw error
-            }
-            const { email } = payload;
-            const verifyUser = await this.studentAuthRepository.studentVerify(email)
+            // const payload = verifiedToken.payload;
+            // if (!payload || typeof payload !== 'object' || !('id' in payload) || !('email' in payload)) {
+            //     const error = new Error('Invalid token payload')
+            //     error.name = 'Invalidtokenpayload'
+            //     throw error
+            // }
+            // const { email } = payload;
+            const verifyUser = await this.studentAuthRepository.studentVerify(otp, email)
             return verifyUser
         } catch (error: unknown) {
             throw error

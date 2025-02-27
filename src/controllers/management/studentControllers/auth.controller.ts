@@ -7,6 +7,7 @@ import { StudentAuthResponse } from "../../../interface/students/student.types";
 
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { StringDecoder } from "string_decoder";
 
 const s3 = new S3Client({
     region: process.env.AWS_REGION || "us-east-1",
@@ -207,8 +208,9 @@ export default class StudentAuthController {
 
     async studentVerify(req: Request, res: Response): Promise<void> {
         try {
-            const token = req.query.token as string
-            const verifySudent = await this.studentAuthServices.studentVerify(token)
+            // const otp = req.query.otp as string
+            const {otp, email} = req.query
+            const verifySudent = await this.studentAuthServices.studentVerify(String(otp), String(email))
             SuccessResponse(res, 200, "Student Verified", verifySudent)
         } catch (error: unknown) {
             if (error instanceof Error) {
@@ -216,8 +218,8 @@ export default class StudentAuthController {
                     ErrorResponse(res, 401, "Token Expired Please GoTo Profile")
                     return
                 }
-                if (error.name === 'UserNotFound') {
-                    ErrorResponse(res, 404, "Email Not Found Please try another Email")
+                if (error.name === 'OtpNotFound') {
+                    ErrorResponse(res, 404, "Otp Not Found")
                     return
                 }
                 if (error.name === 'Invalidtokenpayload') {
