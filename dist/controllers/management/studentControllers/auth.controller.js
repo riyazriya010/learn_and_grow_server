@@ -85,9 +85,15 @@ class StudentAuthController {
                 return res
                     .status(200)
                     .cookie('accessToken', accessToken, {
-                    httpOnly: false
+                    httpOnly: false,
+                    secure: true,
+                    sameSite: "strict",
+                    domain: '.learngrow.live'
                 }).cookie('refreshToken', refreshToken, {
-                    httpOnly: true
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: "strict",
+                    domain: '.learngrow.live'
                 })
                     .send({
                     success: true,
@@ -117,9 +123,15 @@ class StudentAuthController {
                 return res
                     .status(200)
                     .cookie('accessToken', accessToken, {
-                    httpOnly: false
+                    httpOnly: false,
+                    secure: true,
+                    sameSite: "strict",
+                    domain: '.learngrow.live'
                 }).cookie('refreshToken', refreshToken, {
-                    httpOnly: true
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: "strict",
+                    domain: '.learngrow.live'
                 })
                     .send({
                     success: true,
@@ -149,9 +161,15 @@ class StudentAuthController {
                 return res
                     .status(200)
                     .cookie('accessToken', accessToken, {
-                    httpOnly: false
+                    httpOnly: false,
+                    secure: true,
+                    sameSite: "strict",
+                    domain: '.learngrow.live'
                 }).cookie('refreshToken', refreshToken, {
-                    httpOnly: true
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: "strict",
+                    domain: '.learngrow.live'
                 })
                     .send({
                     success: true,

@@ -17,6 +17,7 @@ const mailToken_1 = require("../../../integration/mailToken");
 const nodemailer_1 = __importDefault(require("../../../integration/nodemailer"));
 const auth_repository_1 = __importDefault(require("../../../repositories/entities/mentorRepositories/auth.repository"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const constants_1 = require("../../../utils/constants");
 class MentorAuthServices {
     constructor(mentorAuthRepository) {
         this.mentorAuthRepository = mentorAuthRepository;
@@ -55,7 +56,7 @@ class MentorAuthServices {
                 data.password = hashPassword;
                 const addedMentor = yield this.mentorAuthRepository.mentorSignUp(data);
                 const token = yield (0, mailToken_1.generateAccessToken)({ id: String(addedMentor === null || addedMentor === void 0 ? void 0 : addedMentor._id), email: String(addedMentor === null || addedMentor === void 0 ? void 0 : addedMentor.email) });
-                const portLink = process.env.MENTOR_PORT_LINK;
+                const portLink = constants_1.MENTOR_PORT_LINK;
                 const createdLink = `${portLink}?token=${token}`;
                 const mail = new nodemailer_1.default();
                 mail.sendVerificationEmail(String(addedMentor === null || addedMentor === void 0 ? void 0 : addedMentor.email), createdLink)
