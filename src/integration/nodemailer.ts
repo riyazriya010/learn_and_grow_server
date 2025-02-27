@@ -21,15 +21,17 @@ class Mail {
         }
     }
 
-    public sendVerificationEmail(email: string, verifyLink: string): Promise<any> {
-        console.log('mail class signup studnet link ::: ',verifyLink)
+    public sendVerificationEmail(email: string, otp: string): Promise<any> {
+        console.log('mail class signup studnet link ::: ', otp)
         this.mailOptions.to = email,
-        this.mailOptions.html = `<h2>Email Verification</h2>
-            <p>Click the link below to verify your email address:</p>
-            <br>
-            <p><a href="${verifyLink}" style="color: #433D8B; text-decoration: underline;">${verifyLink}</a></p>
-            <br>
-            <p>If you didn't sign up for an account, please ignore this email.</p>`;
+            this.mailOptions.html = `
+        <h2>Email Verification</h2>
+        <p>Your One-Time Password (OTP) for verification is:</p>
+        <h3 style="color: #433D8B; font-size: 24px;">${otp}</h3>
+        <p>Please enter this OTP to complete the verification process.</p>
+        <br>
+        <p>If you didn't request this, please ignore this email.</p>
+    `;
 
         // this.mailOptions.html = `<h2>Email Verification</h2>
         //     <p>Click the button below to verify your email address:</p>
@@ -39,22 +41,22 @@ class Mail {
         //     <p>If you didn't sign up for an account, please ignore this email.</p>`
 
 
-            return new Promise((resolve, reject) => {
-                this.transporter.sendMail(this.mailOptions, (error, info) => {
-                    if (error) {
-                        console.error('Error sending email:', error.message);
-                        reject(error);
-                    } else {
-                        console.log('Email sent:', info.response);
-                        resolve(info);
-                    }
-                });
+        return new Promise((resolve, reject) => {
+            this.transporter.sendMail(this.mailOptions, (error, info) => {
+                if (error) {
+                    console.error('Error sending email:', error.message);
+                    reject(error);
+                } else {
+                    console.log('Email sent:', info.response);
+                    resolve(info);
+                }
             });
+        });
     }
 
     public sendMentorVerificationEmail(email: string, verifyLink: string): Promise<any> {
         this.mailOptions.to = email,
-        this.mailOptions.html = `<h2>Email Verification</h2>
+            this.mailOptions.html = `<h2>Email Verification</h2>
             <p>Click the button below to verify your email address:</p>
             <a href="${verifyLink}" style="text-decoration: none; padding: 10px 20px; background-color: #433D8B; color: white; border-radius: 5px; font-size: 16px; text-align: center; display: inline-block;">
                 Verify Email
@@ -62,17 +64,17 @@ class Mail {
             <p>If you didn't sign up for an account, please ignore this email.</p>`
 
 
-            return new Promise((resolve, reject) => {
-                this.transporter.sendMail(this.mailOptions, (error, info) => {
-                    if (error) {
-                        console.error('Error sending email:', error.message);
-                        reject(error);
-                    } else {
-                        console.log('Email sent:', info.response);
-                        resolve(info);
-                    }
-                });
+        return new Promise((resolve, reject) => {
+            this.transporter.sendMail(this.mailOptions, (error, info) => {
+                if (error) {
+                    console.error('Error sending email:', error.message);
+                    reject(error);
+                } else {
+                    console.log('Email sent:', info.response);
+                    resolve(info);
+                }
             });
+        });
     }
 
     public sendRemainderMail(email: string, name: string): Promise<any> {
@@ -100,7 +102,7 @@ class Mail {
                 <p style="font-size: 14px; color: #777; text-align: center;">Keep learning, keep growing! 🚀</p>
             </div>
         `;
-    
+
         return new Promise((resolve, reject) => {
             this.transporter.sendMail(this.mailOptions, (error, info) => {
                 if (error) {
@@ -113,13 +115,13 @@ class Mail {
             });
         });
     }
-    
+
 
 
 
     public sendOtp(email: string, otp: string): Promise<any> {
         const verifyLink = `your-verification-link-here`;  // You can add the verification link if needed.
-    
+
         this.mailOptions.to = email;
         this.mailOptions.html = `
             <h2>Email Verification</h2>
@@ -128,7 +130,7 @@ class Mail {
             <p>If you didn't sign up for an account, please ignore this email.</p>
             <p>This OTP will expire in 1 minute.</p>
         `;
-    
+
         return new Promise((resolve, reject) => {
             this.transporter.sendMail(this.mailOptions, (error, info) => {
                 if (error) {
@@ -141,7 +143,7 @@ class Mail {
             });
         });
     }
-    
+
 }
 
 export default Mail

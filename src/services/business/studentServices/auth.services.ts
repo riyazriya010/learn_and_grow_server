@@ -25,27 +25,27 @@ export default class StudentAuthServices {
         }
     }
 
-    async studentSignUp(data: StudentSignUpInput): Promise<IUser | null> {
+    async studentSignUp(data: StudentSignUpInput): Promise<any | null> {
         try {
             const hashPassword = await bcrypt.hash(data.password, 10)
             data.password = hashPassword
 
-            const addUser = await this.studentAuthRepository.studentSignUp(data)
+            const userData = await this.studentAuthRepository.studentSignUp(data)
 
-            const token = await generateAccessToken({ id: String(addUser?._id), email: String(addUser?.email) })
-            const portLink = STUDENT_PORT_LINK
-            console.log('verify link :::: ', portLink)
-            const createdLink = `${portLink}?token=${token}`
-            const mail = new Mail()
-            mail.sendVerificationEmail(String(addUser?.email), createdLink)
-                .then(info => {
-                    console.log('Verification email sent successfully: ');
-                })
-                .catch(error => {
-                    console.error('Failed to send verification email:', error);
-                });
+            // const token = await generateAccessToken({ id: String(addUser?._id), email: String(addUser?.email) })
+            // const portLink = STUDENT_PORT_LINK
+            // console.log('verify link :::: ', portLink)
+            // const createdLink = `${portLink}?token=${token}`
+            // const mail = new Mail()
+            // mail.sendVerificationEmail(String(addUser?.email), createdLink)
+            //     .then(info => {
+            //         console.log('Verification email sent successfully: ');
+            //     })
+            //     .catch(error => {
+            //         console.error('Failed to send verification email:', error);
+            //     });
 
-            return addUser
+            return userData
         } catch (error: unknown) {
             throw error
         }

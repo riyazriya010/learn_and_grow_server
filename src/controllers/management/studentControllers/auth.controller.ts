@@ -75,8 +75,8 @@ export default class StudentAuthController {
         try {
             const { username, email, phone, password } = req.body
 
-            const addUser = await this.studentAuthServices.studentSignUp({ email, username, phone, password })
-
+            const userData = await this.studentAuthServices.studentSignUp({ email, username, phone, password })
+            const { addUser, createdOtp } = userData
             const accessToken = await this.jwtService.createToken(addUser?._id, String(addUser?.role))
             const refreshToken = await this.jwtService.createRefreshToken(addUser?._id, String(addUser?.role))
 
@@ -96,7 +96,8 @@ export default class StudentAuthController {
                 .send({
                     success: true,
                     message: 'User signup Successfully',
-                    result: addUser
+                    result: addUser,
+                    otp: createdOtp
                 })
         } catch (error: unknown) {
             if (error instanceof Error) {
