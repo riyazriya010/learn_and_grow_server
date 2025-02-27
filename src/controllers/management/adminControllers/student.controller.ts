@@ -28,9 +28,15 @@ export default class AdminStudentController {
             return res
                 .status(200)
                 .cookie('accessToken', userJwtToken, {
-                    httpOnly: false
+                    httpOnly: false,
+                    secure: true,
+                    sameSite: "strict",
+                    domain: '.learngrow.live'
                 }).cookie('refreshToken', userRefreshToken, {
-                    httpOnly: true
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: "strict",
+                    domain: '.learngrow.live'
                 })
                 .send({
                     success: true,
