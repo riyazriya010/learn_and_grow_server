@@ -19,11 +19,15 @@ class Mail {
         console.log('mail class signup studnet link ::: ', verifyLink);
         this.mailOptions.to = email,
             this.mailOptions.html = `<h2>Email Verification</h2>
-            <p>Click the button below to verify your email address:</p>
-            <a href="${verifyLink}" style="text-decoration: none; padding: 10px 20px; background-color: #433D8B; color: white; border-radius: 5px; font-size: 16px; text-align: center; display: inline-block;">
-                Verify Emaill
-            </a>
+            <p>Click the link below to verify your email address:</p>
+            <p><a href="${verifyLink}" style="color: #433D8B; text-decoration: underline;">${verifyLink}</a></p>
             <p>If you didn't sign up for an account, please ignore this email.</p>`;
+        // this.mailOptions.html = `<h2>Email Verification</h2>
+        //     <p>Click the button below to verify your email address:</p>
+        //     <a href="${verifyLink}" style="text-decoration: none; padding: 10px 20px; background-color: #433D8B; color: white; border-radius: 5px; font-size: 16px; text-align: center; display: inline-block;">
+        //         Verify Emaill
+        //     </a>
+        //     <p>If you didn't sign up for an account, please ignore this email.</p>`
         return new Promise((resolve, reject) => {
             this.transporter.sendMail(this.mailOptions, (error, info) => {
                 if (error) {
