@@ -34,6 +34,7 @@ export default class StudentAuthServices {
 
             const token = await generateAccessToken({ id: String(addUser?._id), email: String(addUser?.email) })
             const portLink = STUDENT_PORT_LINK
+            console.log('verify link :::: ', portLink)
             const createdLink = `${portLink}?token=${token}`
             const mail = new Mail()
             mail.sendVerificationEmail(String(addUser?.email), createdLink)
