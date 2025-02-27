@@ -92,23 +92,23 @@ class StudentAuthServices {
             }
         });
     }
-    studentVerify(token) {
+    studentVerify(otp, email) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const verifiedToken = yield (0, mailToken_1.verifyToken)(token);
-                if (!verifiedToken.status) {
-                    const error = new Error('Token Expired');
-                    error.name = 'tokenExpired';
-                    throw error;
-                }
-                const payload = verifiedToken.payload;
-                if (!payload || typeof payload !== 'object' || !('id' in payload) || !('email' in payload)) {
-                    const error = new Error('Invalid token payload');
-                    error.name = 'Invalidtokenpayload';
-                    throw error;
-                }
-                const { email } = payload;
-                const verifyUser = yield this.studentAuthRepository.studentVerify(email);
+                // const verifiedToken = await verifyToken(token)
+                // if (!verifiedToken.status) {
+                //     const error = new Error('Token Expired')
+                //     error.name = 'tokenExpired'
+                //     throw error
+                // }
+                // const payload = verifiedToken.payload;
+                // if (!payload || typeof payload !== 'object' || !('id' in payload) || !('email' in payload)) {
+                //     const error = new Error('Invalid token payload')
+                //     error.name = 'Invalidtokenpayload'
+                //     throw error
+                // }
+                // const { email } = payload;
+                const verifyUser = yield this.studentAuthRepository.studentVerify(otp, email);
                 return verifyUser;
             }
             catch (error) {

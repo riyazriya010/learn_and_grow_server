@@ -158,18 +158,25 @@ class StudentAuthRepository extends commonBaseRepository_1.default {
             }
         });
     }
-    studentVerify(email) {
+    studentVerify(otp, email) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const findUser = yield this.findOne('UserModel', { email: email });
-                if (!findUser) {
-                    const error = new Error('User Not Found');
-                    error.name = 'UserNotFound';
+                const verifyOtp = yield this.findOne('Otp', { email, otp });
+                if (!verifyOtp) {
+                    const error = new Error('Otp Not Found');
+                    error.name = 'OtpNotFound';
                     throw error;
                 }
-                findUser.isVerified = true;
-                yield findUser.save();
-                return findUser;
+                return verifyOtp;
+                // const findUser = await this.findOne('UserModel',{email: email})
+                // if (!findUser) {
+                //     const error = new Error('User Not Found')
+                //     error.name = 'UserNotFound'
+                //     throw error
+                // }
+                // findUser.isVerified = true
+                // await findUser.save()
+                // return findUser
             }
             catch (error) {
                 throw error;

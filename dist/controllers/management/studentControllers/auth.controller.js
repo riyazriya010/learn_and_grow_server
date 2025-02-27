@@ -214,8 +214,9 @@ class StudentAuthController {
     studentVerify(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const token = req.query.token;
-                const verifySudent = yield this.studentAuthServices.studentVerify(token);
+                // const otp = req.query.otp as string
+                const { otp, email } = req.query;
+                const verifySudent = yield this.studentAuthServices.studentVerify(String(otp), String(email));
                 (0, responseUtil_1.SuccessResponse)(res, 200, "Student Verified", verifySudent);
             }
             catch (error) {
@@ -224,8 +225,8 @@ class StudentAuthController {
                         (0, responseUtil_1.ErrorResponse)(res, 401, "Token Expired Please GoTo Profile");
                         return;
                     }
-                    if (error.name === 'UserNotFound') {
-                        (0, responseUtil_1.ErrorResponse)(res, 404, "Email Not Found Please try another Email");
+                    if (error.name === 'OtpNotFound') {
+                        (0, responseUtil_1.ErrorResponse)(res, 404, "Otp Not Found");
                         return;
                     }
                     if (error.name === 'Invalidtokenpayload') {
