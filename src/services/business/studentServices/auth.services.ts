@@ -6,6 +6,7 @@ import { generateAccessToken, verifyToken } from "../../../integration/mailToken
 import Mail from "../../../integration/nodemailer";
 import StudentRepository from "../../../repositories/entities/student.repository";
 import StudentServices from "../student.services";
+import { STUDENT_PORT_LINK } from "../../../utils/constants";
 
 
 export default class StudentAuthServices {
@@ -32,7 +33,7 @@ export default class StudentAuthServices {
             const addUser = await this.studentAuthRepository.studentSignUp(data)
 
             const token = await generateAccessToken({ id: String(addUser?._id), email: String(addUser?.email) })
-            const portLink = process.env.STUDENT_PORT_LINK
+            const portLink = STUDENT_PORT_LINK
             const createdLink = `${portLink}?token=${token}`
             const mail = new Mail()
             mail.sendVerificationEmail(String(addUser?.email), createdLink)

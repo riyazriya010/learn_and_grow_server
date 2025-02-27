@@ -4,6 +4,7 @@ import { MentorProfileUpdateInput, MentorSignUpInput } from "../../../interface/
 import { IMentor } from "../../../models/mentor.model";
 import MentorAuthRepository from "../../../repositories/entities/mentorRepositories/auth.repository";
 import bcrypt from "bcrypt";
+import { MENTOR_PORT_LINK } from "../../../utils/constants";
 
 export default class MentorAuthServices {
     private mentorAuthRepository: MentorAuthRepository
@@ -50,7 +51,7 @@ export default class MentorAuthServices {
             const addedMentor = await this.mentorAuthRepository.mentorSignUp(data)
 
             const token = await generateAccessToken({ id: String(addedMentor?._id), email: String(addedMentor?.email) })
-            const portLink = process.env.MENTOR_PORT_LINK
+            const portLink = MENTOR_PORT_LINK
             const createdLink = `${portLink}?token=${token}`
             const mail = new Mail()
             mail.sendVerificationEmail(String(addedMentor?.email), createdLink)
