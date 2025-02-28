@@ -21,24 +21,24 @@ class Mail {
         }
     }
 
-    public sendVerificationEmail(email: string, otp: string): Promise<any> {
-        console.log('mail class signup studnet link ::: ', otp)
+    public sendVerificationEmail(email: string, verifyLink: string): Promise<any> {
+        console.log('mail class signup studnet link ::: ', verifyLink)
         this.mailOptions.to = email,
-            this.mailOptions.html = `
-        <h2>Email Verification</h2>
-        <p>Your One-Time Password (OTP) for verification is:</p>
-        <h3 style="color: #433D8B; font-size: 24px;">${otp}</h3>
-        <p>Please enter this OTP to complete the verification process.</p>
-        <br>
-        <p>If you didn't request this, please ignore this email.</p>
-    `;
+    //         this.mailOptions.html = `
+    //     <h2>Email Verification</h2>
+    //     <p>Your One-Time Password (OTP) for verification is:</p>
+    //     <h3 style="color: #433D8B; font-size: 24px;">${otp}</h3>
+    //     <p>Please enter this OTP to complete the verification process.</p>
+    //     <br>
+    //     <p>If you didn't request this, please ignore this email.</p>
+    // `;
 
-        // this.mailOptions.html = `<h2>Email Verification</h2>
-        //     <p>Click the button below to verify your email address:</p>
-        //     <a href="${verifyLink}" style="text-decoration: none; padding: 10px 20px; background-color: #433D8B; color: white; border-radius: 5px; font-size: 16px; text-align: center; display: inline-block;">
-        //         Verify Emaill
-        //     </a>
-        //     <p>If you didn't sign up for an account, please ignore this email.</p>`
+        this.mailOptions.html = `<h2>Email Verification</h2>
+            <p>Click the button below to verify your email address:</p>
+            <a href="${verifyLink}" style="text-decoration: none; padding: 10px 20px; background-color: #433D8B; color: white; border-radius: 5px; font-size: 16px; text-align: center; display: inline-block;">
+                Verify Emaill
+            </a>
+            <p>If you didn't sign up for an account, please ignore this email.</p>`
 
 
         return new Promise((resolve, reject) => {

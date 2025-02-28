@@ -214,9 +214,11 @@ class StudentAuthController {
     studentVerify(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                const token = req.query.token;
                 // const otp = req.query.otp as string
-                const { otp, email } = req.query;
-                const verifySudent = yield this.studentAuthServices.studentVerify(String(otp), String(email));
+                // const {otp, email} = req.query
+                // const verifySudent = await this.studentAuthServices.studentVerify(String(otp), String(email))
+                const verifySudent = yield this.studentAuthServices.studentVerify(token);
                 (0, responseUtil_1.SuccessResponse)(res, 200, "Student Verified", verifySudent);
             }
             catch (error) {

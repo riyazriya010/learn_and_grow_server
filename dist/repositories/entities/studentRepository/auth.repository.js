@@ -158,16 +158,25 @@ class StudentAuthRepository extends commonBaseRepository_1.default {
             }
         });
     }
-    studentVerify(otp, email) {
+    studentVerify(email) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('verify otp: ', otp, 'verify email :', email);
-                const verifyOtp = yield this.findOne('Otp', { email, otp });
-                if (!verifyOtp) {
-                    const error = new Error('Otp Not Found');
-                    error.name = 'OtpNotFound';
-                    throw error;
-                }
+                // console.log('verify otp: ', otp, 'verify email :', email)
+                // const verifyOtp = await this.findOne('Otp', { email, otp })
+                // if (!verifyOtp) {
+                //     const error = new Error('Otp Not Found')
+                //     error.name = 'OtpNotFound'
+                //     throw error
+                // }
+                // const findUser = await this.findOne('UserModel', { email: email })
+                // if (!findUser) {
+                //     const error = new Error('User Not Found')
+                //     error.name = 'UserNotFound'
+                //     throw error
+                // }
+                // findUser.isVerified = true
+                // await findUser.save()
+                // return verifyOtp
                 const findUser = yield this.findOne('UserModel', { email: email });
                 if (!findUser) {
                     const error = new Error('User Not Found');
@@ -176,16 +185,7 @@ class StudentAuthRepository extends commonBaseRepository_1.default {
                 }
                 findUser.isVerified = true;
                 yield findUser.save();
-                return verifyOtp;
-                // const findUser = await this.findOne('UserModel',{email: email})
-                // if (!findUser) {
-                //     const error = new Error('User Not Found')
-                //     error.name = 'UserNotFound'
-                //     throw error
-                // }
-                // findUser.isVerified = true
-                // await findUser.save()
-                // return findUser
+                return findUser;
             }
             catch (error) {
                 throw error;
@@ -214,26 +214,26 @@ class StudentAuthRepository extends commonBaseRepository_1.default {
                     throw error;
                 }
                 // create otp
-                const otp = yield (0, mailToken_1.generateRandomFourDigitNumber)();
-                const otpData = {
-                    email,
-                    otp: String(otp)
-                };
-                const createdOtp = yield this.createData('Otp', otpData);
-                const mail = new nodemailer_1.default();
-                mail.sendVerificationEmail(String(email), String(otp))
-                    .then(info => {
-                    console.log('Otp email sent successfully: ');
-                })
-                    .catch(error => {
-                    console.error('Failed to send Otp email:', error);
-                });
-                console.log('createdOtp ::: ', createdOtp);
-                return {
-                    findUser,
-                    createdOtp
-                };
-                // return findUser
+                // const otp = await generateRandomFourDigitNumber()
+                // const otpData = {
+                //     email,
+                //     otp: String(otp)
+                // }
+                // const createdOtp = await this.createData('Otp', otpData)
+                // const mail = new Mail()
+                // mail.sendVerificationEmail(String(email), String(otp))
+                //     .then(info => {
+                //         console.log('Otp email sent successfully: ');
+                //     })
+                //     .catch(error => {
+                //         console.error('Failed to send Otp email:', error);
+                //     });
+                // console.log('createdOtp ::: ', createdOtp)
+                // return {
+                //     findUser,
+                //     createdOtp
+                // }
+                return findUser;
             }
             catch (error) {
                 throw error;

@@ -80,24 +80,28 @@ export default class StudentAuthServices {
         }
     }
 
-    async studentVerify(otp: string, email: string): Promise<any | null> {
+    // async studentVerify(otp: string, email: string): Promise<any | null> {
+    async studentVerify(token: string): Promise<any | null> {
         try {
-            // const verifiedToken = await verifyToken(token)
-            // if (!verifiedToken.status) {
-            //     const error = new Error('Token Expired')
-            //     error.name = 'tokenExpired'
-            //     throw error
-            // }
+            const verifiedToken = await verifyToken(token)
+            if (!verifiedToken.status) {
+                const error = new Error('Token Expired')
+                error.name = 'tokenExpired'
+                throw error
+            }
 
-            // const payload = verifiedToken.payload;
-            // if (!payload || typeof payload !== 'object' || !('id' in payload) || !('email' in payload)) {
-            //     const error = new Error('Invalid token payload')
-            //     error.name = 'Invalidtokenpayload'
-            //     throw error
-            // }
-            // const { email } = payload;
-            const verifyUser = await this.studentAuthRepository.studentVerify(otp, email)
+            const payload = verifiedToken.payload;
+            if (!payload || typeof payload !== 'object' || !('id' in payload) || !('email' in payload)) {
+                const error = new Error('Invalid token payload')
+                error.name = 'Invalidtokenpayload'
+                throw error
+            }
+            const { email } = payload;
+            // const verifyUser = await this.studentAuthRepository.studentVerify(otp, email)
+
+            const verifyUser = await this.studentAuthRepository.studentVerify(email)
             return verifyUser
+
         } catch (error: unknown) {
             throw error
         }
@@ -115,17 +119,17 @@ export default class StudentAuthServices {
     async studentReVerify(email: string): Promise<any | null> {
         try {
             const findUser = await this.studentAuthRepository.studentReVerify(email)
-            // const token = await generateAccessToken({ id: String(findUser?._id), email: email })
-            // const portLink = process.env.STUDENT_PORT_LINK
-            // const createdLink = `${portLink}?token=${token}`
-            // const mail = new Mail()
-            // mail.sendVerificationEmail(email, createdLink)
-            //     .then(info => {
-            //         console.log('Verification email sent successfully:');
-            //     })
-            //     .catch(error => {
-            //         console.error('Failed to send verification email:', error);
-            //     });
+            const token = await generateAccessToken({ id: String(findUser?._id), email: email })
+            const portLink = STUDENT_PORT_LINK
+            const createdLink = `${portLink}?token=${token}`
+            const mail = new Mail()
+            mail.sendVerificationEmail(email, createdLink)
+                .then(info => {
+                    console.log('Verification email sent successfully:');
+                })
+                .catch(error => {
+                    console.error('Failed to send verification email:', error);
+                });
             return findUser
         } catch (error: unknown) {
             throw error

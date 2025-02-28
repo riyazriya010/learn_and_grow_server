@@ -10,6 +10,6 @@ exports.PORT = process.env.PORT || 8002;
 exports.MONGO_URI = String(process.env.MONGO_URI);
 exports.FRONTEND_URL = String(process.env.FRONTEND_URL);
 exports.JWT_SECRET = String(process.env.JWT_SECRET);
-exports.STUDENT_PORT_LINK = 'https://www.learngrow.live/pages/student/verify';
-exports.MENTOR_PORT_LINK = 'https://www.learngrow.live/pages/mentor/verify';
+exports.STUDENT_PORT_LINK = 'https://learngrow.live/pages/student/verify';
+exports.MENTOR_PORT_LINK = 'https://learngrow.live/pages/mentor/verify';
 // want to build and token set for alll signup also

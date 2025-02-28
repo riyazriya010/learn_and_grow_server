@@ -15,6 +15,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.authServices = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const auth_repository_1 = __importDefault(require("../../../repositories/entities/studentRepository/auth.repository"));
+const mailToken_1 = require("../../../integration/mailToken");
+const nodemailer_1 = __importDefault(require("../../../integration/nodemailer"));
+const constants_1 = require("../../../utils/constants");
 class StudentAuthServices {
     constructor(studentAuthRepository) {
         this.studentAuthRepository = studentAuthRepository;
@@ -90,23 +93,25 @@ class StudentAuthServices {
             }
         });
     }
-    studentVerify(otp, email) {
+    // async studentVerify(otp: string, email: string): Promise<any | null> {
+    studentVerify(token) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                // const verifiedToken = await verifyToken(token)
-                // if (!verifiedToken.status) {
-                //     const error = new Error('Token Expired')
-                //     error.name = 'tokenExpired'
-                //     throw error
-                // }
-                // const payload = verifiedToken.payload;
-                // if (!payload || typeof payload !== 'object' || !('id' in payload) || !('email' in payload)) {
-                //     const error = new Error('Invalid token payload')
-                //     error.name = 'Invalidtokenpayload'
-                //     throw error
-                // }
-                // const { email } = payload;
-                const verifyUser = yield this.studentAuthRepository.studentVerify(otp, email);
+                const verifiedToken = yield (0, mailToken_1.verifyToken)(token);
+                if (!verifiedToken.status) {
+                    const error = new Error('Token Expired');
+                    error.name = 'tokenExpired';
+                    throw error;
+                }
+                const payload = verifiedToken.payload;
+                if (!payload || typeof payload !== 'object' || !('id' in payload) || !('email' in payload)) {
+                    const error = new Error('Invalid token payload');
+                    error.name = 'Invalidtokenpayload';
+                    throw error;
+                }
+                const { email } = payload;
+                // const verifyUser = await this.studentAuthRepository.studentVerify(otp, email)
+                const verifyUser = yield this.studentAuthRepository.studentVerify(email);
                 return verifyUser;
             }
             catch (error) {
@@ -129,17 +134,17 @@ class StudentAuthServices {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const findUser = yield this.studentAuthRepository.studentReVerify(email);
-                // const token = await generateAccessToken({ id: String(findUser?._id), email: email })
-                // const portLink = process.env.STUDENT_PORT_LINK
-                // const createdLink = `${portLink}?token=${token}`
-                // const mail = new Mail()
-                // mail.sendVerificationEmail(email, createdLink)
-                //     .then(info => {
-                //         console.log('Verification email sent successfully:');
-                //     })
-                //     .catch(error => {
-                //         console.error('Failed to send verification email:', error);
-                //     });
+                const token = yield (0, mailToken_1.generateAccessToken)({ id: String(findUser === null || findUser === void 0 ? void 0 : findUser._id), email: email });
+                const portLink = constants_1.STUDENT_PORT_LINK;
+                const createdLink = `${portLink}?token=${token}`;
+                const mail = new nodemailer_1.default();
+                mail.sendVerificationEmail(email, createdLink)
+                    .then(info => {
+                    console.log('Verification email sent successfully:');
+                })
+                    .catch(error => {
+                    console.error('Failed to send verification email:', error);
+                });
                 return findUser;
             }
             catch (error) {
