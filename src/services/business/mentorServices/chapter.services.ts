@@ -26,6 +26,7 @@ export default class MentorChapterServices {
             const editChapter = await this.mentorChapterRepository.mentorEditChapter(data)
             return editChapter
         } catch (error: unknown) {
+            console.log('chapter edit serv : ',error)
             throw error
         }
     }

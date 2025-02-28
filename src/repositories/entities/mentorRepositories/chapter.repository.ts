@@ -59,6 +59,7 @@ export default class MentorChapterRepository extends CommonBaseRepository<{
             return updatedChapter
 
         } catch (error: unknown) {
+            console.log('chapter edit repo : ',error)
             throw error
         }
     }

@@ -39,8 +39,8 @@ export default class MentorChapterController {
             // const { title, description } = req.body;
             const { chapterTitle, description, videoUrl } = req.body;
 
-            const file = req.file as any;
-            const fileLocation = file?.location
+            // const file = req.file as any;
+            // const fileLocation = file?.location
 
             const data: any = {
                 chapterTitle,
@@ -52,6 +52,7 @@ export default class MentorChapterController {
             SuccessResponse(res, 200, "Chapter Edited", editChapter)
             return
         } catch (error: unknown) {
+            console.log('chapter edit controller : ',error)
             ErrorResponse(res, 500, 'Internal Server Error')
             return
         }

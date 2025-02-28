@@ -36,6 +36,7 @@ class MentorChapterServices {
                 return editChapter;
             }
             catch (error) {
+                console.log('chapter edit serv : ', error);
                 throw error;
             }
         });

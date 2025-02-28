@@ -51,8 +51,8 @@ class MentorChapterController {
                 const { chapterId } = req.query;
                 // const { title, description } = req.body;
                 const { chapterTitle, description, videoUrl } = req.body;
-                const file = req.file;
-                const fileLocation = file === null || file === void 0 ? void 0 : file.location;
+                // const file = req.file as any;
+                // const fileLocation = file?.location
                 const data = {
                     chapterTitle,
                     description,
@@ -64,6 +64,7 @@ class MentorChapterController {
                 return;
             }
             catch (error) {
+                console.log('chapter edit controller : ', error);
                 (0, responseUtil_1.ErrorResponse)(res, 500, 'Internal Server Error');
                 return;
             }

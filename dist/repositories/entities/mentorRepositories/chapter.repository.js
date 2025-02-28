@@ -53,6 +53,7 @@ class MentorChapterRepository extends commonBaseRepository_1.default {
                 return updatedChapter;
             }
             catch (error) {
+                console.log('chapter edit repo : ', error);
                 throw error;
             }
         });
