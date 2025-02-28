@@ -36,6 +36,7 @@ router.get('/mentor/check', verifyToken_1.default, blocked_1.default, auth_contr
 router.patch('/verify', auth_controller_1.mentorAuthController.mentorVerify.bind(auth_controller_1.mentorAuthController));
 router.get('/mentor/re-verify', verifyToken_1.default, blocked_1.default, auth_controller_1.mentorAuthController.mentorReVerify.bind(auth_controller_1.mentorAuthController));
 router.post('/mentor/generate-presigned-url', verifyToken_1.default, blocked_1.default, verified_1.default, auth_controller_1.mentorAuthController.getSignedUrl.bind(auth_controller_1.mentorAuthController));
+router.post('/mentor/logout', verifyToken_1.default, blocked_1.default, verified_1.default, auth_controller_1.mentorAuthController.studentLogout.bind(auth_controller_1.mentorAuthController));
 //Mentor Course Routes
 // router.post('/mentor/course-upload', authenticateToken, isUserBlocked, isUserVerified, uploadMiddleware.fields([
 //     { name: 'demoVideo', maxCount: 5 },
