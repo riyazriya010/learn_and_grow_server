@@ -156,6 +156,7 @@ export default class StudentAuthRepository extends CommonBaseRepository<{
 
     async studentVerify(otp: string, email: string): Promise<any | null> {
         try {
+            console.log('verify otp: ', otp, 'verify email :', email)
             const verifyOtp = await this.findOne('Otp', { email, otp })
             if (!verifyOtp) {
                 const error = new Error('Otp Not Found')

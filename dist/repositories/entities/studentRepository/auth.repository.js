@@ -161,6 +161,7 @@ class StudentAuthRepository extends commonBaseRepository_1.default {
     studentVerify(otp, email) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                console.log('verify otp: ', otp, 'verify email :', email);
                 const verifyOtp = yield this.findOne('Otp', { email, otp });
                 if (!verifyOtp) {
                     const error = new Error('Otp Not Found');
