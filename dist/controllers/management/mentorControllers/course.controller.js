@@ -119,22 +119,32 @@ class MentorCourseController {
                     duration: req.body.duration,
                     price: req.body.price,
                 };
-                // Extract files if they exist (thumbnail and demo video)
-                const files = req.files;
-                const mediaFiles = (files === null || files === void 0 ? void 0 : files.demoVideo) || [];
-                const thumbnailFile = (files === null || files === void 0 ? void 0 : files.thumbnail) ? files.thumbnail[0] : null;
-                // Only update demo video if a new file is uploaded
-                if (mediaFiles.length > 0) {
-                    const demoVideo = mediaFiles.map((file) => ({
-                        type: 'video',
-                        url: file.location,
-                    }));
+                if (req.body.demoVideoUrl) {
+                    const demoVideo = [{
+                            type: 'video',
+                            url: req.body.demoVideoUrl,
+                        }];
                     updatedFields.demoVideo = demoVideo;
                 }
-                // Only update thumbnail if a new file is uploaded
-                if (thumbnailFile) {
-                    updatedFields.thumbnailUrl = thumbnailFile.location;
+                if (req.body.thumbnailUrl) {
+                    updatedFields.thumbnailUrl = req.body.thumbnailUrl;
                 }
+                // Extract files if they exist (thumbnail and demo video)
+                // const files = req.files as any;
+                // const mediaFiles = files?.demoVideo || [];
+                // const thumbnailFile = files?.thumbnail ? files.thumbnail[0] : null;
+                // // Only update demo video if a new file is uploaded
+                // // if (mediaFiles.length > 0) {
+                // //     const demoVideo = mediaFiles.map((file: any) => ({
+                // //         type: 'video',
+                // //         url: file.location,
+                // //     }));
+                // //     updatedFields.demoVideo = demoVideo;
+                // // }
+                // // Only update thumbnail if a new file is uploaded
+                // if (thumbnailFile) {
+                //     updatedFields.thumbnailUrl = thumbnailFile.location;
+                // }
                 const editedCourse = yield this.mentorCourseServices.mentorEditCourse(String(courseId), updatedFields);
                 (0, responseUtil_1.SuccessResponse)(res, 200, "Course Edited", editedCourse);
                 return;

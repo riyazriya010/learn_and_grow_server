@@ -45,10 +45,11 @@ router.post('/mentor/logout', verifyToken_1.default, blocked_1.default, verified
 router.post('/mentor/course-upload', verifyToken_1.default, blocked_1.default, verified_1.default, course_controller_1.mentorCourseController.mentorAddCourse.bind(course_controller_1.mentorCourseController));
 router.get('/get/all-course', verifyToken_1.default, blocked_1.default, course_controller_1.mentorCourseController.mentorGetAllCourse.bind(course_controller_1.mentorCourseController));
 router.get('/get/course', verifyToken_1.default, blocked_1.default, course_controller_1.mentorCourseController.mentorGetCourse.bind(course_controller_1.mentorCourseController));
-router.patch('/edit/course', verifyToken_1.default, blocked_1.default, verified_1.default, multer_1.default.fields([
-    { name: 'demoVideo', maxCount: 5 },
-    { name: 'thumbnail', maxCount: 1 }
-]), course_controller_1.mentorCourseController.mentorEditCourse.bind(course_controller_1.mentorCourseController));
+// router.patch('/edit/course', authenticateToken, isUserBlocked, isUserVerified, uploadMiddleware.fields([
+//     { name: 'demoVideo', maxCount: 5 },
+//     { name: 'thumbnail', maxCount: 1 }
+// ]), mentorCourseController.mentorEditCourse.bind(mentorCourseController))
+router.patch('/edit/course', verifyToken_1.default, blocked_1.default, verified_1.default, course_controller_1.mentorCourseController.mentorEditCourse.bind(course_controller_1.mentorCourseController));
 router.patch('/unPublish/course', verifyToken_1.default, blocked_1.default, verified_1.default, course_controller_1.mentorCourseController.mentorUnPulishCourse.bind(course_controller_1.mentorCourseController));
 router.patch('/publish/course', verifyToken_1.default, blocked_1.default, verified_1.default, course_controller_1.mentorCourseController.mentorPublishCourse.bind(course_controller_1.mentorCourseController));
 router.get('/filter/course', verifyToken_1.default, blocked_1.default, course_controller_1.mentorCourseController.mentorFilterCourse.bind(course_controller_1.mentorCourseController));

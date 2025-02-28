@@ -5,13 +5,13 @@ import { ErrorResponse, SuccessResponse } from "../../../utils/responseUtil";
 import { Request, Response } from "express";
 
 export default class MentorCourseController {
-     private mentorCourseServices: MentorCourseServices
+    private mentorCourseServices: MentorCourseServices
 
-     constructor(mentorCourseServices: MentorCourseServices){
+    constructor(mentorCourseServices: MentorCourseServices) {
         this.mentorCourseServices = mentorCourseServices
-     }
+    }
 
-     async mentorAddCourse(req: Request, res: Response): Promise<void> {
+    async mentorAddCourse(req: Request, res: Response): Promise<void> {
         try {
             console.log('req.body addcourse ', req.body)
 
@@ -90,10 +90,10 @@ export default class MentorCourseController {
             SuccessResponse(res, 200, "All Courses Got It", getAllCourse)
             return
         } catch (error: unknown) {
-            if(error instanceof Error){
-                if(error.name === 'CoursesNotFound'){
+            if (error instanceof Error) {
+                if (error.name === 'CoursesNotFound') {
                     ErrorResponse(res, 404, 'Courses Not Found')
-            return
+                    return
                 }
             }
             ErrorResponse(res, 500, 'Internal Server Error')
@@ -127,24 +127,36 @@ export default class MentorCourseController {
                 price: req.body.price,
             };
 
-            // Extract files if they exist (thumbnail and demo video)
-            const files = req.files as any;
-            const mediaFiles = files?.demoVideo || [];
-            const thumbnailFile = files?.thumbnail ? files.thumbnail[0] : null;
-
-            // Only update demo video if a new file is uploaded
-            if (mediaFiles.length > 0) {
-                const demoVideo = mediaFiles.map((file: any) => ({
+            if (req.body.demoVideoUrl) {
+                const demoVideo = [{
                     type: 'video',
-                    url: file.location,
-                }));
+                    url: req.body.demoVideoUrl,
+                }]
                 updatedFields.demoVideo = demoVideo;
             }
 
-            // Only update thumbnail if a new file is uploaded
-            if (thumbnailFile) {
-                updatedFields.thumbnailUrl = thumbnailFile.location;
+            if (req.body.thumbnailUrl) {
+                updatedFields.thumbnailUrl = req.body.thumbnailUrl
             }
+
+            // Extract files if they exist (thumbnail and demo video)
+            // const files = req.files as any;
+            // const mediaFiles = files?.demoVideo || [];
+            // const thumbnailFile = files?.thumbnail ? files.thumbnail[0] : null;
+
+            // // Only update demo video if a new file is uploaded
+            // // if (mediaFiles.length > 0) {
+            // //     const demoVideo = mediaFiles.map((file: any) => ({
+            // //         type: 'video',
+            // //         url: file.location,
+            // //     }));
+            // //     updatedFields.demoVideo = demoVideo;
+            // // }
+
+            // // Only update thumbnail if a new file is uploaded
+            // if (thumbnailFile) {
+            //     updatedFields.thumbnailUrl = thumbnailFile.location;
+            // }
 
             const editedCourse = await this.mentorCourseServices.mentorEditCourse(String(courseId), updatedFields)
 
@@ -195,7 +207,7 @@ export default class MentorCourseController {
             const pageNumber = parseInt(page as string, 10);
             const limitNumber = parseInt(limit as string, 10);
 
-            const mentorId = await getId('accessToke',req) as string
+            const mentorId = await getId('accessToke', req) as string
 
             const filterCourse = await this.mentorCourseServices.mentorFilterCourse(pageNumber, limitNumber, String(searchTerm), mentorId)
             SuccessResponse(res, 200, "Filtered Course", filterCourse)

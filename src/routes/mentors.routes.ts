@@ -51,10 +51,11 @@ router.post('/mentor/logout',authenticateToken, isUserBlocked, isUserVerified, m
 router.post('/mentor/course-upload', authenticateToken, isUserBlocked, isUserVerified, mentorCourseController.mentorAddCourse.bind(mentorCourseController));
 router.get('/get/all-course',authenticateToken, isUserBlocked, mentorCourseController.mentorGetAllCourse.bind(mentorCourseController))
 router.get('/get/course',authenticateToken, isUserBlocked, mentorCourseController.mentorGetCourse.bind(mentorCourseController))
-router.patch('/edit/course', authenticateToken, isUserBlocked, isUserVerified, uploadMiddleware.fields([
-    { name: 'demoVideo', maxCount: 5 },
-    { name: 'thumbnail', maxCount: 1 }
-]), mentorCourseController.mentorEditCourse.bind(mentorCourseController))
+// router.patch('/edit/course', authenticateToken, isUserBlocked, isUserVerified, uploadMiddleware.fields([
+//     { name: 'demoVideo', maxCount: 5 },
+//     { name: 'thumbnail', maxCount: 1 }
+// ]), mentorCourseController.mentorEditCourse.bind(mentorCourseController))
+router.patch('/edit/course', authenticateToken, isUserBlocked, isUserVerified, mentorCourseController.mentorEditCourse.bind(mentorCourseController))
 router.patch('/unPublish/course',authenticateToken, isUserBlocked, isUserVerified, mentorCourseController.mentorUnPulishCourse.bind(mentorCourseController))
 router.patch('/publish/course',authenticateToken, isUserBlocked, isUserVerified, mentorCourseController.mentorPublishCourse.bind(mentorCourseController))
 router.get('/filter/course',authenticateToken, isUserBlocked, mentorCourseController.mentorFilterCourse.bind(mentorCourseController))
