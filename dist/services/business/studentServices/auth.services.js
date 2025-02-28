@@ -15,8 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.authServices = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const auth_repository_1 = __importDefault(require("../../../repositories/entities/studentRepository/auth.repository"));
-const mailToken_1 = require("../../../integration/mailToken");
-const nodemailer_1 = __importDefault(require("../../../integration/nodemailer"));
 class StudentAuthServices {
     constructor(studentAuthRepository) {
         this.studentAuthRepository = studentAuthRepository;
@@ -131,17 +129,17 @@ class StudentAuthServices {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const findUser = yield this.studentAuthRepository.studentReVerify(email);
-                const token = yield (0, mailToken_1.generateAccessToken)({ id: String(findUser === null || findUser === void 0 ? void 0 : findUser._id), email: email });
-                const portLink = process.env.STUDENT_PORT_LINK;
-                const createdLink = `${portLink}?token=${token}`;
-                const mail = new nodemailer_1.default();
-                mail.sendVerificationEmail(email, createdLink)
-                    .then(info => {
-                    console.log('Verification email sent successfully:');
-                })
-                    .catch(error => {
-                    console.error('Failed to send verification email:', error);
-                });
+                // const token = await generateAccessToken({ id: String(findUser?._id), email: email })
+                // const portLink = process.env.STUDENT_PORT_LINK
+                // const createdLink = `${portLink}?token=${token}`
+                // const mail = new Mail()
+                // mail.sendVerificationEmail(email, createdLink)
+                //     .then(info => {
+                //         console.log('Verification email sent successfully:');
+                //     })
+                //     .catch(error => {
+                //         console.error('Failed to send verification email:', error);
+                //     });
                 return findUser;
             }
             catch (error) {

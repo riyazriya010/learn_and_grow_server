@@ -212,7 +212,27 @@ class StudentAuthRepository extends commonBaseRepository_1.default {
                     error.name = 'UserNotFound';
                     throw error;
                 }
-                return findUser;
+                // create otp
+                const otp = yield (0, mailToken_1.generateRandomFourDigitNumber)();
+                const otpData = {
+                    email,
+                    otp: String(otp)
+                };
+                const createdOtp = yield this.createData('Otp', otpData);
+                const mail = new nodemailer_1.default();
+                mail.sendVerificationEmail(String(email), String(otp))
+                    .then(info => {
+                    console.log('Otp email sent successfully: ');
+                })
+                    .catch(error => {
+                    console.error('Failed to send Otp email:', error);
+                });
+                console.log('createdOtp ::: ', createdOtp);
+                return {
+                    findUser,
+                    createdOtp
+                };
+                // return findUser
             }
             catch (error) {
                 throw error;

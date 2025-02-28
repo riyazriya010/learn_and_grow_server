@@ -268,8 +268,15 @@ class StudentAuthController {
             try {
                 const email = req.query.email;
                 const verifiedUesr = yield this.studentAuthServices.studentReVerify(String(email));
-                (0, responseUtil_1.SuccessResponse)(res, 200, "Student Verified", verifiedUesr);
-                return;
+                const { findUser, createdOtp } = verifiedUesr;
+                return res.send({
+                    success: true,
+                    message: "Student Verify Otp Send",
+                    result: findUser,
+                    otp: createdOtp
+                });
+                // SuccessResponse(res, 200, "Student Verified", verifiedUesr)
+                // return
             }
             catch (error) {
                 if (error instanceof Error) {
