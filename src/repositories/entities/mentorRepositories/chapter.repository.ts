@@ -3,7 +3,6 @@ import { MentorAddChapterInput, MentorEditChapterInput } from "../../../interfac
 import { ChapterModel, IChapter } from "../../../models/chapter.model";
 import { CourseModel, ICourse } from "../../../models/uploadCourse.model";
 import CommonBaseRepository from "../../baseRepositories/commonBaseRepository";
-import MentorChapterBaseRepository from "../../baseRepositories/mentorBaseRepositories/chapterBaseRepository";
 
 
 
