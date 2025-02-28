@@ -72,28 +72,30 @@ export default class StudentAuthRepository extends CommonBaseRepository<{
 
             const addUser = await this.createData('UserModel', modifiedUser as unknown as Partial<IUser>)
 
+            return addUser
+            
             // create otp
-            const otp = await generateRandomFourDigitNumber()
+            // const otp = await generateRandomFourDigitNumber()
 
-            const otpData = {
-                email,
-                otp: String(otp)
-            }
-            const createdOtp = await this.createData('Otp', otpData)
+            // const otpData = {
+            //     email,
+            //     otp: String(otp)
+            // }
+            // const createdOtp = await this.createData('Otp', otpData)
 
-            const mail = new Mail()
-            mail.sendVerificationEmail(String(email), String(otp))
-                .then(info => {
-                    console.log('Otp email sent successfully: ');
-                })
-                .catch(error => {
-                    console.error('Failed to send Otp email:', error);
-                });
-            console.log('createdOtp ::: ', createdOtp)
-            return {
-                addUser,
-                createdOtp
-            }
+            // const mail = new Mail()
+            // mail.sendVerificationEmail(String(email), String(otp))
+            //     .then(info => {
+            //         console.log('Otp email sent successfully: ');
+            //     })
+            //     .catch(error => {
+            //         console.error('Failed to send Otp email:', error);
+            //     });
+            // console.log('createdOtp ::: ', createdOtp)
+            // return {
+            //     addUser,
+            //     createdOtp
+            // }
         } catch (error: unknown) {
             throw error
         }

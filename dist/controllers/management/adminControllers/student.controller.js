@@ -34,12 +34,12 @@ class AdminStudentController {
                     .cookie('accessToken', userJwtToken, {
                     httpOnly: false,
                     secure: true,
-                    sameSite: "strict",
+                    sameSite: "none",
                     domain: '.learngrow.live'
                 }).cookie('refreshToken', userRefreshToken, {
                     httpOnly: true,
                     secure: true,
-                    sameSite: "strict",
+                    sameSite: "none",
                     domain: '.learngrow.live'
                 })
                     .send({

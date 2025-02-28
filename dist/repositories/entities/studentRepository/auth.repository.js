@@ -12,8 +12,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const mailToken_1 = require("../../../integration/mailToken");
-const nodemailer_1 = __importDefault(require("../../../integration/nodemailer"));
 const otp_model_1 = require("../../../models/otp.model");
 const user_model_1 = __importDefault(require("../../../models/user.model"));
 const commonBaseRepository_1 = __importDefault(require("../../baseRepositories/commonBaseRepository"));
@@ -72,26 +70,27 @@ class StudentAuthRepository extends commonBaseRepository_1.default {
                     studiedHours: 0,
                 };
                 const addUser = yield this.createData('UserModel', modifiedUser);
+                return addUser;
                 // create otp
-                const otp = yield (0, mailToken_1.generateRandomFourDigitNumber)();
-                const otpData = {
-                    email,
-                    otp: String(otp)
-                };
-                const createdOtp = yield this.createData('Otp', otpData);
-                const mail = new nodemailer_1.default();
-                mail.sendVerificationEmail(String(email), String(otp))
-                    .then(info => {
-                    console.log('Otp email sent successfully: ');
-                })
-                    .catch(error => {
-                    console.error('Failed to send Otp email:', error);
-                });
-                console.log('createdOtp ::: ', createdOtp);
-                return {
-                    addUser,
-                    createdOtp
-                };
+                // const otp = await generateRandomFourDigitNumber()
+                // const otpData = {
+                //     email,
+                //     otp: String(otp)
+                // }
+                // const createdOtp = await this.createData('Otp', otpData)
+                // const mail = new Mail()
+                // mail.sendVerificationEmail(String(email), String(otp))
+                //     .then(info => {
+                //         console.log('Otp email sent successfully: ');
+                //     })
+                //     .catch(error => {
+                //         console.error('Failed to send Otp email:', error);
+                //     });
+                // console.log('createdOtp ::: ', createdOtp)
+                // return {
+                //     addUser,
+                //     createdOtp
+                // }
             }
             catch (error) {
                 throw error;

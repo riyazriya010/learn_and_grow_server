@@ -38,20 +38,20 @@ class StudentAuthServices {
             try {
                 const hashPassword = yield bcrypt_1.default.hash(data.password, 10);
                 data.password = hashPassword;
-                const userData = yield this.studentAuthRepository.studentSignUp(data);
-                // const token = await generateAccessToken({ id: String(addUser?._id), email: String(addUser?.email) })
-                // const portLink = STUDENT_PORT_LINK
-                // console.log('verify link :::: ', portLink)
-                // const createdLink = `${portLink}?token=${token}`
-                // const mail = new Mail()
-                // mail.sendVerificationEmail(String(addUser?.email), createdLink)
-                //     .then(info => {
-                //         console.log('Verification email sent successfully: ');
-                //     })
-                //     .catch(error => {
-                //         console.error('Failed to send verification email:', error);
-                //     });
-                return userData;
+                const addUser = yield this.studentAuthRepository.studentSignUp(data);
+                const token = yield (0, mailToken_1.generateAccessToken)({ id: String(addUser === null || addUser === void 0 ? void 0 : addUser._id), email: String(addUser === null || addUser === void 0 ? void 0 : addUser.email) });
+                const portLink = constants_1.STUDENT_PORT_LINK;
+                console.log('verify link :::: ', portLink);
+                const createdLink = `${portLink}?token=${token}`;
+                const mail = new nodemailer_1.default();
+                mail.sendVerificationEmail(String(addUser === null || addUser === void 0 ? void 0 : addUser.email), createdLink)
+                    .then(info => {
+                    console.log('Verification email sent successfully: ');
+                })
+                    .catch(error => {
+                    console.error('Failed to send verification email:', error);
+                });
+                return addUser;
             }
             catch (error) {
                 throw error;

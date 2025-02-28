@@ -79,8 +79,8 @@ class StudentAuthController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { username, email, phone, password } = req.body;
-                const userData = yield this.studentAuthServices.studentSignUp({ email, username, phone, password });
-                const { addUser, createdOtp } = userData;
+                const addUser = yield this.studentAuthServices.studentSignUp({ email, username, phone, password });
+                // const { addUser, createdOtp } = userData
                 const accessToken = yield this.jwtService.createToken(addUser === null || addUser === void 0 ? void 0 : addUser._id, String(addUser === null || addUser === void 0 ? void 0 : addUser.role));
                 const refreshToken = yield this.jwtService.createRefreshToken(addUser === null || addUser === void 0 ? void 0 : addUser._id, String(addUser === null || addUser === void 0 ? void 0 : addUser.role));
                 return res
@@ -88,19 +88,18 @@ class StudentAuthController {
                     .cookie('accessToken', accessToken, {
                     httpOnly: false,
                     secure: true,
-                    sameSite: "strict",
+                    sameSite: "none",
                     domain: '.learngrow.live'
                 }).cookie('refreshToken', refreshToken, {
                     httpOnly: true,
                     secure: true,
-                    sameSite: "strict",
+                    sameSite: "none",
                     domain: '.learngrow.live'
                 })
                     .send({
                     success: true,
                     message: 'User signup Successfully',
-                    result: addUser,
-                    otp: createdOtp
+                    result: addUser
                 });
             }
             catch (error) {
@@ -127,12 +126,12 @@ class StudentAuthController {
                     .cookie('accessToken', accessToken, {
                     httpOnly: false,
                     secure: true,
-                    sameSite: "strict",
+                    sameSite: "none",
                     domain: '.learngrow.live'
                 }).cookie('refreshToken', refreshToken, {
                     httpOnly: true,
                     secure: true,
-                    sameSite: "strict",
+                    sameSite: "none",
                     domain: '.learngrow.live'
                 })
                     .send({
