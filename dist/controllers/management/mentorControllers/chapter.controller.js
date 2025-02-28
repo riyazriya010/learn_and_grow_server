@@ -49,14 +49,15 @@ class MentorChapterController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { chapterId } = req.query;
-                const { title, description } = req.body;
+                // const { title, description } = req.body;
+                const { chapterTitle, description, videoUrl } = req.body;
                 const file = req.file;
                 const fileLocation = file === null || file === void 0 ? void 0 : file.location;
                 const data = {
-                    title,
+                    chapterTitle,
                     description,
                     chapterId: String(chapterId),
-                    fileLocation
+                    videoUrl
                 };
                 const editChapter = yield this.mentorChapterServices.mentorEditChapter(data);
                 (0, responseUtil_1.SuccessResponse)(res, 200, "Chapter Edited", editChapter);

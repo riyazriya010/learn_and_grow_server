@@ -43,11 +43,11 @@ class MentorChapterRepository extends commonBaseRepository_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const datas = {
-                    chapterTitle: data.title,
+                    chapterTitle: data.chapterTitle,
                     description: data.description,
                 };
-                if (data.fileLocation) {
-                    datas.videoUrl = data.fileLocation;
+                if (data.videoUrl) {
+                    datas.videoUrl = data.videoUrl;
                 }
                 const updatedChapter = yield this.updateById('Chapter', data.chapterId, { $set: datas });
                 return updatedChapter;

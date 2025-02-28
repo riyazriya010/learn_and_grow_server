@@ -34,10 +34,10 @@ export type MentorAddChapterInput = {
 }
 
 export type MentorEditChapterInput = {
-    title: string;
+    chapterTitle: string;
     description: string;
     chapterId: string;
-    fileLocation: string;
+    videoUrl: string;
 }
 
 export type MentorAddQuizInput = {

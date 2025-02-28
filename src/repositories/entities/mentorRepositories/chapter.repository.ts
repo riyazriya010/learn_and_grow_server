@@ -43,12 +43,12 @@ export default class MentorChapterRepository extends CommonBaseRepository<{
     async mentorEditChapter(data: MentorEditChapterInput): Promise<IChapter | null> {
         try {
             const datas: any = {
-                chapterTitle: data.title,
+                chapterTitle: data.chapterTitle,
                 description: data.description,
             }
 
-            if (data.fileLocation) {
-                datas.videoUrl = data.fileLocation
+            if (data.videoUrl) {
+                datas.videoUrl = data.videoUrl
             }
 
             const updatedChapter = await this.updateById('Chapter',

@@ -64,7 +64,8 @@ router.get(`/get/categories`,authenticateToken, isUserBlocked, mentorCourseContr
 //Mentor Chapter Routes
 // router.post('/mentor/chapter-upload',authenticateToken, isUserBlocked, isUserVerified, uploadMiddleware.single('chapterVideo'), mentorChapterController.mentorAddChapter.bind(mentorChapterController))
 router.post('/mentor/chapter-upload',authenticateToken, isUserBlocked, isUserVerified, mentorChapterController.mentorAddChapter.bind(mentorChapterController))
-router.patch('/edit/chapter',authenticateToken, isUserBlocked, isUserVerified, uploadMiddleware.single('chapterVideo'), mentorChapterController.mentorEditChapter.bind(mentorChapterController))
+// router.patch('/edit/chapter',authenticateToken, isUserBlocked, isUserVerified, uploadMiddleware.single('chapterVideo'), mentorChapterController.mentorEditChapter.bind(mentorChapterController))
+router.patch('/edit/chapter',authenticateToken, isUserBlocked, isUserVerified, mentorChapterController.mentorEditChapter.bind(mentorChapterController))
 router.get(`/get/all-chapters`,authenticateToken, isUserBlocked, mentorChapterController .mentorGetAllChapters.bind(mentorChapterController))
 
 

@@ -56,7 +56,8 @@ router.get(`/get/categories`, verifyToken_1.default, blocked_1.default, course_c
 //Mentor Chapter Routes
 // router.post('/mentor/chapter-upload',authenticateToken, isUserBlocked, isUserVerified, uploadMiddleware.single('chapterVideo'), mentorChapterController.mentorAddChapter.bind(mentorChapterController))
 router.post('/mentor/chapter-upload', verifyToken_1.default, blocked_1.default, verified_1.default, chapter_controller_1.mentorChapterController.mentorAddChapter.bind(chapter_controller_1.mentorChapterController));
-router.patch('/edit/chapter', verifyToken_1.default, blocked_1.default, verified_1.default, multer_1.default.single('chapterVideo'), chapter_controller_1.mentorChapterController.mentorEditChapter.bind(chapter_controller_1.mentorChapterController));
+// router.patch('/edit/chapter',authenticateToken, isUserBlocked, isUserVerified, uploadMiddleware.single('chapterVideo'), mentorChapterController.mentorEditChapter.bind(mentorChapterController))
+router.patch('/edit/chapter', verifyToken_1.default, blocked_1.default, verified_1.default, chapter_controller_1.mentorChapterController.mentorEditChapter.bind(chapter_controller_1.mentorChapterController));
 router.get(`/get/all-chapters`, verifyToken_1.default, blocked_1.default, chapter_controller_1.mentorChapterController.mentorGetAllChapters.bind(chapter_controller_1.mentorChapterController));
 //Mentor Quizzz Routes
 router.post('/add/quizz', verifyToken_1.default, blocked_1.default, verified_1.default, quizz_controller_1.mentorQuizzController.mentorAddQuizz.bind(quizz_controller_1.mentorQuizzController));

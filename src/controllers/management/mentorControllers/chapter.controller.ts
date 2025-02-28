@@ -36,16 +36,17 @@ export default class MentorChapterController {
     async mentorEditChapter(req: Request, res: Response): Promise<void> {
         try {
             const { chapterId } = req.query;
-            const { title, description } = req.body;
+            // const { title, description } = req.body;
+            const { chapterTitle, description, videoUrl } = req.body;
 
             const file = req.file as any;
             const fileLocation = file?.location
 
             const data: any = {
-                title,
+                chapterTitle,
                 description,
                 chapterId: String(chapterId),
-                fileLocation
+                videoUrl
             }
             const editChapter = await this.mentorChapterServices.mentorEditChapter(data)
             SuccessResponse(res, 200, "Chapter Edited", editChapter)
