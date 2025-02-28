@@ -43,12 +43,12 @@ class StudentAuthController {
                     .cookie('accessToken', accessToken, {
                     httpOnly: false,
                     secure: true,
-                    sameSite: "strict",
+                    sameSite: "none",
                     domain: '.learngrow.live'
                 }).cookie('refreshToken', refreshToken, {
                     httpOnly: true,
                     secure: true,
-                    sameSite: "strict",
+                    sameSite: "none",
                     domain: '.learngrow.live'
                 })
                     .send({
@@ -165,12 +165,12 @@ class StudentAuthController {
                     .cookie('accessToken', accessToken, {
                     httpOnly: false,
                     secure: true,
-                    sameSite: "strict",
+                    sameSite: "none",
                     domain: '.learngrow.live'
                 }).cookie('refreshToken', refreshToken, {
                     httpOnly: true,
                     secure: true,
-                    sameSite: "strict",
+                    sameSite: "none",
                     domain: '.learngrow.live'
                 })
                     .send({
