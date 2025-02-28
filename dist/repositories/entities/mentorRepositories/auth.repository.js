@@ -162,9 +162,9 @@ class MentorAuthRepository extends authBaseRepository_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const findUser = yield this.findOne('Mentor', { email });
-                findUser.isVerified = true;
-                const verifiyedUser = yield findUser.save();
-                return verifiyedUser;
+                // findUser.isVerified = true
+                // const verifiyedUser = await findUser.save()
+                return findUser;
             }
             catch (error) {
                 throw error;

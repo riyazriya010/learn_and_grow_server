@@ -139,6 +139,17 @@ export default class MentorAuthServices {
     async mentorReVerify(email: string): Promise<IMentor | null> {
         try {
             const verifiedUser = await this.mentorAuthRepository.mentorReVerify(email)
+            const token = await generateAccessToken({ id: String(verifiedUser?._id), email: String(verifiedUser?.email) })
+            const portLink = MENTOR_PORT_LINK
+            const createdLink = `${portLink}?token=${token}`
+            const mail = new Mail()
+            mail.sendVerificationEmail(String(verifiedUser?.email), createdLink)
+                .then(info => {
+                    console.log('Verification email sent successfully:');
+                })
+                .catch(error => {
+                    console.error('Failed to send verification email:', error);
+                });
             return verifiedUser
         } catch (error: unknown) {
             throw error

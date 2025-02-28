@@ -142,9 +142,9 @@ export default class MentorAuthRepository extends MentorAuthBaseRepository<{
     async mentorReVerify(email: string): Promise<IMentor | null> {
         try {
             const findUser = await this.findOne('Mentor',{ email }) as IMentor
-            findUser.isVerified = true
-            const verifiyedUser = await findUser.save()
-            return verifiyedUser
+            // findUser.isVerified = true
+            // const verifiyedUser = await findUser.save()
+            return findUser
         } catch (error: unknown) {
             throw error
         }

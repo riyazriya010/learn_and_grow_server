@@ -155,6 +155,17 @@ class MentorAuthServices {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const verifiedUser = yield this.mentorAuthRepository.mentorReVerify(email);
+                const token = yield (0, mailToken_1.generateAccessToken)({ id: String(verifiedUser === null || verifiedUser === void 0 ? void 0 : verifiedUser._id), email: String(verifiedUser === null || verifiedUser === void 0 ? void 0 : verifiedUser.email) });
+                const portLink = constants_1.MENTOR_PORT_LINK;
+                const createdLink = `${portLink}?token=${token}`;
+                const mail = new nodemailer_1.default();
+                mail.sendVerificationEmail(String(verifiedUser === null || verifiedUser === void 0 ? void 0 : verifiedUser.email), createdLink)
+                    .then(info => {
+                    console.log('Verification email sent successfully:');
+                })
+                    .catch(error => {
+                    console.error('Failed to send verification email:', error);
+                });
                 return verifiedUser;
             }
             catch (error) {
