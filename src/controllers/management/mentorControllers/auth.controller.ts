@@ -359,7 +359,7 @@ export default class MentorAuthController {
     }
 
 
-    async studentLogout(req: Request, res: Response): Promise<any> {
+    async mentorLogout(req: Request, res: Response): Promise<any> {
         try {
 
             return res

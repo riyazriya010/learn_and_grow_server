@@ -323,6 +323,31 @@ export default class StudentAuthController {
         }
     }
 
+    async studentLogout(req: Request, res: Response): Promise<any> {
+        try {
+
+            return res
+        .status(200)
+        .clearCookie("accessToken", {
+            httpOnly: false,
+            secure: true,
+            sameSite: "none",
+            domain: ".learngrow.live",
+        })
+        .clearCookie("refreshToken", {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+            domain: ".learngrow.live",
+        })
+        .send({ success: true, message: "Logged out successfully" });
+
+        } catch (error: unknown) {
+            ErrorResponse(res, 500, "Internal Server Error")
+            return
+        }
+    }
+
 }
 
 

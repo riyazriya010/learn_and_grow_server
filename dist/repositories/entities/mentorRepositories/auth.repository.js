@@ -13,8 +13,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mentor_model_1 = __importDefault(require("../../../models/mentor.model"));
-const authBaseRepository_1 = __importDefault(require("../../baseRepositories/mentorBaseRepositories/authBaseRepository"));
-class MentorAuthRepository extends authBaseRepository_1.default {
+const commonBaseRepository_1 = __importDefault(require("../../baseRepositories/commonBaseRepository"));
+class MentorAuthRepository extends commonBaseRepository_1.default {
     constructor() {
         super({
             Mentor: mentor_model_1.default

@@ -330,6 +330,31 @@ class StudentAuthController {
             }
         });
     }
+    studentLogout(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return res
+                    .status(200)
+                    .clearCookie("accessToken", {
+                    httpOnly: false,
+                    secure: true,
+                    sameSite: "none",
+                    domain: ".learngrow.live",
+                })
+                    .clearCookie("refreshToken", {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: "none",
+                    domain: ".learngrow.live",
+                })
+                    .send({ success: true, message: "Logged out successfully" });
+            }
+            catch (error) {
+                (0, responseUtil_1.ErrorResponse)(res, 500, "Internal Server Error");
+                return;
+            }
+        });
+    }
 }
 exports.default = StudentAuthController;
 exports.studentAuthController = new StudentAuthController(auth_services_1.authServices);

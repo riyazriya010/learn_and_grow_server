@@ -1,10 +1,10 @@
 import { IMentorAuthMethods } from "../../../interface/mentors/mentor.interface";
 import { MentorProfileUpdateInput, MentorSignUpInput } from "../../../interface/mentors/mentor.types";
 import MentorModel, { IMentor } from "../../../models/mentor.model";
-import MentorAuthBaseRepository from "../../baseRepositories/mentorBaseRepositories/authBaseRepository";
+import CommonBaseRepository from "../../baseRepositories/commonBaseRepository";
 
 
-export default class MentorAuthRepository extends MentorAuthBaseRepository<{
+export default class MentorAuthRepository extends CommonBaseRepository<{
     Mentor: IMentor
 }> implements IMentorAuthMethods {
 

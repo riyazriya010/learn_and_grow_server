@@ -344,7 +344,7 @@ class MentorAuthController {
             }
         });
     }
-    studentLogout(req, res) {
+    mentorLogout(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 return res

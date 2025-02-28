@@ -1,5 +1,3 @@
-import { AdminController } from "../controllers/admin.controller";
-
 
 
 import { Router } from "express";
@@ -20,6 +18,7 @@ router.post('/admin/login', adminStudentController.adminLogin.bind(adminStudentC
 router.get('/get/users',authenticateToken, adminStudentController.adminGetStudents.bind(adminStudentController))
 router.patch('/block/user',authenticateToken, adminStudentController.adminBlockStudent.bind(adminStudentController))
 router.patch('/unblock/user',authenticateToken, adminStudentController.adminUnBlockStudent.bind(adminStudentController))
+router.post('/admin/logout',authenticateToken, adminStudentController.adminLogout.bind(adminStudentController))
 
 //Amin Mentor Routes
 router.get('/get/mentors',authenticateToken, adminMentorController.adminGetMentors.bind(adminMentorController))
@@ -57,8 +56,6 @@ router.get('/get/admin/chart/graph/data', authenticateToken, adminSalesControlle
 router.get('/get/admin/report', authenticateToken, adminSalesController.adminSalesReport.bind(adminSalesController))
 
 
-
-const adminController = new AdminController()
 
 
 //Student Routes

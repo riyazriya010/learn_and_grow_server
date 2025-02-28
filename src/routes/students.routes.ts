@@ -1,9 +1,6 @@
 
 // import UserController from "../controllers/students.controller";
 import { registerRoutes, RouteConfig } from "./routeUtils";
-import StudentRepository from "../repositories/entities/student.repository";
-import StudentServices from "../services/business/student.services";
-import StudentController from "../controllers/management/student.controller";
 
 
 import { Router } from "express";
@@ -33,6 +30,7 @@ router.patch('/student/profile-update', authenticateToken, isUserBlocked, isUser
 router.get('/student/re-verify', authenticateToken, isUserBlocked, studentAuthController.studentReVerify.bind(studentAuthController))
 router.get('/student/check', authenticateToken, isUserBlocked, studentAuthController.studentCheck.bind(studentAuthController))
 router.post('/student/generate-presigned-url',authenticateToken, isUserBlocked, isUserVerified, studentAuthController.getSignedUrl.bind(studentAuthController))
+router.post('/student/logout',authenticateToken, isUserBlocked, isUserVerified, studentAuthController.studentLogout.bind(studentAuthController))
 
 
 //Courses Routes

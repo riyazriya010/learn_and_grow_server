@@ -40,7 +40,7 @@ router.get('/mentor/check',authenticateToken, isUserBlocked, mentorAuthControlle
 router.patch('/verify', mentorAuthController.mentorVerify.bind(mentorAuthController))
 router.get('/mentor/re-verify', authenticateToken, isUserBlocked, mentorAuthController.mentorReVerify.bind(mentorAuthController))
 router.post('/mentor/generate-presigned-url',authenticateToken, isUserBlocked, isUserVerified, mentorAuthController.getSignedUrl.bind(mentorAuthController))
-router.post('/mentor/logout',authenticateToken, isUserBlocked, isUserVerified, mentorAuthController.studentLogout.bind(mentorAuthController))
+router.post('/mentor/logout',authenticateToken, isUserBlocked, isUserVerified, mentorAuthController.mentorLogout.bind(mentorAuthController))
 
 
 //Mentor Course Routes

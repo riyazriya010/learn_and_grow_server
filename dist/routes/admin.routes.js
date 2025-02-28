@@ -3,7 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const admin_controller_1 = require("../controllers/admin.controller");
 const express_1 = require("express");
 const verifyToken_1 = __importDefault(require("../middleware/verifyToken"));
 const student_controller_1 = require("../controllers/management/adminControllers/student.controller");
@@ -18,6 +17,7 @@ router.post('/admin/login', student_controller_1.adminStudentController.adminLog
 router.get('/get/users', verifyToken_1.default, student_controller_1.adminStudentController.adminGetStudents.bind(student_controller_1.adminStudentController));
 router.patch('/block/user', verifyToken_1.default, student_controller_1.adminStudentController.adminBlockStudent.bind(student_controller_1.adminStudentController));
 router.patch('/unblock/user', verifyToken_1.default, student_controller_1.adminStudentController.adminUnBlockStudent.bind(student_controller_1.adminStudentController));
+router.post('/admin/logout', verifyToken_1.default, student_controller_1.adminStudentController.adminLogout.bind(student_controller_1.adminStudentController));
 //Amin Mentor Routes
 router.get('/get/mentors', verifyToken_1.default, mentor_controller_1.adminMentorController.adminGetMentors.bind(mentor_controller_1.adminMentorController));
 router.patch('/block/mentor', verifyToken_1.default, mentor_controller_1.adminMentorController.adminBlockMentor.bind(mentor_controller_1.adminMentorController));
@@ -44,7 +44,6 @@ router.get('/get/badges', badge_controller_1.adminBadgeController.adminGetBadges
 router.get('/get/admin/dashboard', verifyToken_1.default, sales_controller_1.adminSalesController.adminDashboard.bind(sales_controller_1.adminSalesController));
 router.get('/get/admin/chart/graph/data', verifyToken_1.default, sales_controller_1.adminSalesController.adminChartGraph.bind(sales_controller_1.adminSalesController));
 router.get('/get/admin/report', verifyToken_1.default, sales_controller_1.adminSalesController.adminSalesReport.bind(sales_controller_1.adminSalesController));
-const adminController = new admin_controller_1.AdminController();
 //Student Routes
 // router.post('/admin/login', adminController.adminLogin.bind(adminController))
 // router.get('/get/users',authenticateToken, adminController.getUsers.bind(adminController))

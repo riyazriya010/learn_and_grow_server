@@ -5,7 +5,6 @@ import { StudentGoogleSignupInput, StudentProfileInput, StudentSignUpInput } fro
 import { IOtp, OTPModel } from "../../../models/otp.model";
 import UserModel, { IUser } from "../../../models/user.model";
 import CommonBaseRepository from "../../baseRepositories/commonBaseRepository";
-import StudentAuthBaseRepository from "../../baseRepositories/studentBaseRepositories/studentAuthBaseRepository";
 import bcrypt from 'bcrypt'
 
 
