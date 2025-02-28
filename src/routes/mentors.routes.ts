@@ -62,7 +62,8 @@ router.get(`/get/categories`,authenticateToken, isUserBlocked, mentorCourseContr
 
 
 //Mentor Chapter Routes
-router.post('/mentor/chapter-upload',authenticateToken, isUserBlocked, isUserVerified, uploadMiddleware.single('chapterVideo'), mentorChapterController.mentorAddChapter.bind(mentorChapterController))
+// router.post('/mentor/chapter-upload',authenticateToken, isUserBlocked, isUserVerified, uploadMiddleware.single('chapterVideo'), mentorChapterController.mentorAddChapter.bind(mentorChapterController))
+router.post('/mentor/chapter-upload',authenticateToken, isUserBlocked, isUserVerified, mentorChapterController.mentorAddChapter.bind(mentorChapterController))
 router.patch('/edit/chapter',authenticateToken, isUserBlocked, isUserVerified, uploadMiddleware.single('chapterVideo'), mentorChapterController.mentorEditChapter.bind(mentorChapterController))
 router.get(`/get/all-chapters`,authenticateToken, isUserBlocked, mentorChapterController .mentorGetAllChapters.bind(mentorChapterController))
 
@@ -81,6 +82,7 @@ router.get('/get/mentor/messages/:studentId', authenticateToken, isUserBlocked, 
 router.post('/save/mentor/message', authenticateToken, isUserBlocked, isUserVerified, mentorchatController.mentorSaveMessage.bind(mentorchatController))
 router.post('/create/mentor/room', authenticateToken, isUserBlocked, isUserVerified, mentorchatController.mentorCreateRoom.bind(mentorchatController))
 router.patch('/delete/mentor/message/everyone/:messageId', authenticateToken, isUserBlocked, isUserVerified, mentorchatController.mentorDeleteEveryOne.bind(mentorchatController))
+router.patch('/delete/mentor/message/me/:messageId', authenticateToken, isUserBlocked, isUserVerified, mentorchatController.mentorDeleteForMe.bind(mentorchatController))
 router.patch('/reset/mentor/count/:studentId', authenticateToken, isUserBlocked, isUserVerified, mentorchatController.mentorResetCount.bind(mentorchatController))
 
 

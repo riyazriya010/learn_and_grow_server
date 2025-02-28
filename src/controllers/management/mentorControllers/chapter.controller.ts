@@ -14,13 +14,14 @@ export default class MentorChapterController {
     async mentorAddChapter(req: Request, res: Response): Promise<void> {
         try {
             const { courseId } = req.query; // Extract courseId from the query
-            const { title, description } = req.body;
-            const file = req.file as any;
+            const { title, description, videoUrl } = req.body;
+            // const file = req.file as any;
             const data: any = {
                 chapterTitle: title,
                 courseId: new mongoose.Types.ObjectId(String(courseId)),
                 description,
-                videoUrl: file.location,
+                videoUrl: videoUrl,
+                // videoUrl: file.location,
             }
             const uploadChapter = await this.mentorChapterServices.mentorAddChapter(data)
             SuccessResponse(res, 200, "Chapter Uploaded", uploadChapter)

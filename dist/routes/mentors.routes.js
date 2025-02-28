@@ -54,7 +54,8 @@ router.patch('/publish/course', verifyToken_1.default, blocked_1.default, verifi
 router.get('/filter/course', verifyToken_1.default, blocked_1.default, course_controller_1.mentorCourseController.mentorFilterCourse.bind(course_controller_1.mentorCourseController));
 router.get(`/get/categories`, verifyToken_1.default, blocked_1.default, course_controller_1.mentorCourseController.mentorGetAllCategorise.bind(course_controller_1.mentorCourseController));
 //Mentor Chapter Routes
-router.post('/mentor/chapter-upload', verifyToken_1.default, blocked_1.default, verified_1.default, multer_1.default.single('chapterVideo'), chapter_controller_1.mentorChapterController.mentorAddChapter.bind(chapter_controller_1.mentorChapterController));
+// router.post('/mentor/chapter-upload',authenticateToken, isUserBlocked, isUserVerified, uploadMiddleware.single('chapterVideo'), mentorChapterController.mentorAddChapter.bind(mentorChapterController))
+router.post('/mentor/chapter-upload', verifyToken_1.default, blocked_1.default, verified_1.default, chapter_controller_1.mentorChapterController.mentorAddChapter.bind(chapter_controller_1.mentorChapterController));
 router.patch('/edit/chapter', verifyToken_1.default, blocked_1.default, verified_1.default, multer_1.default.single('chapterVideo'), chapter_controller_1.mentorChapterController.mentorEditChapter.bind(chapter_controller_1.mentorChapterController));
 router.get(`/get/all-chapters`, verifyToken_1.default, blocked_1.default, chapter_controller_1.mentorChapterController.mentorGetAllChapters.bind(chapter_controller_1.mentorChapterController));
 //Mentor Quizzz Routes
@@ -68,6 +69,7 @@ router.get('/get/mentor/messages/:studentId', verifyToken_1.default, blocked_1.d
 router.post('/save/mentor/message', verifyToken_1.default, blocked_1.default, verified_1.default, chat_controller_1.mentorchatController.mentorSaveMessage.bind(chat_controller_1.mentorchatController));
 router.post('/create/mentor/room', verifyToken_1.default, blocked_1.default, verified_1.default, chat_controller_1.mentorchatController.mentorCreateRoom.bind(chat_controller_1.mentorchatController));
 router.patch('/delete/mentor/message/everyone/:messageId', verifyToken_1.default, blocked_1.default, verified_1.default, chat_controller_1.mentorchatController.mentorDeleteEveryOne.bind(chat_controller_1.mentorchatController));
+router.patch('/delete/mentor/message/me/:messageId', verifyToken_1.default, blocked_1.default, verified_1.default, chat_controller_1.mentorchatController.mentorDeleteForMe.bind(chat_controller_1.mentorchatController));
 router.patch('/reset/mentor/count/:studentId', verifyToken_1.default, blocked_1.default, verified_1.default, chat_controller_1.mentorchatController.mentorResetCount.bind(chat_controller_1.mentorchatController));
 //Mentor Notification Routes
 router.post('/create/mentor/chat/notification', verifyToken_1.default, blocked_1.default, verified_1.default, notification_controller_1.mentorNotificationController.mentorCreateNotification.bind(notification_controller_1.mentorNotificationController));

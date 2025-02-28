@@ -25,13 +25,14 @@ class MentorChapterController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { courseId } = req.query; // Extract courseId from the query
-                const { title, description } = req.body;
-                const file = req.file;
+                const { title, description, videoUrl } = req.body;
+                // const file = req.file as any;
                 const data = {
                     chapterTitle: title,
                     courseId: new mongoose_1.default.Types.ObjectId(String(courseId)),
                     description,
-                    videoUrl: file.location,
+                    videoUrl: videoUrl,
+                    // videoUrl: file.location,
                 };
                 const uploadChapter = yield this.mentorChapterServices.mentorAddChapter(data);
                 (0, responseUtil_1.SuccessResponse)(res, 200, "Chapter Uploaded", uploadChapter);
