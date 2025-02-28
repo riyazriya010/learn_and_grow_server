@@ -112,20 +112,20 @@ export default class StudentAuthServices {
         }
     }
 
-    async studentReVerify(email: string): Promise<IUser | null> {
+    async studentReVerify(email: string): Promise<any | null> {
         try {
             const findUser = await this.studentAuthRepository.studentReVerify(email)
-            const token = await generateAccessToken({ id: String(findUser?._id), email: email })
-            const portLink = process.env.STUDENT_PORT_LINK
-            const createdLink = `${portLink}?token=${token}`
-            const mail = new Mail()
-            mail.sendVerificationEmail(email, createdLink)
-                .then(info => {
-                    console.log('Verification email sent successfully:');
-                })
-                .catch(error => {
-                    console.error('Failed to send verification email:', error);
-                });
+            // const token = await generateAccessToken({ id: String(findUser?._id), email: email })
+            // const portLink = process.env.STUDENT_PORT_LINK
+            // const createdLink = `${portLink}?token=${token}`
+            // const mail = new Mail()
+            // mail.sendVerificationEmail(email, createdLink)
+            //     .then(info => {
+            //         console.log('Verification email sent successfully:');
+            //     })
+            //     .catch(error => {
+            //         console.error('Failed to send verification email:', error);
+            //     });
             return findUser
         } catch (error: unknown) {
             throw error

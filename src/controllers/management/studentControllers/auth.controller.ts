@@ -255,12 +255,19 @@ export default class StudentAuthController {
         }
     }
 
-    async studentReVerify(req: Request, res: Response): Promise<void> {
+    async studentReVerify(req: Request, res: Response): Promise<any> {
         try {
             const email = req.query.email
             const verifiedUesr = await this.studentAuthServices.studentReVerify(String(email))
-            SuccessResponse(res, 200, "Student Verified", verifiedUesr)
-            return
+            const {findUser, createdOtp} = verifiedUesr
+            return res.send({
+                success: true,
+                message: "Student Verify Otp Send",
+                result: findUser,
+                otp: createdOtp
+            })
+            // SuccessResponse(res, 200, "Student Verified", verifiedUesr)
+            // return
         } catch (error: unknown) {
             if (error instanceof Error) {
                 if (error.name === 'UserNotFound') {

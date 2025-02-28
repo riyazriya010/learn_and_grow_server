@@ -156,14 +156,14 @@ export default class StudentAuthRepository extends CommonBaseRepository<{
 
     async studentVerify(otp: string, email: string): Promise<any | null> {
         try {
-            const verifyOtp = await this.findOne('Otp', {email, otp })
+            const verifyOtp = await this.findOne('Otp', { email, otp })
             if (!verifyOtp) {
                 const error = new Error('Otp Not Found')
                 error.name = 'OtpNotFound'
                 throw error
             }
 
-            const findUser = await this.findOne('UserModel',{email: email})
+            const findUser = await this.findOne('UserModel', { email: email })
             if (!findUser) {
                 const error = new Error('User Not Found')
                 error.name = 'UserNotFound'
@@ -200,7 +200,7 @@ export default class StudentAuthRepository extends CommonBaseRepository<{
         }
     }
 
-    async studentReVerify(email: string): Promise<IUser | null> {
+    async studentReVerify(email: string): Promise<any | null> {
         try {
             const findUser = await this.findOne('UserModel', { email: email })
             if (!findUser) {
@@ -208,7 +208,31 @@ export default class StudentAuthRepository extends CommonBaseRepository<{
                 error.name = 'UserNotFound'
                 throw error
             }
-            return findUser
+
+            // create otp
+            const otp = await generateRandomFourDigitNumber()
+
+            const otpData = {
+                email,
+                otp: String(otp)
+            }
+            const createdOtp = await this.createData('Otp', otpData)
+
+            const mail = new Mail()
+            mail.sendVerificationEmail(String(email), String(otp))
+                .then(info => {
+                    console.log('Otp email sent successfully: ');
+                })
+                .catch(error => {
+                    console.error('Failed to send Otp email:', error);
+                });
+            console.log('createdOtp ::: ', createdOtp)
+            return {
+                findUser,
+                createdOtp
+            }
+
+            // return findUser
         } catch (error: unknown) {
             throw error
         }
