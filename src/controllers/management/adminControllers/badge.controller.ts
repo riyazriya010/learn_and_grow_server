@@ -64,5 +64,6 @@ export default class AdminBadgeController {
 
 }
 
+
 export const adminBadgeController = new AdminBadgeController(adminBadgeServices)
 

@@ -1,5 +1,4 @@
 import { IStudentCourseMethods } from "../../../interface/students/student.interface";
-import StudentCourseBaseRepository from "../../baseRepositories/studentBaseRepositories/courseBaseRepository";
 import { IPurchasedCourse, PurchasedCourseModel } from "../../../models/purchased.model";
 import { ICourse, CourseModel } from "../../../models/uploadCourse.model";
 import { StudentBuyCourseInput, studentCompleteCourse, StudentCourseFilterData, StudentCoursePlay, studentFilterCoursesOuput, studentGetAllCoursesOuput, studentGetBuyedCourses, StudentGetCourseOuput, StudentGetCoursePlayOutput } from "../../../interface/students/student.types";
