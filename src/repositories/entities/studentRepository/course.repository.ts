@@ -66,7 +66,10 @@ export default class StudentCourseRepository extends CommonBaseRepository<{
             // const totalCourses = await this.models.Course.countDocuments({ isPublished: true, isListed: true, approved: true });
 
             if (!getAllCourse || getAllCourse.length === 0) {
-                throw new Error("Courses Not Found");
+                // throw new Error("Courses Not Found");
+                const error = new Error('Courses Not Found')
+                error.name = 'CoursesNotFound'
+                throw error
             }
 
             return {
