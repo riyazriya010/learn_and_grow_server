@@ -13,6 +13,7 @@ const certificate_controller_1 = require("../controllers/management/studentContr
 const chat_controller_1 = require("../controllers/management/studentControllers/chat.controller");
 const notification_controller_1 = require("../controllers/management/studentControllers/notification.controller");
 const badge_controller_1 = require("../controllers/management/studentControllers/badge.controller");
+const authenticate_1 = __importDefault(require("../middleware/authenticate"));
 const router = (0, express_1.Router)();
 //Auth Routes
 router.post('/student/login', auth_controller_1.studentAuthController.studentLogin.bind(auth_controller_1.studentAuthController));
@@ -32,7 +33,7 @@ router.get('/filter/data', course_controller_1.studentCourseController.studentCo
 router.get('/get/course', course_controller_1.studentCourseController.studentGetCourse.bind(course_controller_1.studentCourseController));
 router.get('/get/course/play', verifyToken_1.default, blocked_1.default, course_controller_1.studentCourseController.studentGetCoursePlay.bind(course_controller_1.studentCourseController));
 router.post('/payment', verifyToken_1.default, blocked_1.default, course_controller_1.studentCourseController.studentBuyCourse.bind(course_controller_1.studentCourseController));
-router.get('/get/buyedCourses', verifyToken_1.default, blocked_1.default, course_controller_1.studentCourseController.studentBuyedCourses.bind(course_controller_1.studentCourseController));
+router.get('/get/buyedCourses', authenticate_1.default, verifyToken_1.default, blocked_1.default, course_controller_1.studentCourseController.studentBuyedCourses.bind(course_controller_1.studentCourseController));
 router.get('/course-play', verifyToken_1.default, blocked_1.default, course_controller_1.studentCourseController.studentCoursePlay.bind(course_controller_1.studentCourseController));
 router.patch('/chapter-end', verifyToken_1.default, blocked_1.default, course_controller_1.studentCourseController.studentChapterVideoEnd.bind(course_controller_1.studentCourseController));
 // check verify before buy the course

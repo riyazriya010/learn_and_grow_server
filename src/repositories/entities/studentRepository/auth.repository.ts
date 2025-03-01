@@ -3,6 +3,7 @@ import Mail from "../../../integration/nodemailer";
 import { IStudentAuthMethods } from "../../../interface/students/student.interface";
 import { StudentGoogleSignupInput, StudentProfileInput, StudentSignUpInput } from "../../../interface/students/student.types";
 import { IOtp, OTPModel } from "../../../models/otp.model";
+import BlacklistedTokenModel, { IBlacklistedToken } from "../../../models/tokenBlackList.model";
 import UserModel, { IUser } from "../../../models/user.model";
 import CommonBaseRepository from "../../baseRepositories/commonBaseRepository";
 import bcrypt from 'bcrypt'
@@ -10,13 +11,15 @@ import bcrypt from 'bcrypt'
 
 export default class StudentAuthRepository extends CommonBaseRepository<{
     UserModel: IUser;
-    Otp: IOtp
+    Otp: IOtp;
+    Token: IBlacklistedToken;
 }> implements IStudentAuthMethods {
 
     constructor() {
         super({
             UserModel: UserModel,
-            Otp: OTPModel
+            Otp: OTPModel,
+            Token: BlacklistedTokenModel
         })
     }
 
@@ -247,6 +250,19 @@ export default class StudentAuthRepository extends CommonBaseRepository<{
             const findUser = await this.findById('UserModel', studentId)
             return findUser
         } catch (error: unknown) {
+            throw error
+        }
+    }
+
+    async addToken(accessToken: any, refreshToken: any): Promise<any> {
+        try{
+            const access = await this.createData('Token', { token: accessToken })
+            const refresh = await this.createData('Token', { token: refreshToken })
+            return {
+                access,
+                refresh
+            }
+        }catch(error: unknown){
             throw error
         }
     }

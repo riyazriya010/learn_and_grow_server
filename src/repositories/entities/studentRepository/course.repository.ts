@@ -15,7 +15,7 @@ export default class StudentCourseRepository extends CommonBaseRepository<{
     Chapter: IChapter;
     MentorWallet: IMentorWallet;
     AdminWallet: IAdminWallet;
-    Quiz: IQuiz
+    Quiz: IQuiz,
 }> implements IStudentCourseMethods {
 
     constructor() {

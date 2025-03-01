@@ -163,6 +163,17 @@ class StudentAuthServices {
             }
         });
     }
+    addTokens(accessToken, refreshToken) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const addToken = yield this.studentAuthRepository.addToken(accessToken, refreshToken);
+                return addToken;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
 }
 exports.default = StudentAuthServices;
 const authRepository = new auth_repository_1.default();

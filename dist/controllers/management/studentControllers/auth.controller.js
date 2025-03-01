@@ -333,6 +333,10 @@ class StudentAuthController {
     studentLogout(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                const accessToken = req.cookies.accessToken;
+                const refreshToken = req.cookies.refreshToken;
+                const addToken = yield this.studentAuthServices.addTokens(accessToken, refreshToken);
+                console.log('tokens Added ::: ', addToken);
                 return res
                     .status(200)
                     .clearCookie("accessToken", {

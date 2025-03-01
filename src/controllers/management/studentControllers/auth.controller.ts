@@ -8,6 +8,7 @@ import { StudentAuthResponse } from "../../../interface/students/student.types";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { StringDecoder } from "string_decoder";
+import BlacklistedToken from "../../../models/tokenBlackList.model";
 
 const s3 = new S3Client({
     region: process.env.AWS_REGION || "us-east-1",
@@ -260,7 +261,7 @@ export default class StudentAuthController {
         try {
             const email = req.query.email
             const verifiedUesr = await this.studentAuthServices.studentReVerify(String(email))
-            const {findUser, createdOtp} = verifiedUesr
+            const { findUser, createdOtp } = verifiedUesr
             return res.send({
                 success: true,
                 message: "Student Verify Otp Send",
@@ -326,21 +327,29 @@ export default class StudentAuthController {
     async studentLogout(req: Request, res: Response): Promise<any> {
         try {
 
+            const accessToken = req.cookies.accessToken;
+            const refreshToken = req.cookies.refreshToken;
+
+            const addToken = await this.studentAuthServices.addTokens(accessToken, refreshToken)
+
+            console.log('tokens Added ::: ', addToken)
+
+
             return res
-        .status(200)
-        .clearCookie("accessToken", {
-            httpOnly: false,
-            secure: true,
-            sameSite: "none",
-            domain: ".learngrow.live",
-        })
-        .clearCookie("refreshToken", {
-            httpOnly: true,
-            secure: true,
-            sameSite: "none",
-            domain: ".learngrow.live",
-        })
-        .send({ success: true, message: "Logged out successfully" });
+                .status(200)
+                .clearCookie("accessToken", {
+                    httpOnly: false,
+                    secure: true,
+                    sameSite: "none",
+                    domain: ".learngrow.live",
+                })
+                .clearCookie("refreshToken", {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: "none",
+                    domain: ".learngrow.live",
+                })
+                .send({ success: true, message: "Logged out successfully" });
 
         } catch (error: unknown) {
             ErrorResponse(res, 500, "Internal Server Error")

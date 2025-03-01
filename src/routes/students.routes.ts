@@ -14,6 +14,7 @@ import { studentCertificateController } from "../controllers/management/studentC
 import { studentChatController } from "../controllers/management/studentControllers/chat.controller";
 import { studentNotificationController } from "../controllers/management/studentControllers/notification.controller";
 import { studentRewardController } from "../controllers/management/studentControllers/badge.controller";
+import authenticateBlackList from "../middleware/authenticate";
 
 
 const router = Router();
@@ -40,7 +41,7 @@ router.get('/get/course', studentCourseController.studentGetCourse.bind(studentC
 
 router.get('/get/course/play', authenticateToken, isUserBlocked, studentCourseController.studentGetCoursePlay.bind(studentCourseController))
 router.post('/payment', authenticateToken, isUserBlocked, studentCourseController.studentBuyCourse.bind(studentCourseController))
-router.get('/get/buyedCourses', authenticateToken, isUserBlocked, studentCourseController.studentBuyedCourses.bind(studentCourseController))
+router.get('/get/buyedCourses', authenticateBlackList, authenticateToken, isUserBlocked, studentCourseController.studentBuyedCourses.bind(studentCourseController))
 router.get('/course-play', authenticateToken, isUserBlocked, studentCourseController.studentCoursePlay.bind(studentCourseController))
 router.patch('/chapter-end', authenticateToken, isUserBlocked, studentCourseController.studentChapterVideoEnd.bind(studentCourseController))
 // check verify before buy the course

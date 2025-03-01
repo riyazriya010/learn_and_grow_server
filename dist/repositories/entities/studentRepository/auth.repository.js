@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const otp_model_1 = require("../../../models/otp.model");
+const tokenBlackList_model_1 = __importDefault(require("../../../models/tokenBlackList.model"));
 const user_model_1 = __importDefault(require("../../../models/user.model"));
 const commonBaseRepository_1 = __importDefault(require("../../baseRepositories/commonBaseRepository"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
@@ -20,7 +21,8 @@ class StudentAuthRepository extends commonBaseRepository_1.default {
     constructor() {
         super({
             UserModel: user_model_1.default,
-            Otp: otp_model_1.OTPModel
+            Otp: otp_model_1.OTPModel,
+            Token: tokenBlackList_model_1.default
         });
     }
     studentLogin(email, password) {
@@ -245,6 +247,21 @@ class StudentAuthRepository extends commonBaseRepository_1.default {
                 // const findUser = await this.findById(studentId)
                 const findUser = yield this.findById('UserModel', studentId);
                 return findUser;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    addToken(accessToken, refreshToken) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const access = yield this.createData('Token', { token: accessToken });
+                const refresh = yield this.createData('Token', { token: refreshToken });
+                return {
+                    access,
+                    refresh
+                };
             }
             catch (error) {
                 throw error;
