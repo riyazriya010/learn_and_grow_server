@@ -21,6 +21,7 @@ export default class AdminBadgeController {
             SuccessResponse(res, 200, 'Badge Saved', savedBadge)
             return
         } catch (error: unknown) {
+            console.log('ADD Badge error ::', error)
             ErrorResponse(res, 500, 'Internal Server Error')
             return
         }
@@ -55,6 +56,7 @@ export default class AdminBadgeController {
             SuccessResponse(res, 200, 'Badge Saved', editBadge)
             return
         }catch (error: unknown) {
+            console.log('Edit Badge error ::', error)
             ErrorResponse(res, 500, 'Internal Server Error')
             return
         }

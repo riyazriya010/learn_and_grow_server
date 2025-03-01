@@ -30,6 +30,7 @@ class AdminBadgeController {
                 return;
             }
             catch (error) {
+                console.log('ADD Badge error ::', error);
                 (0, responseUtil_1.ErrorResponse)(res, 500, 'Internal Server Error');
                 return;
             }
@@ -61,6 +62,7 @@ class AdminBadgeController {
                 return;
             }
             catch (error) {
+                console.log('Edit Badge error ::', error);
                 (0, responseUtil_1.ErrorResponse)(res, 500, 'Internal Server Error');
                 return;
             }
