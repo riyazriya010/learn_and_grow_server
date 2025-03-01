@@ -3,7 +3,6 @@ import MentorModel, { IMentor } from "../../../models/mentor.model";
 import { IPurchasedCourse, PurchasedCourseModel } from "../../../models/purchased.model";
 import { CourseModel, ICourse } from "../../../models/uploadCourse.model";
 import UserModel, { IUser } from "../../../models/user.model";
-import AdminSalesBaseRepository from "../../baseRepositories/adminBaseRepositories/salesBaseRepository";
 import { subDays, subMonths, subYears, startOfDay, endOfDay } from 'date-fns';
 import CommonBaseRepository from "../../baseRepositories/commonBaseRepository";
 

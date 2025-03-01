@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import { IMentorCourseMethods } from "../../../interface/mentors/mentor.interface";
 import { CategoryModel, ICategory } from "../../../models/categroy.model";
 import { CourseModel, ICourse } from "../../../models/uploadCourse.model";
-import MentorCourseBaseRepository from "../../baseRepositories/mentorBaseRepositories/courseBaseRepository";
 import { MentorEditCourseInput, mentorFilterCourse, mentorGetALlCourseOuput } from "../../../interface/mentors/mentor.types";
 import CommonBaseRepository from "../../baseRepositories/commonBaseRepository";
 

@@ -3,7 +3,6 @@ import { IMentorChatMethods } from "../../../interface/mentors/mentor.interface"
 import { ChatRoomsModel, IChatRooms } from "../../../models/chatRooms.model";
 import { IMessages, MessageModel } from "../../../models/messages.model";
 import { IUser } from "../../../models/user.model";
-import MentorChatBaseRepository from "../../baseRepositories/mentorBaseRepositories/chatBaseRepository";
 import CommonBaseRepository from "../../baseRepositories/commonBaseRepository";
 
 

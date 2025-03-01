@@ -1,6 +1,5 @@
 import { IAdminCategoryMethods } from "../../../interface/admin/admin.interface"
 import { CategoryModel, ICategory } from "../../../models/categroy.model"
-import AdminCategoryBaseRepository from "../../baseRepositories/adminBaseRepositories/categoryBaseRepository"
 import CommonBaseRepository from "../../baseRepositories/commonBaseRepository"
 
 

@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import { IStudentNotificationMethods } from "../../../interface/students/student.interface";
 import { IStudentNotification, StudentNotificationModel } from "../../../models/studentNotification.model";
-import StudentNotificationBaseRepository from "../../baseRepositories/studentBaseRepositories/notificationBaseRepository";
 import MentorModel, { IMentor } from "../../../models/mentor.model";
 import { BadgeModel, IBadge } from "../../../models/studentBadges.model";
 import { ChatRoomsModel, IChatRooms } from "../../../models/chatRooms.model";

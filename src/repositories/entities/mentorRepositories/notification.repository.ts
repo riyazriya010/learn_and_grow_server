@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import { IMentorNotificationMethods } from "../../../interface/mentors/mentor.interface";
 import { IMentorNotification, MentorNotificationModel } from "../../../models/mentorNotification.model";
 import UserModel, { IUser } from "../../../models/user.model";
-import MentorNotificationBaseRepository from "../../baseRepositories/mentorBaseRepositories/notificationBaseRepository";
 import { ChatRoomsModel, IChatRooms } from "../../../models/chatRooms.model";
 import CommonBaseRepository from "../../baseRepositories/commonBaseRepository";
 

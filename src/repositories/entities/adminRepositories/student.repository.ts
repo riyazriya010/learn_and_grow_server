@@ -1,6 +1,5 @@
 import { IAdminStudentMethods } from "../../../interface/admin/admin.interface";
 import UserModel, { IUser } from "../../../models/user.model";
-import AdminStudentBaseRepository from "../../baseRepositories/adminBaseRepositories/studentBaseRepository";
 import CommonBaseRepository from "../../baseRepositories/commonBaseRepository";
 
 

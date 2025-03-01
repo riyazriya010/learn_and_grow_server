@@ -1,5 +1,4 @@
 import { IMentorSalesMethods } from "../../../interface/mentors/mentor.interface";
-import MentorSalesBaseRepository from "../../baseRepositories/mentorBaseRepositories/salesBaseRepository";
 import mongoose, { Types } from "mongoose";
 import { subDays, subMonths, subYears, startOfDay, endOfDay } from 'date-fns';
 import { IPurchasedCourse, PurchasedCourseModel } from "../../../models/purchased.model";

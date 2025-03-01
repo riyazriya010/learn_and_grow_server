@@ -1,6 +1,5 @@
 import { IAdminMentorMethods } from "../../../interface/admin/admin.interface"
 import MentorModel, { IMentor } from "../../../models/mentor.model"
-import AdminMentorBaseRepository from "../../baseRepositories/adminBaseRepositories/mentorBaseRepository"
 import CommonBaseRepository from "../../baseRepositories/commonBaseRepository"
 
 

@@ -2,7 +2,6 @@ import { IAdminCourseMethods } from "../../../interface/admin/admin.interface";
 import { AdminWalletModel, IAdminWallet } from "../../../models/adminWallet.model";
 import { ChapterModel, IChapter } from "../../../models/chapter.model";
 import { CourseModel, ICourse } from "../../../models/uploadCourse.model";
-import AdminCourseBaseRepository from "../../baseRepositories/adminBaseRepositories/couresBaseRepository";
 import CommonBaseRepository from "../../baseRepositories/commonBaseRepository";
 
 

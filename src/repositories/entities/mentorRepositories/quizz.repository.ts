@@ -3,7 +3,6 @@ import { IMentorQuizMethods } from "../../../interface/mentors/mentor.interface"
 import { MentorAddQuizInput, mentorWalletOutput } from "../../../interface/mentors/mentor.types";
 import { IMentorWallet, MentorWalletModel } from "../../../models/mentorWallet.model";
 import QuizModel, { IQuiz } from "../../../models/quizz.model";
-import MentorQuizzBaseRepository from "../../baseRepositories/mentorBaseRepositories/quizzBaseRepository";
 import { CourseModel, ICourse } from "../../../models/uploadCourse.model";
 import CommonBaseRepository from "../../baseRepositories/commonBaseRepository";
 

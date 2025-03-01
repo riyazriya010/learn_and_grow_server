@@ -4,8 +4,6 @@ import bcrypt from 'bcrypt'
 import StudentAuthRepository from "../../../repositories/entities/studentRepository/auth.repository";
 import { generateAccessToken, verifyToken } from "../../../integration/mailToken";
 import Mail from "../../../integration/nodemailer";
-import StudentRepository from "../../../repositories/entities/student.repository";
-import StudentServices from "../student.services";
 import { STUDENT_PORT_LINK } from "../../../utils/constants";
 
 

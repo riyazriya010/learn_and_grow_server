@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import { IStudentCertificateMethods } from "../../../interface/students/student.interface";
 import { StudentCreateCreatificateData } from "../../../interface/students/student.types";
 import { CertificateModel, ICertificate } from "../../../models/certificate.model";
-import StudentCertificateBaseRepository from "../../baseRepositories/studentBaseRepositories/certificateBaseRepository";
 import { BadgeModel, IBadge } from "../../../models/studentBadges.model";
 import { BadgeManagementModel, IBadgeManagement } from "../../../models/adminBadge.model";
 import CommonBaseRepository from "../../baseRepositories/commonBaseRepository";

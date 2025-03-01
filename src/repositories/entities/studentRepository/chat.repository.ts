@@ -4,7 +4,6 @@ import { StudentChatGetUsersOutput } from "../../../interface/students/student.t
 import { ChatRoomsModel, IChatRooms } from "../../../models/chatRooms.model";
 import { IMentor } from "../../../models/mentor.model";
 import { IPurchasedCourse, PurchasedCourseModel } from "../../../models/purchased.model";
-import StudentChatBaseRepository from "../../baseRepositories/studentBaseRepositories/chatBaseRepository";
 import { IMessages, MessageModel } from "../../../models/messages.model";
 import CommonBaseRepository from "../../baseRepositories/commonBaseRepository";
 

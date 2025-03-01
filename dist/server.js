@@ -35,7 +35,7 @@ const io = new socket_io_1.Server(server, {
 (0, database_1.connectDB)();
 const allowedOrigins = [
     // "http://localhost:3000",
-    // "http://localhost:8001",
+    "http://localhost:8001",
     "https://www.learngrow.live",
     "https://api.learngrow.live",
 ];

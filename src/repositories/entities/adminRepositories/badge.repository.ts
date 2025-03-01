@@ -1,6 +1,5 @@
 import { IAdminBadgeMethods } from "../../../interface/admin/admin.interface"
 import { BadgeManagementModel, IBadgeManagement } from "../../../models/adminBadge.model"
-import AdminBadgeBaseRepository from "../../baseRepositories/adminBaseRepositories/badgeBaseRepository"
 import CommonBaseRepository from "../../baseRepositories/commonBaseRepository"
 
 
