@@ -16,7 +16,7 @@ const mentors_routes_1 = __importDefault(require("./routes/mentors.routes"));
 const admin_routes_1 = __importDefault(require("./routes/admin.routes"));
 const body_parser_1 = __importDefault(require("body-parser"));
 // import "./integration/userReminderTask"
-// import logger from './utils/logger'
+const logger_1 = __importDefault(require("./utils/logger"));
 const http_1 = __importDefault(require("http"));
 const socket_io_1 = require("socket.io");
 const app = (0, express_1.default)();
@@ -54,7 +54,7 @@ const corsOptions = {
 };
 app.use((0, cors_1.default)(corsOptions));
 app.use((0, morgan_1.default)('dev'));
-// app.use(logger);
+app.use(logger_1.default);
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.use(express_1.default.json());
