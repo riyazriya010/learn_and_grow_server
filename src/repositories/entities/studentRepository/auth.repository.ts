@@ -75,7 +75,7 @@ export default class StudentAuthRepository extends CommonBaseRepository<{
             const addUser = await this.createData('UserModel', modifiedUser as unknown as Partial<IUser>)
 
             return addUser
-            
+
             // create otp
             // const otp = await generateRandomFourDigitNumber()
 
@@ -180,7 +180,7 @@ export default class StudentAuthRepository extends CommonBaseRepository<{
 
             // return verifyOtp
 
-            const findUser = await this.findOne('UserModel',{email: email})
+            const findUser = await this.findOne('UserModel', { email: email })
             if (!findUser) {
                 const error = new Error('User Not Found')
                 error.name = 'UserNotFound'
@@ -254,26 +254,33 @@ export default class StudentAuthRepository extends CommonBaseRepository<{
         }
     }
 
-    async addToken(accessToken: string, refreshToken: string): Promise<any> {
+    async addToken(accessToken: string, refreshToken: string, studentId: string): Promise<any> {
         try {
-            // Check if access token already exists
             const existingAccess = await this.findOne('Token', { token: accessToken });
             if (!existingAccess) {
                 await this.createData('Token', { token: accessToken });
             }
-    
-            // Check if refresh token already exists
+
             const existingRefresh = await this.findOne('Token', { token: refreshToken });
             if (!existingRefresh) {
                 await this.createData('Token', { token: refreshToken });
             }
-    
+
+            //Updating version
+            const findUser = await this.findById('UserModel', studentId) as IUser;
+            if (!findUser) {
+                throw new Error('User not found');
+            }
+            const newVersion = (Number(findUser.version) + 1).toString();
+            await this.updateById('UserModel', studentId, { version: newVersion });
+
+
             return { access: accessToken, refresh: refreshToken };
         } catch (error: unknown) {
             throw error;
         }
     }
-    
+
 
     // async addToken(accessToken: any, refreshToken: any): Promise<any> {
     //     try{
@@ -288,7 +295,7 @@ export default class StudentAuthRepository extends CommonBaseRepository<{
     //     }
     // }
 
-    
+
 
 }
 

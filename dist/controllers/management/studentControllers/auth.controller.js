@@ -335,7 +335,8 @@ class StudentAuthController {
             try {
                 const accessToken = req.cookies.accessToken;
                 const refreshToken = req.cookies.refreshToken;
-                const addToken = yield this.studentAuthServices.addTokens(accessToken, refreshToken);
+                const studentId = yield (0, getId_1.default)('accessToken', req);
+                const addToken = yield this.studentAuthServices.addTokens(accessToken, refreshToken, studentId);
                 console.log('tokens Added ::: ', addToken);
                 return res
                     .status(200)

@@ -253,19 +253,24 @@ class StudentAuthRepository extends commonBaseRepository_1.default {
             }
         });
     }
-    addToken(accessToken, refreshToken) {
+    addToken(accessToken, refreshToken, studentId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                // Check if access token already exists
                 const existingAccess = yield this.findOne('Token', { token: accessToken });
                 if (!existingAccess) {
                     yield this.createData('Token', { token: accessToken });
                 }
-                // Check if refresh token already exists
                 const existingRefresh = yield this.findOne('Token', { token: refreshToken });
                 if (!existingRefresh) {
                     yield this.createData('Token', { token: refreshToken });
                 }
+                //Updating version
+                const findUser = yield this.findById('UserModel', studentId);
+                if (!findUser) {
+                    throw new Error('User not found');
+                }
+                const newVersion = (Number(findUser.version) + 1).toString();
+                yield this.updateById('UserModel', studentId, { version: newVersion });
                 return { access: accessToken, refresh: refreshToken };
             }
             catch (error) {

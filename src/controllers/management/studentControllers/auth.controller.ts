@@ -330,10 +330,11 @@ export default class StudentAuthController {
             const accessToken = req.cookies.accessToken;
             const refreshToken = req.cookies.refreshToken;
 
-            const addToken = await this.studentAuthServices.addTokens(accessToken, refreshToken)
+            const studentId = await getId('accessToken', req) as string
+
+            const addToken = await this.studentAuthServices.addTokens(accessToken, refreshToken, studentId)
 
             console.log('tokens Added ::: ', addToken)
-
 
             return res
                 .status(200)

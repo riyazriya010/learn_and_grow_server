@@ -144,9 +144,9 @@ export default class StudentAuthServices {
     }
 
 
-    async addTokens(accessToken: any, refreshToken: any): Promise<any> {
+    async addTokens(accessToken: any, refreshToken: any, studentId: string): Promise<any> {
         try {
-            const addToken = await this.studentAuthRepository.addToken(accessToken, refreshToken)
+            const addToken = await this.studentAuthRepository.addToken(accessToken, refreshToken, studentId)
             return addToken
         } catch (error: unknown) {
             throw error
