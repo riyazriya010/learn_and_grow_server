@@ -31,7 +31,7 @@ router.patch('/student/profile-update', authenticateBlackList, authenticateToken
 router.get('/student/re-verify', authenticateBlackList, authenticateToken, isUserBlocked, studentAuthController.studentReVerify.bind(studentAuthController))
 router.get('/student/check', authenticateBlackList, authenticateToken, isUserBlocked, studentAuthController.studentCheck.bind(studentAuthController))
 router.post('/student/generate-presigned-url', authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, studentAuthController.getSignedUrl.bind(studentAuthController))
-router.post('/student/logout', authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, studentAuthController.studentLogout.bind(studentAuthController))
+router.post('/student/logout', studentAuthController.studentLogout.bind(studentAuthController))
 
 
 //Courses Routes

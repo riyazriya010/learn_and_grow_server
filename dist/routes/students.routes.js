@@ -26,7 +26,7 @@ router.patch('/student/profile-update', authenticate_1.default, verifyToken_1.de
 router.get('/student/re-verify', authenticate_1.default, verifyToken_1.default, blocked_1.default, auth_controller_1.studentAuthController.studentReVerify.bind(auth_controller_1.studentAuthController));
 router.get('/student/check', authenticate_1.default, verifyToken_1.default, blocked_1.default, auth_controller_1.studentAuthController.studentCheck.bind(auth_controller_1.studentAuthController));
 router.post('/student/generate-presigned-url', authenticate_1.default, verifyToken_1.default, blocked_1.default, verified_1.default, auth_controller_1.studentAuthController.getSignedUrl.bind(auth_controller_1.studentAuthController));
-router.post('/student/logout', authenticate_1.default, verifyToken_1.default, blocked_1.default, verified_1.default, auth_controller_1.studentAuthController.studentLogout.bind(auth_controller_1.studentAuthController));
+router.post('/student/logout', auth_controller_1.studentAuthController.studentLogout.bind(auth_controller_1.studentAuthController));
 //Courses Routes
 router.get('/get/all-course', course_controller_1.studentCourseController.studentGetAllCourses.bind(course_controller_1.studentCourseController));
 router.get('/filter/data', course_controller_1.studentCourseController.studentCourseFilterData.bind(course_controller_1.studentCourseController));
