@@ -354,6 +354,7 @@ class StudentAuthController {
                     .send({ success: true, message: "Logged out successfully" });
             }
             catch (error) {
+                console.log('logout error: ', error);
                 (0, responseUtil_1.ErrorResponse)(res, 500, "Internal Server Error");
                 return;
             }
