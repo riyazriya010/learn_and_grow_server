@@ -2,10 +2,10 @@ import jwt from 'jsonwebtoken'
 import { JWT_SECRET } from '../utils/constants'
 
 export class JwtService {
-    async createToken(user: Object | undefined, role: string): Promise<String | undefined>{
+    async createToken(user: Object | undefined, role: string, version?: string): Promise<String | undefined>{
         try {
             const syncToken = await jwt.sign(
-                { user, role },
+                { user, role, version },
                 String(JWT_SECRET),
                 { expiresIn: '2h' }
             )
@@ -15,10 +15,10 @@ export class JwtService {
         }
     }
 
-    async createRefreshToken(user: Object | undefined, role: string): Promise<String | undefined> {
+    async createRefreshToken(user: Object | undefined, role: string, version?: string): Promise<String | undefined> {
         try {
             const syncToken = await jwt.sign(
-                { user, role },
+                { user, role, version },
                 String(JWT_SECRET),
                 { expiresIn: '7d' }
             )

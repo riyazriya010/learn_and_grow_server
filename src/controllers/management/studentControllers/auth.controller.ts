@@ -33,8 +33,8 @@ export default class StudentAuthController {
             const { email, password } = req.body
             const loginUser = await this.studentAuthServices.studentLogin(email, password)
 
-            const accessToken = await this.jwtService.createToken(loginUser?._id, String(loginUser?.role))
-            const refreshToken = await this.jwtService.createRefreshToken(loginUser?._id, String(loginUser?.role))
+            const accessToken = await this.jwtService.createToken(loginUser?._id, String(loginUser?.role), loginUser?.version)
+            const refreshToken = await this.jwtService.createRefreshToken(loginUser?._id, String(loginUser?.role), loginUser?.version)
 
             return res
                 .status(200)

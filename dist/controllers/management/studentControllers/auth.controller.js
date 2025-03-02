@@ -36,8 +36,8 @@ class StudentAuthController {
             try {
                 const { email, password } = req.body;
                 const loginUser = yield this.studentAuthServices.studentLogin(email, password);
-                const accessToken = yield this.jwtService.createToken(loginUser === null || loginUser === void 0 ? void 0 : loginUser._id, String(loginUser === null || loginUser === void 0 ? void 0 : loginUser.role));
-                const refreshToken = yield this.jwtService.createRefreshToken(loginUser === null || loginUser === void 0 ? void 0 : loginUser._id, String(loginUser === null || loginUser === void 0 ? void 0 : loginUser.role));
+                const accessToken = yield this.jwtService.createToken(loginUser === null || loginUser === void 0 ? void 0 : loginUser._id, String(loginUser === null || loginUser === void 0 ? void 0 : loginUser.role), loginUser === null || loginUser === void 0 ? void 0 : loginUser.version);
+                const refreshToken = yield this.jwtService.createRefreshToken(loginUser === null || loginUser === void 0 ? void 0 : loginUser._id, String(loginUser === null || loginUser === void 0 ? void 0 : loginUser.role), loginUser === null || loginUser === void 0 ? void 0 : loginUser.version);
                 return res
                     .status(200)
                     .cookie('accessToken', accessToken, {
