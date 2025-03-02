@@ -27,11 +27,11 @@ router.post('/student/google-signUp', studentAuthController.studentGoogleSignUp.
 router.post('/student/google-login', studentAuthController.studentGoogleLogin.bind(studentAuthController))
 router.patch('/student/forget-password', studentAuthController.studentForgetPassword.bind(studentAuthController))
 router.patch('/verify', studentAuthController.studentVerify.bind(studentAuthController))
-router.patch('/student/profile-update', authenticateToken, isUserBlocked, isUserVerified, studentAuthController.studentProfleUpdate.bind(studentAuthController))
-router.get('/student/re-verify', authenticateToken, isUserBlocked, studentAuthController.studentReVerify.bind(studentAuthController))
-router.get('/student/check', authenticateToken, isUserBlocked, studentAuthController.studentCheck.bind(studentAuthController))
-router.post('/student/generate-presigned-url',authenticateToken, isUserBlocked, isUserVerified, studentAuthController.getSignedUrl.bind(studentAuthController))
-router.post('/student/logout',authenticateToken, isUserBlocked, isUserVerified, studentAuthController.studentLogout.bind(studentAuthController))
+router.patch('/student/profile-update', authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, studentAuthController.studentProfleUpdate.bind(studentAuthController))
+router.get('/student/re-verify', authenticateBlackList, authenticateToken, isUserBlocked, studentAuthController.studentReVerify.bind(studentAuthController))
+router.get('/student/check', authenticateBlackList, authenticateToken, isUserBlocked, studentAuthController.studentCheck.bind(studentAuthController))
+router.post('/student/generate-presigned-url', authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, studentAuthController.getSignedUrl.bind(studentAuthController))
+router.post('/student/logout', authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, studentAuthController.studentLogout.bind(studentAuthController))
 
 
 //Courses Routes
@@ -39,49 +39,48 @@ router.get('/get/all-course', studentCourseController.studentGetAllCourses.bind(
 router.get('/filter/data', studentCourseController.studentCourseFilterData.bind(studentCourseController))
 router.get('/get/course', studentCourseController.studentGetCourse.bind(studentCourseController))
 
-router.get('/get/course/play', authenticateToken, isUserBlocked, studentCourseController.studentGetCoursePlay.bind(studentCourseController))
-router.post('/payment', authenticateToken, isUserBlocked, studentCourseController.studentBuyCourse.bind(studentCourseController))
+router.get('/get/course/play', authenticateBlackList, authenticateToken, isUserBlocked, studentCourseController.studentGetCoursePlay.bind(studentCourseController))
+router.post('/payment', authenticateBlackList, authenticateToken, isUserBlocked, studentCourseController.studentBuyCourse.bind(studentCourseController))
 router.get('/get/buyedCourses', authenticateBlackList, authenticateToken, isUserBlocked, studentCourseController.studentBuyedCourses.bind(studentCourseController))
-router.get('/course-play', authenticateToken, isUserBlocked, studentCourseController.studentCoursePlay.bind(studentCourseController))
-router.patch('/chapter-end', authenticateToken, isUserBlocked, studentCourseController.studentChapterVideoEnd.bind(studentCourseController))
+router.get('/course-play', authenticateBlackList, authenticateToken, isUserBlocked, studentCourseController.studentCoursePlay.bind(studentCourseController))
+router.patch('/chapter-end', authenticateBlackList, authenticateToken, isUserBlocked, studentCourseController.studentChapterVideoEnd.bind(studentCourseController))
 // check verify before buy the course
-router.get('/check/verify', authenticateToken, isUserBlocked, isUserVerified, studentCourseController.studentIsVerified.bind(studentCourseController))
-router.get('/complete/course', authenticateToken, isUserBlocked, studentCourseController.studentCompleteCourse.bind(studentCourseController))
-router.get('/get/quizz', authenticateToken, isUserBlocked, studentCourseController.studentQuizz.bind(studentCourseController))
+router.get('/check/verify', authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, studentCourseController.studentIsVerified.bind(studentCourseController))
+router.get('/complete/course', authenticateBlackList, authenticateToken, isUserBlocked, studentCourseController.studentCompleteCourse.bind(studentCourseController))
+router.get('/get/quizz', authenticateBlackList, authenticateToken, isUserBlocked, studentCourseController.studentQuizz.bind(studentCourseController))
 router.get('/already/buyed/course/:courseId',authenticateToken, isUserBlocked, isUserVerified, studentCourseController.studentCheckAlreadyBuyed.bind(studentCourseController))
 
 
 //Certificate Routes
-router.get('/get/certificate', authenticateToken, isUserBlocked, studentCertificateController.studentGeCerfiticate.bind(studentCertificateController))
-router.post('/create/certificate', authenticateToken, isUserBlocked, studentCertificateController.studentCreateCertificate.bind(studentCertificateController))
-router.get('/get/certificates', authenticateToken, isUserBlocked, studentCertificateController.studentGetAllCertificates.bind(studentCertificateController))
-
+router.get('/get/certificate', authenticateBlackList, authenticateToken, isUserBlocked, studentCertificateController.studentGeCerfiticate.bind(studentCertificateController))
+router.post('/create/certificate', authenticateBlackList, authenticateToken, isUserBlocked, studentCertificateController.studentCreateCertificate.bind(studentCertificateController))
+router.get('/get/certificates', authenticateBlackList, authenticateToken, isUserBlocked, studentCertificateController.studentGetAllCertificates.bind(studentCertificateController))
 
 
 //Chat Routes
-router.get('/get/mentors', authenticateToken, isUserBlocked, isUserVerified, studentChatController.studentChatGetMentors.bind(studentChatController))
-router.post('/create/room', authenticateToken, isUserBlocked, isUserVerified, studentChatController.studentCreateRoom.bind(studentChatController))
-router.post('/save/message', authenticateToken, isUserBlocked, isUserVerified, studentChatController.studentSaveMessage.bind(studentChatController))
-router.get('/get/messages/:mentorId', authenticateToken, isUserBlocked, isUserVerified, studentChatController.studentGetMessages.bind(studentChatController))
-router.patch('/delete/message/everyone/:messageId', authenticateToken, isUserBlocked, isUserVerified, studentChatController.studentDeleteEveryOne.bind(studentChatController))
-router.patch('/delete/message/me/:messageId', authenticateToken, isUserBlocked, isUserVerified, studentChatController.studentDeleteForMe.bind(studentChatController))
-router.patch('/reset/count/:mentorId', authenticateToken, isUserBlocked, isUserVerified, studentChatController.studentResetCount.bind(studentChatController))
+router.get('/get/mentors', authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, studentChatController.studentChatGetMentors.bind(studentChatController))
+router.post('/create/room', authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, studentChatController.studentCreateRoom.bind(studentChatController))
+router.post('/save/message', authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, studentChatController.studentSaveMessage.bind(studentChatController))
+router.get('/get/messages/:mentorId', authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, studentChatController.studentGetMessages.bind(studentChatController))
+router.patch('/delete/message/everyone/:messageId', authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, studentChatController.studentDeleteEveryOne.bind(studentChatController))
+router.patch('/delete/message/me/:messageId', authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, studentChatController.studentDeleteForMe.bind(studentChatController))
+router.patch('/reset/count/:mentorId', authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, studentChatController.studentResetCount.bind(studentChatController))
 
 
 //Notifications Routes
-router.post('/create/chat/notification', authenticateToken, isUserBlocked, isUserVerified, studentNotificationController.studentCreateNotification.bind(studentNotificationController))
-router.get('/get/student/notifications/:studentId', authenticateToken, isUserBlocked, isUserVerified, studentNotificationController.studentGetNotifications.bind(studentNotificationController))
-router.get('/get/student/notification/count/:studentId', authenticateToken, isUserBlocked, isUserVerified, studentNotificationController.studentGetNotificationsCount.bind(studentNotificationController))
-router.patch('/student/notification/seen', authenticateToken, isUserBlocked, isUserVerified, studentNotificationController.studentGetNotificationsSeen.bind(studentNotificationController))
-router.delete('/student/delete/notification/:senderId', authenticateToken, isUserBlocked, isUserVerified, studentNotificationController.studentDeleteNotifications.bind(studentNotificationController))
-router.get('/get/mentor/:mentorId', authenticateToken, isUserBlocked, isUserVerified, studentNotificationController.studentGetMentor.bind(studentNotificationController))
-router.get('/get/badges', authenticateToken, isUserBlocked, isUserVerified, studentNotificationController.studentGetBadges.bind(studentNotificationController))
+router.post('/create/chat/notification', authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, studentNotificationController.studentCreateNotification.bind(studentNotificationController))
+router.get('/get/student/notifications/:studentId', authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, studentNotificationController.studentGetNotifications.bind(studentNotificationController))
+router.get('/get/student/notification/count/:studentId', authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, studentNotificationController.studentGetNotificationsCount.bind(studentNotificationController))
+router.patch('/student/notification/seen', authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, studentNotificationController.studentGetNotificationsSeen.bind(studentNotificationController))
+router.delete('/student/delete/notification/:senderId', authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, studentNotificationController.studentDeleteNotifications.bind(studentNotificationController))
+router.get('/get/mentor/:mentorId',authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, studentNotificationController.studentGetMentor.bind(studentNotificationController))
+router.get('/get/badges', authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, studentNotificationController.studentGetBadges.bind(studentNotificationController))
 
 //rewards Routes
-router.get('/convert-badge/money/:badgeId', authenticateToken, isUserBlocked, isUserVerified, studentRewardController.studentRewardConvert.bind(studentRewardController))
-router.get('/get/student/wallet', authenticateToken, isUserBlocked, isUserVerified, studentRewardController.studentWallet.bind(studentRewardController))
-router.get('/get/wallet/balance', authenticateToken, isUserBlocked, isUserVerified, studentRewardController.studentWalletBalance.bind(studentRewardController))
-router.post('/buy/course/wallet', authenticateToken, isUserBlocked, isUserVerified, studentRewardController.studentwalletBuyCourse.bind(studentRewardController))
+router.get('/convert-badge/money/:badgeId', authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, studentRewardController.studentRewardConvert.bind(studentRewardController))
+router.get('/get/student/wallet', authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, studentRewardController.studentWallet.bind(studentRewardController))
+router.get('/get/wallet/balance', authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, studentRewardController.studentWalletBalance.bind(studentRewardController))
+router.post('/buy/course/wallet', authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, studentRewardController.studentwalletBuyCourse.bind(studentRewardController))
 
 
 
