@@ -362,21 +362,28 @@ export default class MentorAuthController {
     async mentorLogout(req: Request, res: Response): Promise<any> {
         try {
 
+            const accessToken = req.cookies.accessToken;
+            const refreshToken = req.cookies.refreshToken;
+
+            const addToken = await this.mentorAuthServices.addTokens(accessToken, refreshToken)
+
+            console.log('tokens Added ::: ', addToken)
+
             return res
-        .status(200)
-        .clearCookie("accessToken", {
-            httpOnly: false,
-            secure: true,
-            sameSite: "none",
-            domain: ".learngrow.live",
-        })
-        .clearCookie("refreshToken", {
-            httpOnly: true,
-            secure: true,
-            sameSite: "none",
-            domain: ".learngrow.live",
-        })
-        .send({ success: true, message: "Logged out successfully" });
+                .status(200)
+                .clearCookie("accessToken", {
+                    httpOnly: false,
+                    secure: true,
+                    sameSite: "none",
+                    domain: ".learngrow.live",
+                })
+                .clearCookie("refreshToken", {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: "none",
+                    domain: ".learngrow.live",
+                })
+                .send({ success: true, message: "Logged out successfully" });
 
         } catch (error: unknown) {
             ErrorResponse(res, 500, "Internal Server Error")

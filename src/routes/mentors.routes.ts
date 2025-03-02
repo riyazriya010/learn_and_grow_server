@@ -18,7 +18,7 @@ import { mentorchatController } from "../controllers/management/mentorController
 import { mentorQuizzController } from "../controllers/management/mentorControllers/quizz.controller";
 import { mentorNotificationController } from "../controllers/management/mentorControllers/notification.controller";
 import { mentorSalesController } from "../controllers/management/mentorControllers/sales.controller";
-
+import authenticateBlackList from "../middleware/authenticate";
 
 // import { MentorController } from "../controllers/mentors.controller";
 
@@ -35,12 +35,12 @@ router.post('/mentor/signup', mentorAuthController.mentorSignUp.bind(mentorAuthC
 router.post('/mentor/google-signUp', mentorAuthController.mentorGoogleSignUp.bind(mentorAuthController))
 router.post('/mentor/google-login', mentorAuthController.mentorGoogleLogin.bind(mentorAuthController))
 router.patch('/mentor/forget-password', mentorAuthController.mentorForgetPassword.bind(mentorAuthController))
-router.patch('/mentor/profile-update', authenticateToken, isUserBlocked, isUserVerified, uploadMiddleware.single('profile'), mentorAuthController.mentorProfileUpdate.bind(mentorAuthController))
-router.get('/mentor/check',authenticateToken, isUserBlocked, mentorAuthController.mentorCheck.bind(mentorAuthController))
+router.patch('/mentor/profile-update', authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, uploadMiddleware.single('profile'), mentorAuthController.mentorProfileUpdate.bind(mentorAuthController))
+router.get('/mentor/check',authenticateBlackList, authenticateToken, isUserBlocked, mentorAuthController.mentorCheck.bind(mentorAuthController))
 router.patch('/verify', mentorAuthController.mentorVerify.bind(mentorAuthController))
-router.get('/mentor/re-verify', authenticateToken, isUserBlocked, mentorAuthController.mentorReVerify.bind(mentorAuthController))
-router.post('/mentor/generate-presigned-url',authenticateToken, isUserBlocked, isUserVerified, mentorAuthController.getSignedUrl.bind(mentorAuthController))
-router.post('/mentor/logout',authenticateToken, isUserBlocked, isUserVerified, mentorAuthController.mentorLogout.bind(mentorAuthController))
+router.get('/mentor/re-verify',authenticateBlackList, authenticateToken, isUserBlocked, mentorAuthController.mentorReVerify.bind(mentorAuthController))
+router.post('/mentor/generate-presigned-url',authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, mentorAuthController.getSignedUrl.bind(mentorAuthController))
+router.post('/mentor/logout', mentorAuthController.mentorLogout.bind(mentorAuthController))
 
 
 //Mentor Course Routes
@@ -48,59 +48,59 @@ router.post('/mentor/logout',authenticateToken, isUserBlocked, isUserVerified, m
 //     { name: 'demoVideo', maxCount: 5 },
 //     { name: 'thumbnail', maxCount: 1 }
 // ]), controller.mentorAddCourse.bind(controller));
-router.post('/mentor/course-upload', authenticateToken, isUserBlocked, isUserVerified, mentorCourseController.mentorAddCourse.bind(mentorCourseController));
-router.get('/get/all-course',authenticateToken, isUserBlocked, mentorCourseController.mentorGetAllCourse.bind(mentorCourseController))
-router.get('/get/course',authenticateToken, isUserBlocked, mentorCourseController.mentorGetCourse.bind(mentorCourseController))
+router.post('/mentor/course-upload',authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, mentorCourseController.mentorAddCourse.bind(mentorCourseController));
+router.get('/get/all-course',authenticateBlackList, authenticateToken, isUserBlocked, mentorCourseController.mentorGetAllCourse.bind(mentorCourseController))
+router.get('/get/course',authenticateBlackList, authenticateToken, isUserBlocked, mentorCourseController.mentorGetCourse.bind(mentorCourseController))
 // router.patch('/edit/course', authenticateToken, isUserBlocked, isUserVerified, uploadMiddleware.fields([
 //     { name: 'demoVideo', maxCount: 5 },
 //     { name: 'thumbnail', maxCount: 1 }
 // ]), mentorCourseController.mentorEditCourse.bind(mentorCourseController))
-router.patch('/edit/course', authenticateToken, isUserBlocked, isUserVerified, mentorCourseController.mentorEditCourse.bind(mentorCourseController))
-router.patch('/unPublish/course',authenticateToken, isUserBlocked, isUserVerified, mentorCourseController.mentorUnPulishCourse.bind(mentorCourseController))
-router.patch('/publish/course',authenticateToken, isUserBlocked, isUserVerified, mentorCourseController.mentorPublishCourse.bind(mentorCourseController))
-router.get('/filter/course',authenticateToken, isUserBlocked, mentorCourseController.mentorFilterCourse.bind(mentorCourseController))
-router.get(`/get/categories`,authenticateToken, isUserBlocked, mentorCourseController.mentorGetAllCategorise.bind(mentorCourseController))
+router.patch('/edit/course',authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, mentorCourseController.mentorEditCourse.bind(mentorCourseController))
+router.patch('/unPublish/course',authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, mentorCourseController.mentorUnPulishCourse.bind(mentorCourseController))
+router.patch('/publish/course',authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, mentorCourseController.mentorPublishCourse.bind(mentorCourseController))
+router.get('/filter/course',authenticateBlackList, authenticateToken, isUserBlocked, mentorCourseController.mentorFilterCourse.bind(mentorCourseController))
+router.get(`/get/categories`,authenticateBlackList, authenticateToken, isUserBlocked, mentorCourseController.mentorGetAllCategorise.bind(mentorCourseController))
 
 
 //Mentor Chapter Routes
 // router.post('/mentor/chapter-upload',authenticateToken, isUserBlocked, isUserVerified, uploadMiddleware.single('chapterVideo'), mentorChapterController.mentorAddChapter.bind(mentorChapterController))
-router.post('/mentor/chapter-upload',authenticateToken, isUserBlocked, isUserVerified, mentorChapterController.mentorAddChapter.bind(mentorChapterController))
+router.post('/mentor/chapter-upload',authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, mentorChapterController.mentorAddChapter.bind(mentorChapterController))
 // router.patch('/edit/chapter',authenticateToken, isUserBlocked, isUserVerified, uploadMiddleware.single('chapterVideo'), mentorChapterController.mentorEditChapter.bind(mentorChapterController))
-router.patch('/edit/chapter',authenticateToken, isUserBlocked, isUserVerified, mentorChapterController.mentorEditChapter.bind(mentorChapterController))
-router.get(`/get/all-chapters`,authenticateToken, isUserBlocked, mentorChapterController .mentorGetAllChapters.bind(mentorChapterController))
+router.patch('/edit/chapter',authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, mentorChapterController.mentorEditChapter.bind(mentorChapterController))
+router.get(`/get/all-chapters`,authenticateBlackList, authenticateToken, isUserBlocked, mentorChapterController .mentorGetAllChapters.bind(mentorChapterController))
 
 
 //Mentor Quizzz Routes
-router.post('/add/quizz',authenticateToken, isUserBlocked, isUserVerified, mentorQuizzController.mentorAddQuizz.bind(mentorQuizzController))
-router.get(`/get/all-quizz`,authenticateToken, isUserBlocked, mentorQuizzController.mentorGetAllQuizz.bind(mentorQuizzController))
-router.delete('/delete/quizz',authenticateToken, isUserBlocked, isUserVerified, mentorQuizzController.mentorDeleteQuizz.bind(mentorQuizzController))
-router.get('/get/wallet',authenticateToken, isUserBlocked, isUserVerified, mentorQuizzController.mentorGetWallet.bind(mentorQuizzController))
+router.post('/add/quizz',authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, mentorQuizzController.mentorAddQuizz.bind(mentorQuizzController))
+router.get(`/get/all-quizz`,authenticateBlackList, authenticateToken, isUserBlocked, mentorQuizzController.mentorGetAllQuizz.bind(mentorQuizzController))
+router.delete('/delete/quizz',authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, mentorQuizzController.mentorDeleteQuizz.bind(mentorQuizzController))
+router.get('/get/wallet',authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, mentorQuizzController.mentorGetWallet.bind(mentorQuizzController))
 
 
 
 //Mentor Chat Routes
-router.get('/get/students', authenticateToken, isUserBlocked, isUserVerified, mentorchatController.mentorChatGetStudents.bind(mentorchatController))
-router.get('/get/mentor/messages/:studentId', authenticateToken, isUserBlocked, isUserVerified, mentorchatController.mentorGetMessages.bind(mentorchatController))
-router.post('/save/mentor/message', authenticateToken, isUserBlocked, isUserVerified, mentorchatController.mentorSaveMessage.bind(mentorchatController))
-router.post('/create/mentor/room', authenticateToken, isUserBlocked, isUserVerified, mentorchatController.mentorCreateRoom.bind(mentorchatController))
-router.patch('/delete/mentor/message/everyone/:messageId', authenticateToken, isUserBlocked, isUserVerified, mentorchatController.mentorDeleteEveryOne.bind(mentorchatController))
-router.patch('/delete/mentor/message/me/:messageId', authenticateToken, isUserBlocked, isUserVerified, mentorchatController.mentorDeleteForMe.bind(mentorchatController))
-router.patch('/reset/mentor/count/:studentId', authenticateToken, isUserBlocked, isUserVerified, mentorchatController.mentorResetCount.bind(mentorchatController))
+router.get('/get/students',authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, mentorchatController.mentorChatGetStudents.bind(mentorchatController))
+router.get('/get/mentor/messages/:studentId',authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, mentorchatController.mentorGetMessages.bind(mentorchatController))
+router.post('/save/mentor/message',authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, mentorchatController.mentorSaveMessage.bind(mentorchatController))
+router.post('/create/mentor/room',authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, mentorchatController.mentorCreateRoom.bind(mentorchatController))
+router.patch('/delete/mentor/message/everyone/:messageId',authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, mentorchatController.mentorDeleteEveryOne.bind(mentorchatController))
+router.patch('/delete/mentor/message/me/:messageId',authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, mentorchatController.mentorDeleteForMe.bind(mentorchatController))
+router.patch('/reset/mentor/count/:studentId',authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, mentorchatController.mentorResetCount.bind(mentorchatController))
 
 
 //Mentor Notification Routes
-router.post('/create/mentor/chat/notification', authenticateToken, isUserBlocked, isUserVerified, mentorNotificationController.mentorCreateNotification.bind(mentorNotificationController))
+router.post('/create/mentor/chat/notification',authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, mentorNotificationController.mentorCreateNotification.bind(mentorNotificationController))
 router.get('/get/mentor/notification/count/:mentorId', mentorNotificationController.mentorGetNotificationsCount.bind(mentorNotificationController))
-router.get('/mentor/notifications/:mentorId', authenticateToken, isUserBlocked, isUserVerified, mentorNotificationController.mentorGetNotifications.bind(mentorNotificationController))
-router.patch('/mentor/notification/seen', authenticateToken, isUserBlocked, isUserVerified, mentorNotificationController.mentorGetNotificationsSeen.bind(mentorNotificationController))
-router.delete('/mentor/delete/notification/:senderId', authenticateToken, isUserBlocked, isUserVerified, mentorNotificationController.mentorDeleteNotifications.bind(mentorNotificationController))
-router.get('/get/student/:studentId', authenticateToken, isUserBlocked, isUserVerified, mentorNotificationController.mentorGetStudent.bind(mentorNotificationController))
+router.get('/mentor/notifications/:mentorId',authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, mentorNotificationController.mentorGetNotifications.bind(mentorNotificationController))
+router.patch('/mentor/notification/seen',authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, mentorNotificationController.mentorGetNotificationsSeen.bind(mentorNotificationController))
+router.delete('/mentor/delete/notification/:senderId',authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, mentorNotificationController.mentorDeleteNotifications.bind(mentorNotificationController))
+router.get('/get/student/:studentId',authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, mentorNotificationController.mentorGetStudent.bind(mentorNotificationController))
 
 
 //Mentor Sales Date Routes
-router.get('/get/dashboard', authenticateToken, isUserBlocked, isUserVerified, mentorSalesController.mentorDashboard.bind(mentorSalesController))
-router.get('/get/chart/graph/data', authenticateToken, isUserBlocked, isUserVerified, mentorSalesController.mentorChartGraph.bind(mentorSalesController))
-router.get('/get/mentor/report', authenticateToken, isUserBlocked, isUserVerified, mentorSalesController.mentorSalesReport.bind(mentorSalesController))
+router.get('/get/dashboard',authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, mentorSalesController.mentorDashboard.bind(mentorSalesController))
+router.get('/get/chart/graph/data',authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, mentorSalesController.mentorChartGraph.bind(mentorSalesController))
+router.get('/get/mentor/report',authenticateBlackList, authenticateToken, isUserBlocked, isUserVerified, mentorSalesController.mentorSalesReport.bind(mentorSalesController))
 
 
 

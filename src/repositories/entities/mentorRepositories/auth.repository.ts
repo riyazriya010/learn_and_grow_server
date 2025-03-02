@@ -1,16 +1,19 @@
 import { IMentorAuthMethods } from "../../../interface/mentors/mentor.interface";
 import { MentorProfileUpdateInput, MentorSignUpInput } from "../../../interface/mentors/mentor.types";
 import MentorModel, { IMentor } from "../../../models/mentor.model";
+import BlacklistedTokenModel, { IBlacklistedToken } from "../../../models/tokenBlackList.model";
 import CommonBaseRepository from "../../baseRepositories/commonBaseRepository";
 
 
 export default class MentorAuthRepository extends CommonBaseRepository<{
-    Mentor: IMentor
+    Mentor: IMentor;
+    Token: IBlacklistedToken;
 }> implements IMentorAuthMethods {
 
     constructor() {
         super({
-            Mentor: MentorModel
+            Mentor: MentorModel,
+            Token: BlacklistedTokenModel
         })
     }
 
@@ -147,6 +150,25 @@ export default class MentorAuthRepository extends CommonBaseRepository<{
             return findUser
         } catch (error: unknown) {
             throw error
+        }
+    }
+
+
+    async addToken(accessToken: string, refreshToken: string): Promise<any> {
+        try {
+            const existingAccess = await this.findOne('Token', { token: accessToken });
+            if (!existingAccess) {
+                await this.createData('Token', { token: accessToken });
+            }
+            
+            const existingRefresh = await this.findOne('Token', { token: refreshToken });
+            if (!existingRefresh) {
+                await this.createData('Token', { token: refreshToken });
+            }
+    
+            return { access: accessToken, refresh: refreshToken };
+        } catch (error: unknown) {
+            throw error;
         }
     }
 

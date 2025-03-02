@@ -173,6 +173,17 @@ class MentorAuthServices {
             }
         });
     }
+    addTokens(accessToken, refreshToken) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const addToken = yield this.mentorAuthRepository.addToken(accessToken, refreshToken);
+                return addToken;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
 }
 exports.default = MentorAuthServices;
 const mentorAuthRepository = new auth_repository_1.default();

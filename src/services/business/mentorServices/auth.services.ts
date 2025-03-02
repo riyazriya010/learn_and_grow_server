@@ -156,6 +156,15 @@ export default class MentorAuthServices {
         }
     }
 
+    async addTokens(accessToken: any, refreshToken: any): Promise<any> {
+        try {
+            const addToken = await this.mentorAuthRepository.addToken(accessToken, refreshToken)
+            return addToken
+        } catch (error: unknown) {
+            throw error
+        }
+    }
+
 
 }
 
