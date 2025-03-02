@@ -254,18 +254,41 @@ export default class StudentAuthRepository extends CommonBaseRepository<{
         }
     }
 
-    async addToken(accessToken: any, refreshToken: any): Promise<any> {
-        try{
-            const access = await this.createData('Token', { token: accessToken })
-            const refresh = await this.createData('Token', { token: refreshToken })
-            return {
-                access,
-                refresh
+    async addToken(accessToken: string, refreshToken: string): Promise<any> {
+        try {
+            // Check if access token already exists
+            const existingAccess = await this.findOne('Token', { token: accessToken });
+            if (!existingAccess) {
+                await this.createData('Token', { token: accessToken });
             }
-        }catch(error: unknown){
-            throw error
+    
+            // Check if refresh token already exists
+            const existingRefresh = await this.findOne('Token', { token: refreshToken });
+            if (!existingRefresh) {
+                await this.createData('Token', { token: refreshToken });
+            }
+    
+            return { access: accessToken, refresh: refreshToken };
+        } catch (error: unknown) {
+            throw error;
         }
     }
+    
+
+    // async addToken(accessToken: any, refreshToken: any): Promise<any> {
+    //     try{
+    //         const access = await this.createData('Token', { token: accessToken })
+    //         const refresh = await this.createData('Token', { token: refreshToken })
+    //         return {
+    //             access,
+    //             refresh
+    //         }
+    //     }catch(error: unknown){
+    //         throw error
+    //     }
+    // }
+
+    
 
 }
 
