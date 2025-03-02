@@ -8,6 +8,8 @@ import { adminCourseController } from "../controllers/management/adminController
 import { adminCategoryController } from "../controllers/management/adminControllers/category.controller";
 import { adminBadgeController } from "../controllers/management/adminControllers/badge.controller";
 import { adminSalesController } from "../controllers/management/adminControllers/sales.controller";
+import authenticateBlackList from "../middleware/authenticate";
+
 
 const router = Router()
 
@@ -15,33 +17,33 @@ const router = Router()
 
 //Amin Student Routes
 router.post('/admin/login', adminStudentController.adminLogin.bind(adminStudentController))
-router.get('/get/users',authenticateToken, adminStudentController.adminGetStudents.bind(adminStudentController))
-router.patch('/block/user',authenticateToken, adminStudentController.adminBlockStudent.bind(adminStudentController))
-router.patch('/unblock/user',authenticateToken, adminStudentController.adminUnBlockStudent.bind(adminStudentController))
-router.post('/admin/logout',authenticateToken, adminStudentController.adminLogout.bind(adminStudentController))
+router.get('/get/users',authenticateBlackList, authenticateToken, adminStudentController.adminGetStudents.bind(adminStudentController))
+router.patch('/block/user',authenticateBlackList, authenticateToken, adminStudentController.adminBlockStudent.bind(adminStudentController))
+router.patch('/unblock/user',authenticateBlackList, authenticateToken, adminStudentController.adminUnBlockStudent.bind(adminStudentController))
+router.post('/admin/logout', adminStudentController.adminLogout.bind(adminStudentController))
 
 //Amin Mentor Routes
-router.get('/get/mentors',authenticateToken, adminMentorController.adminGetMentors.bind(adminMentorController))
-router.patch('/block/mentor',authenticateToken, adminMentorController.adminBlockMentor.bind(adminMentorController))
-router.patch('/unblock/mentor',authenticateToken, adminMentorController.adminUnBlockMentor.bind(adminMentorController))
+router.get('/get/mentors',authenticateBlackList, authenticateToken, adminMentorController.adminGetMentors.bind(adminMentorController))
+router.patch('/block/mentor',authenticateBlackList, authenticateToken, adminMentorController.adminBlockMentor.bind(adminMentorController))
+router.patch('/unblock/mentor',authenticateBlackList, authenticateToken, adminMentorController.adminUnBlockMentor.bind(adminMentorController))
 
 //Admin Course Routes
-router.get(`/get/all-course`,authenticateToken, adminCourseController.adminGetAllCourse.bind(adminCourseController))
-router.patch(`/unlist/course`,authenticateToken, adminCourseController.adminUnListCourse.bind(adminCourseController))
-router.patch(`/list/course`,authenticateToken, adminCourseController.adminListCourse.bind(adminCourseController))
-router.get('/get/non-approved/courses', authenticateToken, adminCourseController.adminNonApprovedCourse.bind(adminCourseController))
-router.get('/get/non-approved/course-details', authenticateToken, adminCourseController.adminNonApprovedCourseDetails.bind(adminCourseController))
-router.patch('/approve/course', authenticateToken, adminCourseController.adminApproveCourse.bind(adminCourseController))
-router.get('/get/wallet',authenticateToken, adminCourseController.adminGetWallet.bind(adminCourseController))
+router.get(`/get/all-course`,authenticateBlackList, authenticateToken, adminCourseController.adminGetAllCourse.bind(adminCourseController))
+router.patch(`/unlist/course`,authenticateBlackList, authenticateToken, adminCourseController.adminUnListCourse.bind(adminCourseController))
+router.patch(`/list/course`,authenticateBlackList, authenticateToken, adminCourseController.adminListCourse.bind(adminCourseController))
+router.get('/get/non-approved/courses',authenticateBlackList, authenticateToken, adminCourseController.adminNonApprovedCourse.bind(adminCourseController))
+router.get('/get/non-approved/course-details',authenticateBlackList, authenticateToken, adminCourseController.adminNonApprovedCourseDetails.bind(adminCourseController))
+router.patch('/approve/course',authenticateBlackList, authenticateToken, adminCourseController.adminApproveCourse.bind(adminCourseController))
+router.get('/get/wallet',authenticateBlackList, authenticateToken, adminCourseController.adminGetWallet.bind(adminCourseController))
 
 
 
 //Admin Category
-router.post(`/add/category`,authenticateToken, adminCategoryController.adminAddCategory.bind(adminCategoryController))
-router.patch(`/edit/category`,authenticateToken, adminCategoryController.adminEditCategory.bind(adminCategoryController))
-router.patch('/unList/category',authenticateToken, adminCategoryController.adminUnListCategory.bind(adminCategoryController))
-router.patch('/list/category',authenticateToken, adminCategoryController.adminListCategory.bind(adminCategoryController))
-router.get(`/get/categories`,authenticateToken, adminCategoryController.adminGetAllCategory.bind(adminCategoryController))
+router.post(`/add/category`,authenticateBlackList, authenticateToken, adminCategoryController.adminAddCategory.bind(adminCategoryController))
+router.patch(`/edit/category`,authenticateBlackList, authenticateToken, adminCategoryController.adminEditCategory.bind(adminCategoryController))
+router.patch('/unList/category',authenticateBlackList, authenticateToken, adminCategoryController.adminUnListCategory.bind(adminCategoryController))
+router.patch('/list/category',authenticateBlackList, authenticateToken, adminCategoryController.adminListCategory.bind(adminCategoryController))
+router.get(`/get/categories`,authenticateBlackList, authenticateToken, adminCategoryController.adminGetAllCategory.bind(adminCategoryController))
 
 
 //Admin Badge
@@ -51,9 +53,14 @@ router.get('/get/badges', adminBadgeController.adminGetBadges.bind(adminBadgeCon
 
 
 //Admin Sales
-router.get('/get/admin/dashboard', authenticateToken, adminSalesController.adminDashboard.bind(adminSalesController))
-router.get('/get/admin/chart/graph/data', authenticateToken, adminSalesController.adminChartGraph.bind(adminSalesController))
-router.get('/get/admin/report', authenticateToken, adminSalesController.adminSalesReport.bind(adminSalesController))
+router.get('/get/admin/dashboard',authenticateBlackList, authenticateToken, adminSalesController.adminDashboard.bind(adminSalesController))
+router.get('/get/admin/chart/graph/data',authenticateBlackList, authenticateToken, adminSalesController.adminChartGraph.bind(adminSalesController))
+router.get('/get/admin/report',authenticateBlackList, authenticateToken, adminSalesController.adminSalesReport.bind(adminSalesController))
+
+
+
+
+
 
 
 

@@ -35,6 +35,15 @@ export default class AdminStudentServices {
         }
     }
 
+    async addTokens(accessToken: any, refreshToken: any): Promise<any> {
+        try {
+            const addToken = await this.adminStudentRepository.addToken(accessToken, refreshToken)
+            return addToken
+        } catch (error: unknown) {
+            throw error
+        }
+    }
+
 }
 
 const adminStudentRepository = new AdminStudentRepository()

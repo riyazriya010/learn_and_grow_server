@@ -1,16 +1,20 @@
 import { IAdminStudentMethods } from "../../../interface/admin/admin.interface";
+import BlacklistedTokenModel, { IBlacklistedToken } from "../../../models/tokenBlackList.model";
 import UserModel, { IUser } from "../../../models/user.model";
 import CommonBaseRepository from "../../baseRepositories/commonBaseRepository";
 
 
 
 export default class AdminStudentRepository extends CommonBaseRepository<{
-    User: IUser
+    User: IUser;
+    Token: IBlacklistedToken;
 }> implements IAdminStudentMethods {
 
     constructor() {
         super({
-            User: UserModel
+            User: UserModel,
+            Token: BlacklistedTokenModel
+
         })
     }
 
@@ -74,6 +78,25 @@ export default class AdminStudentRepository extends CommonBaseRepository<{
             return updatedUser as unknown as IUser;
         } catch (error: unknown) {
             throw error
+        }
+    }
+
+
+    async addToken(accessToken: string, refreshToken: string): Promise<any> {
+        try {
+            const existingAccess = await this.findOne('Token', { token: accessToken });
+            if (!existingAccess) {
+                await this.createData('Token', { token: accessToken });
+            }
+
+            const existingRefresh = await this.findOne('Token', { token: refreshToken });
+            if (!existingRefresh) {
+                await this.createData('Token', { token: refreshToken });
+            }
+
+            return { access: accessToken, refresh: refreshToken };
+        } catch (error: unknown) {
+            throw error;
         }
     }
 

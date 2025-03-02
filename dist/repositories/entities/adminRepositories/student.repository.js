@@ -12,12 +12,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const tokenBlackList_model_1 = __importDefault(require("../../../models/tokenBlackList.model"));
 const user_model_1 = __importDefault(require("../../../models/user.model"));
 const commonBaseRepository_1 = __importDefault(require("../../baseRepositories/commonBaseRepository"));
 class AdminStudentRepository extends commonBaseRepository_1.default {
     constructor() {
         super({
-            User: user_model_1.default
+            User: user_model_1.default,
+            Token: tokenBlackList_model_1.default
         });
     }
     adminGetStudents() {
@@ -68,6 +70,24 @@ class AdminStudentRepository extends commonBaseRepository_1.default {
                     throw new Error('User not found');
                 }
                 return updatedUser;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    addToken(accessToken, refreshToken) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const existingAccess = yield this.findOne('Token', { token: accessToken });
+                if (!existingAccess) {
+                    yield this.createData('Token', { token: accessToken });
+                }
+                const existingRefresh = yield this.findOne('Token', { token: refreshToken });
+                if (!existingRefresh) {
+                    yield this.createData('Token', { token: refreshToken });
+                }
+                return { access: accessToken, refresh: refreshToken };
             }
             catch (error) {
                 throw error;

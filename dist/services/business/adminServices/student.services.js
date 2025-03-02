@@ -51,6 +51,17 @@ class AdminStudentServices {
             }
         });
     }
+    addTokens(accessToken, refreshToken) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const addToken = yield this.adminStudentRepository.addToken(accessToken, refreshToken);
+                return addToken;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
 }
 exports.default = AdminStudentServices;
 const adminStudentRepository = new student_repository_1.default();

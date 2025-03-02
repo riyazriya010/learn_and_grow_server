@@ -11,39 +11,40 @@ const course_controller_1 = require("../controllers/management/adminControllers/
 const category_controller_1 = require("../controllers/management/adminControllers/category.controller");
 const badge_controller_1 = require("../controllers/management/adminControllers/badge.controller");
 const sales_controller_1 = require("../controllers/management/adminControllers/sales.controller");
+const authenticate_1 = __importDefault(require("../middleware/authenticate"));
 const router = (0, express_1.Router)();
 //Amin Student Routes
 router.post('/admin/login', student_controller_1.adminStudentController.adminLogin.bind(student_controller_1.adminStudentController));
-router.get('/get/users', verifyToken_1.default, student_controller_1.adminStudentController.adminGetStudents.bind(student_controller_1.adminStudentController));
-router.patch('/block/user', verifyToken_1.default, student_controller_1.adminStudentController.adminBlockStudent.bind(student_controller_1.adminStudentController));
-router.patch('/unblock/user', verifyToken_1.default, student_controller_1.adminStudentController.adminUnBlockStudent.bind(student_controller_1.adminStudentController));
-router.post('/admin/logout', verifyToken_1.default, student_controller_1.adminStudentController.adminLogout.bind(student_controller_1.adminStudentController));
+router.get('/get/users', authenticate_1.default, verifyToken_1.default, student_controller_1.adminStudentController.adminGetStudents.bind(student_controller_1.adminStudentController));
+router.patch('/block/user', authenticate_1.default, verifyToken_1.default, student_controller_1.adminStudentController.adminBlockStudent.bind(student_controller_1.adminStudentController));
+router.patch('/unblock/user', authenticate_1.default, verifyToken_1.default, student_controller_1.adminStudentController.adminUnBlockStudent.bind(student_controller_1.adminStudentController));
+router.post('/admin/logout', student_controller_1.adminStudentController.adminLogout.bind(student_controller_1.adminStudentController));
 //Amin Mentor Routes
-router.get('/get/mentors', verifyToken_1.default, mentor_controller_1.adminMentorController.adminGetMentors.bind(mentor_controller_1.adminMentorController));
-router.patch('/block/mentor', verifyToken_1.default, mentor_controller_1.adminMentorController.adminBlockMentor.bind(mentor_controller_1.adminMentorController));
-router.patch('/unblock/mentor', verifyToken_1.default, mentor_controller_1.adminMentorController.adminUnBlockMentor.bind(mentor_controller_1.adminMentorController));
+router.get('/get/mentors', authenticate_1.default, verifyToken_1.default, mentor_controller_1.adminMentorController.adminGetMentors.bind(mentor_controller_1.adminMentorController));
+router.patch('/block/mentor', authenticate_1.default, verifyToken_1.default, mentor_controller_1.adminMentorController.adminBlockMentor.bind(mentor_controller_1.adminMentorController));
+router.patch('/unblock/mentor', authenticate_1.default, verifyToken_1.default, mentor_controller_1.adminMentorController.adminUnBlockMentor.bind(mentor_controller_1.adminMentorController));
 //Admin Course Routes
-router.get(`/get/all-course`, verifyToken_1.default, course_controller_1.adminCourseController.adminGetAllCourse.bind(course_controller_1.adminCourseController));
-router.patch(`/unlist/course`, verifyToken_1.default, course_controller_1.adminCourseController.adminUnListCourse.bind(course_controller_1.adminCourseController));
-router.patch(`/list/course`, verifyToken_1.default, course_controller_1.adminCourseController.adminListCourse.bind(course_controller_1.adminCourseController));
-router.get('/get/non-approved/courses', verifyToken_1.default, course_controller_1.adminCourseController.adminNonApprovedCourse.bind(course_controller_1.adminCourseController));
-router.get('/get/non-approved/course-details', verifyToken_1.default, course_controller_1.adminCourseController.adminNonApprovedCourseDetails.bind(course_controller_1.adminCourseController));
-router.patch('/approve/course', verifyToken_1.default, course_controller_1.adminCourseController.adminApproveCourse.bind(course_controller_1.adminCourseController));
-router.get('/get/wallet', verifyToken_1.default, course_controller_1.adminCourseController.adminGetWallet.bind(course_controller_1.adminCourseController));
+router.get(`/get/all-course`, authenticate_1.default, verifyToken_1.default, course_controller_1.adminCourseController.adminGetAllCourse.bind(course_controller_1.adminCourseController));
+router.patch(`/unlist/course`, authenticate_1.default, verifyToken_1.default, course_controller_1.adminCourseController.adminUnListCourse.bind(course_controller_1.adminCourseController));
+router.patch(`/list/course`, authenticate_1.default, verifyToken_1.default, course_controller_1.adminCourseController.adminListCourse.bind(course_controller_1.adminCourseController));
+router.get('/get/non-approved/courses', authenticate_1.default, verifyToken_1.default, course_controller_1.adminCourseController.adminNonApprovedCourse.bind(course_controller_1.adminCourseController));
+router.get('/get/non-approved/course-details', authenticate_1.default, verifyToken_1.default, course_controller_1.adminCourseController.adminNonApprovedCourseDetails.bind(course_controller_1.adminCourseController));
+router.patch('/approve/course', authenticate_1.default, verifyToken_1.default, course_controller_1.adminCourseController.adminApproveCourse.bind(course_controller_1.adminCourseController));
+router.get('/get/wallet', authenticate_1.default, verifyToken_1.default, course_controller_1.adminCourseController.adminGetWallet.bind(course_controller_1.adminCourseController));
 //Admin Category
-router.post(`/add/category`, verifyToken_1.default, category_controller_1.adminCategoryController.adminAddCategory.bind(category_controller_1.adminCategoryController));
-router.patch(`/edit/category`, verifyToken_1.default, category_controller_1.adminCategoryController.adminEditCategory.bind(category_controller_1.adminCategoryController));
-router.patch('/unList/category', verifyToken_1.default, category_controller_1.adminCategoryController.adminUnListCategory.bind(category_controller_1.adminCategoryController));
-router.patch('/list/category', verifyToken_1.default, category_controller_1.adminCategoryController.adminListCategory.bind(category_controller_1.adminCategoryController));
-router.get(`/get/categories`, verifyToken_1.default, category_controller_1.adminCategoryController.adminGetAllCategory.bind(category_controller_1.adminCategoryController));
+router.post(`/add/category`, authenticate_1.default, verifyToken_1.default, category_controller_1.adminCategoryController.adminAddCategory.bind(category_controller_1.adminCategoryController));
+router.patch(`/edit/category`, authenticate_1.default, verifyToken_1.default, category_controller_1.adminCategoryController.adminEditCategory.bind(category_controller_1.adminCategoryController));
+router.patch('/unList/category', authenticate_1.default, verifyToken_1.default, category_controller_1.adminCategoryController.adminUnListCategory.bind(category_controller_1.adminCategoryController));
+router.patch('/list/category', authenticate_1.default, verifyToken_1.default, category_controller_1.adminCategoryController.adminListCategory.bind(category_controller_1.adminCategoryController));
+router.get(`/get/categories`, authenticate_1.default, verifyToken_1.default, category_controller_1.adminCategoryController.adminGetAllCategory.bind(category_controller_1.adminCategoryController));
 //Admin Badge
 router.post('/add/badge', badge_controller_1.adminBadgeController.adminAddBadge.bind(badge_controller_1.adminBadgeController));
 router.patch('/edit/badge/:badgeId', badge_controller_1.adminBadgeController.adminEditBadge.bind(badge_controller_1.adminBadgeController));
 router.get('/get/badges', badge_controller_1.adminBadgeController.adminGetBadges.bind(badge_controller_1.adminBadgeController));
 //Admin Sales
-router.get('/get/admin/dashboard', verifyToken_1.default, sales_controller_1.adminSalesController.adminDashboard.bind(sales_controller_1.adminSalesController));
-router.get('/get/admin/chart/graph/data', verifyToken_1.default, sales_controller_1.adminSalesController.adminChartGraph.bind(sales_controller_1.adminSalesController));
-router.get('/get/admin/report', verifyToken_1.default, sales_controller_1.adminSalesController.adminSalesReport.bind(sales_controller_1.adminSalesController));
+router.get('/get/admin/dashboard', authenticate_1.default, verifyToken_1.default, sales_controller_1.adminSalesController.adminDashboard.bind(sales_controller_1.adminSalesController));
+router.get('/get/admin/chart/graph/data', authenticate_1.default, verifyToken_1.default, sales_controller_1.adminSalesController.adminChartGraph.bind(sales_controller_1.adminSalesController));
+router.get('/get/admin/report', authenticate_1.default, verifyToken_1.default, sales_controller_1.adminSalesController.adminSalesReport.bind(sales_controller_1.adminSalesController));
 //Student Routes
 // router.post('/admin/login', adminController.adminLogin.bind(adminController))
 // router.get('/get/users',authenticateToken, adminController.getUsers.bind(adminController))

@@ -152,6 +152,7 @@ export default class StudentAuthServices {
             throw error
         }
     }
+    
 }
 
 
