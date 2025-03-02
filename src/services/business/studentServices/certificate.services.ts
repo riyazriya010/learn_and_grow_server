@@ -18,6 +18,7 @@ export default class StudentCertificateServices {
             throw error
         }
     }
+    
     async studentCreateCertificate(data: StudentCreateCreatificateData): Promise<ICertificate> {
         try {
             const createCertificate = await this.studentCertificateRepository.studentCreateCertificate(data)
