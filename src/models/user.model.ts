@@ -13,7 +13,6 @@ export interface IUser extends Document {
   studiedHours: number,
   isVerified: boolean,
   isBlocked: boolean,
-  version: string,
   lastLogin?: Date;
   createdAt?: Date,
   updatedAt?: Date
@@ -29,8 +28,7 @@ const UserSchema: Schema<IUser> = new Schema({
   studiedHours: { type: Number, required: true, default: 0 },
   lastLogin: { type: Date, default: Date.now },
   isVerified: { type: Boolean, required: true, default: false },
-  isBlocked: { type: Boolean, required: true, default: false },
-  version: { type: String, default: '0' },
+  isBlocked: { type: Boolean, required: true, default: false }
 },
 {
   timestamps: true

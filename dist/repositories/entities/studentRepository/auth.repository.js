@@ -253,7 +253,7 @@ class StudentAuthRepository extends commonBaseRepository_1.default {
             }
         });
     }
-    addToken(accessToken, refreshToken, studentId) {
+    addToken(accessToken, refreshToken) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const existingAccess = yield this.findOne('Token', { token: accessToken });
@@ -264,13 +264,6 @@ class StudentAuthRepository extends commonBaseRepository_1.default {
                 if (!existingRefresh) {
                     yield this.createData('Token', { token: refreshToken });
                 }
-                //Updating version
-                const findUser = yield this.findById('UserModel', studentId);
-                if (!findUser) {
-                    throw new Error('User not found');
-                }
-                const newVersion = (Number(findUser.version) + 1).toString();
-                yield this.updateById('UserModel', studentId, { version: newVersion });
                 return { access: accessToken, refresh: refreshToken };
             }
             catch (error) {

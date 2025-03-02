@@ -36,8 +36,8 @@ class StudentAuthController {
             try {
                 const { email, password } = req.body;
                 const loginUser = yield this.studentAuthServices.studentLogin(email, password);
-                const accessToken = yield this.jwtService.createToken(loginUser === null || loginUser === void 0 ? void 0 : loginUser._id, String(loginUser === null || loginUser === void 0 ? void 0 : loginUser.role), loginUser === null || loginUser === void 0 ? void 0 : loginUser.version);
-                const refreshToken = yield this.jwtService.createRefreshToken(loginUser === null || loginUser === void 0 ? void 0 : loginUser._id, String(loginUser === null || loginUser === void 0 ? void 0 : loginUser.role), loginUser === null || loginUser === void 0 ? void 0 : loginUser.version);
+                const accessToken = yield this.jwtService.createToken(loginUser === null || loginUser === void 0 ? void 0 : loginUser._id, String(loginUser === null || loginUser === void 0 ? void 0 : loginUser.role));
+                const refreshToken = yield this.jwtService.createRefreshToken(loginUser === null || loginUser === void 0 ? void 0 : loginUser._id, String(loginUser === null || loginUser === void 0 ? void 0 : loginUser.role));
                 return res
                     .status(200)
                     .cookie('accessToken', accessToken, {
@@ -335,8 +335,7 @@ class StudentAuthController {
             try {
                 const accessToken = req.cookies.accessToken;
                 const refreshToken = req.cookies.refreshToken;
-                const studentId = yield (0, getId_1.default)('accessToken', req);
-                const addToken = yield this.studentAuthServices.addTokens(accessToken, refreshToken, studentId);
+                const addToken = yield this.studentAuthServices.addTokens(accessToken, refreshToken);
                 console.log('tokens Added ::: ', addToken);
                 return res
                     .status(200)

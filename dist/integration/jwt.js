@@ -16,10 +16,10 @@ exports.JwtService = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const constants_1 = require("../utils/constants");
 class JwtService {
-    createToken(user, role, version) {
+    createToken(user, role) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const syncToken = yield jsonwebtoken_1.default.sign({ user, role, version }, String(constants_1.JWT_SECRET), { expiresIn: '2h' });
+                const syncToken = yield jsonwebtoken_1.default.sign({ user, role }, String(constants_1.JWT_SECRET), { expiresIn: '2h' });
                 return syncToken;
             }
             catch (error) {
@@ -27,10 +27,10 @@ class JwtService {
             }
         });
     }
-    createRefreshToken(user, role, version) {
+    createRefreshToken(user, role) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const syncToken = yield jsonwebtoken_1.default.sign({ user, role, version }, String(constants_1.JWT_SECRET), { expiresIn: '7d' });
+                const syncToken = yield jsonwebtoken_1.default.sign({ user, role }, String(constants_1.JWT_SECRET), { expiresIn: '7d' });
                 return syncToken;
             }
             catch (error) {

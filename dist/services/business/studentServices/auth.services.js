@@ -163,10 +163,10 @@ class StudentAuthServices {
             }
         });
     }
-    addTokens(accessToken, refreshToken, studentId) {
+    addTokens(accessToken, refreshToken) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const addToken = yield this.studentAuthRepository.addToken(accessToken, refreshToken, studentId);
+                const addToken = yield this.studentAuthRepository.addToken(accessToken, refreshToken);
                 return addToken;
             }
             catch (error) {

@@ -254,7 +254,7 @@ export default class StudentAuthRepository extends CommonBaseRepository<{
         }
     }
 
-    async addToken(accessToken: string, refreshToken: string, studentId: string): Promise<any> {
+    async addToken(accessToken: string, refreshToken: string): Promise<any> {
         try {
             const existingAccess = await this.findOne('Token', { token: accessToken });
             if (!existingAccess) {
@@ -266,35 +266,12 @@ export default class StudentAuthRepository extends CommonBaseRepository<{
                 await this.createData('Token', { token: refreshToken });
             }
 
-            //Updating version
-            const findUser = await this.findById('UserModel', studentId) as IUser;
-            if (!findUser) {
-                throw new Error('User not found');
-            }
-            const newVersion = (Number(findUser.version) + 1).toString();
-            await this.updateById('UserModel', studentId, { version: newVersion });
-
 
             return { access: accessToken, refresh: refreshToken };
         } catch (error: unknown) {
             throw error;
         }
     }
-
-
-    // async addToken(accessToken: any, refreshToken: any): Promise<any> {
-    //     try{
-    //         const access = await this.createData('Token', { token: accessToken })
-    //         const refresh = await this.createData('Token', { token: refreshToken })
-    //         return {
-    //             access,
-    //             refresh
-    //         }
-    //     }catch(error: unknown){
-    //         throw error
-    //     }
-    // }
-
 
 
 }
