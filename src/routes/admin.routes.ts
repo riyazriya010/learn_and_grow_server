@@ -47,9 +47,9 @@ router.get(`/get/categories`,authenticateBlackList, authenticateToken, adminCate
 
 
 //Admin Badge
-router.post('/add/badge', adminBadgeController.adminAddBadge.bind(adminBadgeController))
-router.patch('/edit/badge/:badgeId', adminBadgeController.adminEditBadge.bind(adminBadgeController))
-router.get('/get/badges', adminBadgeController.adminGetBadges.bind(adminBadgeController))
+router.post('/add/badge',authenticateBlackList, authenticateToken, adminBadgeController.adminAddBadge.bind(adminBadgeController))
+router.patch('/edit/badge/:badgeId',authenticateBlackList, authenticateToken, adminBadgeController.adminEditBadge.bind(adminBadgeController))
+router.get('/get/badges',authenticateBlackList, authenticateToken, adminBadgeController.adminGetBadges.bind(adminBadgeController))
 
 
 //Admin Sales

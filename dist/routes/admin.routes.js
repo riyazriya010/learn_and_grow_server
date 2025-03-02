@@ -38,9 +38,9 @@ router.patch('/unList/category', authenticate_1.default, verifyToken_1.default, 
 router.patch('/list/category', authenticate_1.default, verifyToken_1.default, category_controller_1.adminCategoryController.adminListCategory.bind(category_controller_1.adminCategoryController));
 router.get(`/get/categories`, authenticate_1.default, verifyToken_1.default, category_controller_1.adminCategoryController.adminGetAllCategory.bind(category_controller_1.adminCategoryController));
 //Admin Badge
-router.post('/add/badge', badge_controller_1.adminBadgeController.adminAddBadge.bind(badge_controller_1.adminBadgeController));
-router.patch('/edit/badge/:badgeId', badge_controller_1.adminBadgeController.adminEditBadge.bind(badge_controller_1.adminBadgeController));
-router.get('/get/badges', badge_controller_1.adminBadgeController.adminGetBadges.bind(badge_controller_1.adminBadgeController));
+router.post('/add/badge', authenticate_1.default, verifyToken_1.default, badge_controller_1.adminBadgeController.adminAddBadge.bind(badge_controller_1.adminBadgeController));
+router.patch('/edit/badge/:badgeId', authenticate_1.default, verifyToken_1.default, badge_controller_1.adminBadgeController.adminEditBadge.bind(badge_controller_1.adminBadgeController));
+router.get('/get/badges', authenticate_1.default, verifyToken_1.default, badge_controller_1.adminBadgeController.adminGetBadges.bind(badge_controller_1.adminBadgeController));
 //Admin Sales
 router.get('/get/admin/dashboard', authenticate_1.default, verifyToken_1.default, sales_controller_1.adminSalesController.adminDashboard.bind(sales_controller_1.adminSalesController));
 router.get('/get/admin/chart/graph/data', authenticate_1.default, verifyToken_1.default, sales_controller_1.adminSalesController.adminChartGraph.bind(sales_controller_1.adminSalesController));
